@@ -17,23 +17,23 @@ normalize -> False | True：以第一个节点作为顶节点
 import pygraphviz as pgv
 
 G = pgv.AGraph(directed=True, strict=False, ranksep=0.2, 
-               splines="spline", rankdir = "LR", concentrate=True)
+               splines="spline", rankdir = "TB", concentrate=True)
 
-a0 = "Numerical wildfire spreading prediction model"
+a0 = "Numerical Wildfire Spreading Predictors"
 
-a1 = "Pysical and chemical phynomena based model"
-a2 = "Empirical rate of spread (RoS) model"
+a1 = "Pysical and Chemical Phynomena-based Models"
+a2 = "Empirical Rate of Spread (RoS) Models"
 
-a11 = "Computational-fluid-dynamics (CFD) model"
+a11 = "Computational-fluid-dynamics (CFD) Models"
 a12 = "..."
 
-a21 = "Fire area simulator (FARSITE)"
-a22 = "Cellular automata model"
+a21 = "Fire Area Simulator (FARSITE)"
+a22 = "Cellular Automata Model"
 a23 = "... "
 
-a211 = "Kalman filter and atmosphere-coupled mdoel"
-a212 = "Fire fronts meansurement-based model"
-a213 = "Global optimization enhanced model"
+a211 = "Kalman Filter and Atmosphere-coupled"
+a212 = "Fire Fronts Meansurement-based"
+a213 = "Global Optimization Enhanced"
 a214 = "...  "
 
 G.add_nodes_from([a0, a1, a2, a11, a12, a21, a22, a23, a211, a212, a213, a214],

@@ -17,19 +17,19 @@ normalize -> False | True：以第一个节点作为顶节点
 import pygraphviz as pgv
 
 G = pgv.AGraph(directed=True, strict=False, ranksep=0.2, 
-               splines="spline", rankdir = "LR", concentrate=True)
+               splines="spline", rankdir = "TB", concentrate=True)
 
-a0 = "Visual object tracking models"
+a0 = "Visual Object Tracking (VOT) Models"
 
-a1 = "Generative models"
-a2 = "Discriminative models"
+a1 = "Generative Models"
+a2 = "Discriminative Models"
 
 a11 = "Kalman Filter"
 a12 = "Partical Filter"
 a13 = "Mean-shift"
 a14 = "..."
 
-a21 = ""
+a21 = "Corelation Filter"
 a22 = "Deep ConvNet"
 a23 = "... "
 
@@ -38,18 +38,21 @@ a212 = "CN"
 a213 = "DSST"
 a214 = "...  "
 
-G.add_nodes_from([a0, a1, a2, a11, a12, a21, a22, a23, a211, a212, a213, a214],
+G.add_nodes_from([a0, 
+                  a1, a2, 
+                  a11, a12, a13, a14,
+                  a21, a22, a23,
+                  a211, a212, a213, a214],
                   shape = "polygen", style = "solid")
 
 G.add_edges_from([[a0, a1], [a0, a2],
-                  [a1, a11], [a1, a12],
+                  [a1, a11], [a1, a12], [a1, a13], [a1, a14],
                   [a2, a21], [a2, a22], [a2, a23],
                   [a21, a211],[a21, a212], [a21, a213], [a21, a214]],
                   arrowsize=0.8)
 
 G.layout()
-G.draw("figurespreadmodel.png", prog="dot")
-
+G.draw("figuretrackingmodel.png", prog="dot")
 
 
 
