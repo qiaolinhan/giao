@@ -1,7 +1,6 @@
 from  PIL import Image  
 import torch
 import math
-import torchviz
 import numpy as np
 
 img = Image.open("datas/wildfireeg001.jpg").convert("RGB")
