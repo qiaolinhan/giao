@@ -17,7 +17,7 @@ normalize -> False | True：以第一个节点作为顶节点
 import pygraphviz as pgv
 
 G = pgv.AGraph(directed=True, strict=False, ranksep=0.2, 
-               splines="spline", rankdir = "TB", concentrate=True)
+               splines="spline", rankdir = "LR", concentrate=True)
 
 a0 = "Visual Object Tracking (VOT) Models"
 
@@ -27,28 +27,37 @@ a2 = "Discriminative Models"
 a11 = "Kalman Filter"
 a12 = "Partical Filter"
 a13 = "Mean-shift"
-a14 = "..."
+a14 = "Cam-shit"
+a14 = "Optical Flow"
+a15 = "..."
 
 a21 = "Corelation Filter"
-a22 = "Deep ConvNet"
-a23 = "... "
+a22 = "Machine Learning Classifiers"
+a23 = "Deep ConvNet"
+a24 = "... "
 
 a211 = "KCF"
 a212 = "CN"
 a213 = "DSST"
 a214 = "...  "
 
+a221 = "Support Vevtor Machine (SVM)"
+a222 = "Random Forest"
+a223 = "...   "
+
 G.add_nodes_from([a0, 
                   a1, a2, 
-                  a11, a12, a13, a14,
-                  a21, a22, a23,
-                  a211, a212, a213, a214],
+                  a11, a12, a13, a14, a15,
+                  a21, a22, a23, a24,
+                  a211, a212, a213, a214,
+                  a221, a222, a223],
                   shape = "polygen", style = "solid")
 
 G.add_edges_from([[a0, a1], [a0, a2],
-                  [a1, a11], [a1, a12], [a1, a13], [a1, a14],
-                  [a2, a21], [a2, a22], [a2, a23],
-                  [a21, a211],[a21, a212], [a21, a213], [a21, a214]],
+                  [a1, a11], [a1, a12], [a1, a13], [a1, a14], [a1, a15],
+                  [a2, a21], [a2, a22], [a2, a23], [a2, a24],
+                  [a21, a211],[a21, a212], [a21, a213], [a21, a214],
+                  [a22, a221], [a22, a222], [a22, a223]],
                   arrowsize=0.8)
 
 G.layout()
