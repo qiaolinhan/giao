@@ -2,6 +2,7 @@ from  PIL import Image
 import torch
 import math
 import numpy as np
+import torchviz
 
 img = Image.open("datas/wildfireeg001.jpg").convert("RGB")
 img.resize((255, 255))
