@@ -50,3 +50,11 @@ Use `nn.Module` and `nn.Parameter` for clearer and more concise training loop
 
 ### Refactor using `nn.Linear`
 $ y = x * A^T + b$
+
+## 2021-11-5
+### Celluar Automata (CA)
+CA are (typically) spatially and temporally discrete. Cellls evolve in parallel at discrete time step  
+A CA consists of:
+* A grid cell
+* A set of states each cell can be in, e.g. burning, (heating,) not burning.
+* A set of rules to determine the evolution of the system based on the states each cell is in.
