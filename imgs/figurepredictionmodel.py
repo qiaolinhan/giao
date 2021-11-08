@@ -17,7 +17,7 @@ normalize -> False | True：以第一个节点作为顶节点
 import pygraphviz as pgv
 
 G = pgv.AGraph(directed=True, strict=False, ranksep=0.2, 
-               splines="spline", rankdir = "TB", concentrate=True)
+               splines="spline", rankdir = "LR", concentrate=True)
 
 a0 = "Numerical Wildfire Spreading Predictors"
 
