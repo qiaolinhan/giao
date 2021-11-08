@@ -22,31 +22,43 @@ G = pgv.AGraph(directed=True, strict=False, ranksep=0.2,
 a0 = "Numerical Wildfire Spreading Predictors"
 
 a1 = "Pysical and Chemical Phynomena-based Models"
-a2 = "Empirical Rate of Spread (RoS) Models"
+a2 = "Mathematical Models"
 
 a11 = "Computational-fluid-dynamics (CFD) Models"
 a12 = "..."
 
 a21 = "Fire Area Simulator (FARSITE)"
-a22 = "Cellular Automata Model"
-a23 = "... "
+a22 = "Grid-based Models "
+a23 = "Continuous Plane-based Models"
+a24 = "Fuzzy/Neural Models"
+a25 = "... "
 
 a211 = "Kalman Filter and Atmosphere-coupled"
 a212 = "Fire Fronts Meansurement-based"
 a213 = "Global Optimization Enhanced"
 a214 = "...  "
 
-G.add_nodes_from([a0, a1, a2, a11, a12, a21, a22, a23, a211, a212, a213, a214],
+a221 = "Celluar Automata"
+a222 = "Bond-percolation Method"
+a223 = "...   "
+
+
+
+G.add_nodes_from([a0, a1, a2, a11, a12, 
+                  a21, a22, a23, a24, a25,
+                  a211, a212, a213, a214,
+                  a221, a222, a223],
                   shape = "polygen", style = "solid")
 
 G.add_edges_from([[a0, a1], [a0, a2],
                   [a1, a11], [a1, a12],
-                  [a2, a21], [a2, a22], [a2, a23],
-                  [a21, a211],[a21, a212], [a21, a213], [a21, a214]],
+                  [a2, a21], [a2, a22], [a2, a23], [a2, a24], [a2, a25],
+                  [a21, a211],[a21, a212], [a21, a213], [a21, a214],
+                  [a22, a221], [a22, a222], [a22, a223]],
                   arrowsize=0.8)
 
 G.layout()
-G.draw("figurespreadmodel.png", prog="dot")
+G.draw("figurepredictionmodel.png", prog="dot")
 
 
 
