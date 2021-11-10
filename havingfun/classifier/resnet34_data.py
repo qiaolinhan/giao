@@ -10,7 +10,7 @@ root_dir = '/home/qiao/dev/giao/dataset/imgs/M300test01/trainused/'
 
 # define the training transforms and augmentations
 train_transform = transforms.Compose([
-    transforms.Resize(224),
+    transforms.Resize((255, 255)),
     transforms.RandomHorizontalFlip(p=0.5),
     transforms.RandomVerticalFlip(p=0.5),
     transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
@@ -22,7 +22,7 @@ train_transform = transforms.Compose([
     )
 ])
 valid_transform = transforms.Compose([
-    transforms.Resize((224, 224)),
+    transforms.Resize((255, 255)),
     transforms.ToTensor(),
     transforms.Normalize(
         mean=[0.485, 0.456, 0.406],

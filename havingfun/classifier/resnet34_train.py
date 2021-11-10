@@ -8,12 +8,13 @@ from resnet34_data import train_loader, valid_loader, dataset
 from tqdm.auto import tqdm
 # construct the argument parser
 parser = argparse.ArgumentParser()
-parser.add_argument('-e', '--epochs', type=int, default=20,
+parser.add_argument('-e', '--epochs', type=int, default=10,
     help='number of epochs to train our network for')
 args = vars(parser.parse_args())
 
-# learning_parameters 
+# learning rate
 lr = 1e-4
+
 epochs = args['epochs']
 device = ('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Computation device: {device}\n")
