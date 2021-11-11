@@ -1,4 +1,3 @@
-# to build a resnet34-based classifier to recognize the image types which consist of: Normal, Smoke, Flame
 import torch
 import torch.nn as nn
 from torch.nn.modules.activation import ReLU
@@ -55,9 +54,9 @@ class Block(nn.Module):
 class Resnet34(nn.Module):
     def __init__(self, img_channels, num_classes):
         super(Resnet34, self).__init__()
-        structure = [3, 4, 6, 3]
         self.inputconv = Conv0(img_channels, out_channels = 64)
 
+        structure = [3, 4, 6, 3]
         self.layer1 = nn.ModuleList(Block(in_channels=64, out_channels=64) for i in range(structure[0]))
         self.layer2 = nn.ModuleList(Block(in_channels=64, out_channels=128) for i in range(structure[1]))
         self.layer3 = nn.ModuleList(Block(in_channels=128, out_channels=256) for i in range(structure[2]))
@@ -69,7 +68,7 @@ class Resnet34(nn.Module):
     def forward(self, x):
         input = self.inputconv(x)
 
-        residual1= self.layer1(input)
+        residual1 = self.layer1(input)
         residual2 = self.layer2(residual1)
         residual3 = self.layer3(residual2)
         residual4 = self.layer4(residual3)
