@@ -19,49 +19,54 @@ import pygraphviz as pgv
 G = pgv.AGraph(directed=True, strict=False, ranksep=0.2, 
                splines="spline", rankdir = "LR", concentrate=True)
 
-a0 = "Visual Object Tracking (VOT) Models"
+a0 = "DNN-based Tracker"
 
-a1 = "Generative Models"
-a2 = "Discriminative Models"
+a1 = "Feature Learning"
+a2 = "Data Association (Multi-object Tracking)"
+a3 ="End-to-End Tracking"
+a4 = "State Prediction"
+a5 = "State Update"
 
-a11 = "Kalman Filter"
-a12 = "Partical Filter"
-a13 = "Mean-shift"
-a14 = "Cam-shit"
-a14 = "Optical Flow"
-a15 = "..."
+a11 = "Denoising Autoencoder (DAE)"
+a12 = "VGG"
+a13 = "..."
 
-a21 = "Corelation Filter"
-a22 = "Machine Learning Classifiers"
-a23 = "Deep ConvNet"
+a21 = "Siamese instance Search Tracker (SINT)"
+a22 = "Twin-architecture Siamese Network + Optical Flow"
+a23 = "Two-stream DNN"
 a24 = "... "
 
-a211 = "KCF"
-a212 = "CN"
-a213 = "DSST"
-a214 = "...  "
+a31 = "Multi-Domain Network (MDNet)"
+a32 = "You Only Look Once & Recurrent Neural Network (ROLO)"
+a33 = "...  "
 
-a221 = "Support Vevtor Machine (SVM)"
-a222 = "Random Forest"
-a223 = "...   "
+a41 = "Behavior-CNN"
+a42 = "Social-LSTM"
+a43 = "Dynamic Occupancy Grid Map (DOGMa)"
+a44 = "...   "
+
+a51 = "Kalman Filter/ Partical Filter"
+a52 = "...    "
 
 G.add_nodes_from([a0, 
-                  a1, a2, 
-                  a11, a12, a13, a14, a15,
+                  a1, a2, a3, a4, a5,
+                  a11, a12, a13,
                   a21, a22, a23, a24,
-                  a211, a212, a213, a214,
-                  a221, a222, a223],
+                  a31, a32, a33,
+                  a41, a42, a43, a44,
+                  a51, a52],
                   shape = "polygen", style = "solid")
 
-G.add_edges_from([[a0, a1], [a0, a2],
-                  [a1, a11], [a1, a12], [a1, a13], [a1, a14], [a1, a15],
+G.add_edges_from([[a0, a1], [a0, a2], [a0, a3], [a0, a4], [a0, a5],
+                  [a1, a11], [a1, a12], [a1, a13],
                   [a2, a21], [a2, a22], [a2, a23], [a2, a24],
-                  [a21, a211],[a21, a212], [a21, a213], [a21, a214],
-                  [a22, a221], [a22, a222], [a22, a223]],
+                  [a3, a31], [a3, a32], [a3, a33],
+                  [a4, a41], [a4, a42], [a4, a43], [a4, a44],
+                  [a5, a51], [a5, a52]],
                   arrowsize=0.8)
 
 G.layout()
-G.draw("figuretrackingmodel.png", prog="dot")
+G.draw("figureDNNtrackingmodel.png", prog="dot")
 
 
 
