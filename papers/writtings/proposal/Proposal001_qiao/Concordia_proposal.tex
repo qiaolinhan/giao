@@ -1,0 +1,73 @@
+\documentclass[letter, 12pt]{article}
+\usepackage{latexsym}
+\usepackage{amssymb,amsmath}
+\usepackage[pdftex]{graphicx}
+\usepackage{url}
+\usepackage{mathtools}
+\usepackage[square, numbers, comma,sort&compress]{natbib}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usepackage{upgreek}
+\usepackage{multirow} 
+\usepackage{setspace} 
+\usepackage{datetime}
+\usepackage[colorlinks,linkcolor=black,anchorcolor=blue,citecolor=blue]{hyperref}
+\usepackage{bm}
+\usepackage{threeparttable}
+\usepackage{booktabs}
+\usepackage[margin=2cm]{geometry}
+\usepackage{xcolor}
+\usepackage{subcaption}
+\usepackage{colortbl}
+\usepackage{multirow}
+\definecolor{mygray}{gray}{.9}
+% \usepackage{pdfpages}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{setspace}
+
+% 添加行距
+\setstretch{1.5}
+
+% keywords command
+\providecommand{\keywords}[1]
+{
+  \small	
+  \textbf{\textit{Keywords---}} #1
+}
+
+\include{format}
+
+\pagenumbering{gobble}
+
+\begin{document}
+
+\include{./title/Title}
+\pagenumbering{roman}
+\include{./section/0_abstract}
+
+\tableofcontents
+
+\newpage
+\setcounter{page}{1} %set the start number is 2 from this page
+\pagenumbering{arabic}% Arabic page numbers (and reset to 1)
+\input{./section/1_introduction}
+\input{./section/2_related_works}
+\input{./section/3_objectives}
+\input{./section/4_methodologies}
+\input{./section/5_timeline}
+\input{./section/6_conclusion}
+
+\newpage
+\small
+\bibliographystyle{IEEEtran}
+\bibliography{reference}
+
+\newpage
+\pagenumbering{Roman}
+\input{./section/z_appendix}
+
+
+
+\end{document}

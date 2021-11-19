@@ -1,0 +1,12 @@
+\section{Scope and Objectives}
+The mainly focus goals of this research contain two parts: The first part is to use DNN-based models to save computational resources when detecting and predicting the wildfire. The second part is to design the tracking scheme for UAV or UAVs to track the suspected burning area in forest. Therefore, the proposed research plan is organized around the following objectives:\par
+\begin{itemize}
+    \item \textit{Detection and segmentation objective:} Considering DNN model as an efficient wildfire segmentation scheme, design and develop the detection network structure so that the parameters could be used more efficient.
+    \item \textit{Deployment objective:} Design and develop light network structure so that it could be deployed on-board with UAV or UAVs, so that the path planning algorithm and detection scheme could work on-board with acceptable FPS at mean time.
+    \item \textit{Optimization objective:} Develop and test the attention mechanism in segmentation networks to share the parameters. Compared with convolutional layers, it is found that attention layers are lower computational complex.
+    \item \textit{Prediction objective:} Based on FARSITE and cellular model, build a wildfire spreading model which could predict the wildfire under impacts of wind and slope with acceptable accuracy.
+    \item \textit{Coverage and tracking objective:} Design the tracker for UAV which could track wildfire spreading in safe and efficient distance.   
+\end{itemize}\par
+The proposed research in brief is expected to deploy the detection model on both UAV and ground work station. Considering the uncertain factors in forest environment, image restoration, prediction scheme, and UAV tracking should also be applied to support the detection. Because of the demand of early and accurate detection, DNNs is focused, as designed and developed for image restoration, detection, prediction and tracking. These strategies in this research and work are going to be demonstrated and verified through simulation and experiments through ground station computer and DJI M300 quad-copter equipped with H20T infrared camera.
+
+
