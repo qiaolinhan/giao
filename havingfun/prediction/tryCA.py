@@ -1,14 +1,27 @@
 # a grid of 100x00 cells
 # each cell can be in 5 states: clear, vegetation, heating, buruning, flamed
 # if cell is burning, it will ignite the heating around it.
+'''
+# cell states
+# 0 = clear, 1 = vegetation, 2 = heating, burning = 3, flamed = 4
+
+# rules
+# 0 --> 0, 2 --> 3, 3 --> 4, 4 --> 4
+
+# rate of spreading
+# if theta < pi/2: u = epsilon + alpha * \sqrt{v_wind * cos^n(theta)}
+# if theta > pi/2: u = epsilon * (beta + (1 - beta) * |sin(theta)|)
+# if sloppe: u = u * e^{2*slope}
+# params: epsilon, alpha, 
+# measurement: v_wind,  
+'''
+
 import numpy as np
 import imageio
 
-# cell states
-# 0 = clear, 1 = vegetation, 2 = heating, burning = 3, flamed = 4
-# probability of a cell can being fuel, or it is clear
-prob_f = 0.6
-p = [prob_f, 1-prob_f]
+P_o = 0.8 # P_original
+p = [P_o, 1-P_o]
+
 # simulation time
 total_time = 300
 # simulation size
