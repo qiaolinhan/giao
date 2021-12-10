@@ -26,7 +26,8 @@ valid_split = 0.2
 # batch size
 batch_size = 4
 # path to the data root directory
-root_dir = '/home/qiao/dev/giao/dataset/imgs/M300test01/trainused/'
+root_dir = '/home/qiaolinhan/dev/datas/M300C/'
+
 
 # define the training transforms and augmentations
 train_transform = transforms.Compose([
@@ -35,6 +36,12 @@ train_transform = transforms.Compose([
     transforms.RandomVerticalFlip(p=0.5),
     transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
     transforms.RandomRotation(degrees=(30, 70)),
+    # augmenting with brightness
+    transforms.ColorJitter(brightness=0.1),
+    # transforms.ColorJitter(contrast=0.2),
+    # transforms.ColorJitter(saturation=0.2),
+    # transforms.ColorJitter(hue=0.2),
+
     transforms.ToTensor(),
     transforms.Normalize(
         mean=[0.485, 0.456, 0.406],

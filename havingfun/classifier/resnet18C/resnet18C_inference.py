@@ -22,8 +22,8 @@ import torch
 import cv2
 import torchvision.transforms as transforms
 import argparse
-from resnet34_model import Resnet34
-# from resnet18_model import Resnet18
+# from resnet34_model import Resnet34
+from resnet18C_model import Resnet14C
 
 # construct the argument parser
 parser = argparse.ArgumentParser()
@@ -37,10 +37,10 @@ device = 'cpu'
 # list containing all the labels
 labels = ['fire', 'normal','smoke']
 # initialize the model and load the trained weights
-model = Resnet34(3, 3).to(device)
-# model = Resnet18(3, 3).to(device)
+# model = Resnet34(3, 3).to(device)
+model = Resnet14C(3, 3).to(device)
 print('[INFO]: Loading custom-trained weights...')
-checkpoint = torch.load('/home/qiao/dev/giao/havingfun/classifier/C_param_resnet34.pth', map_location=device)
+checkpoint = torch.load('/home/qiao/dev/giao/havingfun/classifier/Param_resnet18C_process.pth', map_location=device)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 # define preprocess transforms

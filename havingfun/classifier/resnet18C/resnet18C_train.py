@@ -9,7 +9,7 @@
 #
 #   @Author: Linhan Qiao
 #
-#   @Date: 2021-11-11
+#   @Date: 2021-12-04
 #
 #   @Email:
 #
@@ -22,10 +22,10 @@ import torch
 import argparse
 import torch.nn as nn
 import torch.optim as optim
-from resnet34_model import Resnet34
-# from resnet18_model import Resnet18
-from resnet34_utils import save_model, save_entire_model, save_plots
-from resnet34_data import train_loader, valid_loader, dataset
+# from resnet34_model import Resnet34
+from resnet18C_model import Resnet18C
+from resnet18C_utils import save_model, save_entire_model, save_plots
+from resnet18C_data import train_loader, valid_loader, dataset
 from tqdm.auto import tqdm
 
 # construct the argument parser
@@ -33,18 +33,18 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-e',
                     '--epochs',
                     type=int,
-                    default=14, # training epochs
+                    default=18, # training epochs
                     help='number of epochs to train our network for')
 args = vars(parser.parse_args())
 
 # learning rate
-lr = 1e-4
+lr = 1e-5
 epochs = args['epochs']
 device = ('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"Computation device: {device}\n")
 # build the model
-model = Resnet34(img_channels=3, num_classes=3)
-# model = Resnet18(img_channels=3, num_classes=3)
+# model = Resnet34(img_channels=3, num_classes=3)
+model = Resnet18C(img_channels=3, num_classes=3)
 model = model.to(device)
 # total parameters and trainable parameters
 total_params = sum(p.numel() for p in model.parameters())
@@ -118,7 +118,11 @@ def validate(model, testloader, criterion, class_names):
             valid_running_correct += (preds == labels).sum().item()
 
             # calculate the accuracy for each class
-            correct = (preds == labels).squeeze()
+
+            # New version of pytorch, should not squeeze it into 0-dim
+            # correct = (preds == labels).squeeze()
+            correct = (preds == labels)
+
             for i in range(len(preds)):
                 label = labels[i]
                 class_correct[label] += correct[i].item()

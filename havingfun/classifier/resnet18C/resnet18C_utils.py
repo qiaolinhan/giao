@@ -9,7 +9,7 @@
 #
 #   @Author: Linhan Qiao
 #
-#   @Date: 2021-11-11
+#   @Date: 2021-12-04
 #
 #   @Email: 
 #
@@ -30,7 +30,7 @@ def save_model(epochs, model, optimizer, criterion):
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': criterion,
-    }, 'C_processingparam_resnet34.pth')
+    }, 'Param_resnet18C_process_1e5.pth')
 
 def save_entire_model(epochs, model, optimizer, criterion):
     torch.save({
@@ -38,7 +38,7 @@ def save_entire_model(epochs, model, optimizer, criterion):
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
         'loss': criterion,
-    }, 'C_param_resnet34.pth')
+    }, 'Param_resnet18C_1e5_e18.pth')
 
 # save the figures of loss and accuracy
 def save_plots(train_acc, valid_acc, train_loss, valid_loss):
@@ -55,7 +55,7 @@ def save_plots(train_acc, valid_acc, train_loss, valid_loss):
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
-    plt.savefig('C_accuracy_resnet34.png')
+    plt.savefig('Acc_resnet18C_1e5_e18.png')
 
     # loss
     plt.figure(figsize=(10, 7))
@@ -70,5 +70,5 @@ def save_plots(train_acc, valid_acc, train_loss, valid_loss):
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
-    plt.savefig('C_loss_resnet34.png')
+    plt.savefig('Loss_resnet18C_1e5_e18.png')
 
