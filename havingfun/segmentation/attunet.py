@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, 'giao/havingfun/modules')
+sys.path.insert(0, 'giao/havingfun/common')
 
 from inout import Conv0, Conv_f
 from attentiongate import Attention_block
@@ -89,7 +89,7 @@ class attunet(nn.Module):
 if __name__ == '__main__':
 
     # batchsize = 1, channels = 3, inputsize = 255*255
-    img = torch.randn((4, 3, 254, 254))
+    img = torch.randn((4, 3, 255, 255))
     # model = Resnet34(img_channels=3, num_classes=3)
     model = attunet(in_channels=3, out_channels = 1)
     print(model.eval())

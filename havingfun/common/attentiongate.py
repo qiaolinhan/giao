@@ -33,3 +33,16 @@ class Attention_block(nn.Module):
         psi = self.psi(psi_in)
 
         return x *psi
+
+if __name__ == '__main__':
+
+    # batchsize = 1, channels = 128, inputsize = 255*255
+    feature_g = torch.randn((1, 128, 255, 255))
+    feature_x = torch.randn((1, 128, 255, 255))
+    # model = Resnet34(img_channels=3, num_classes=3)
+    model = Attention_block(F_g = 128, F_l = 128, F_int = 64)
+    print(model.eval())
+    preds = model(feature_g, feature_x)
+    print('input shape:', feature_x.shape)
+    print('preds shape:', preds.shape)
+

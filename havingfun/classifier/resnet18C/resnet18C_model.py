@@ -23,8 +23,8 @@ import torch.nn as nn
 # import commonly used modules
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, 'giao/havingfun/modules')
-from inconv import Conv0
+sys.path.insert(0, 'giao/havingfun/common')
+from inout import Conv0
 from doubleconv import Block
 
 
