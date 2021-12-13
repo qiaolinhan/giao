@@ -74,3 +74,26 @@ class KalmanFilter(object):
 
         return mean, covariance
 
+    def project(self, mean, covariance):
+        # project state distribution to measurement space
+        # mean covariance
+        # return: (ndarray, ndarray), returns the project mean and covariance matrix to the given state estimate.
+        std = [
+            self._std_weight_position * mean[3],
+            self._std_weight_position * mean[3],
+            1e-1,
+            self._std_weight_position * mean[3]
+        ]
+        innovation_cov = np.diag(np.square(std))
+
+        mean = np.dot(self._update_mat, mean)
+        covariance = np.linalg.multi_dot((
+            self._update_mat, covariance, self._update_mat.T
+        ))
+        return mean, covariance + innovation_cov
+
+    def update(self, mean, covariance, measurement):
+        # KF correction
+        # mean, covariance, measurement
+        # returns: (ndarray, ndarray), the measurement-corrected state distribution
+        projected_mean, projected_cov = self.project(mean, covariance)
