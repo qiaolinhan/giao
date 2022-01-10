@@ -17,30 +17,34 @@ normalize -> False | True：以第一个节点作为顶节点
 import pygraphviz as pgv
 
 G = pgv.AGraph(directed=True, strict=False, ranksep=0.2, 
-               splines="spline", rankdir = "TB", concentrate=True)
+               splines="ortho", rankdir = "TB", concentrate=True)
 
-a0 = "dataset"
+a0 = "Start"
+a1 = "UAV Patrolling"
 
-a1 = "1x1 Conv, ReLU"
+a2 = "Fire Front Tracking"
+a3 = "Smoke Detection"
+a4 ="Spreading Prediction"
 
-a11 = "1x1 Conv"
-a12 = "3x3 DepthWise Conv"
-a121 = "Channel Shufle"
-a111 = "."
+a5 = "Disaster Level Separating and Decision Making"
+a6 = "End"
 
-a2 = "Concatenates, ReLU"
-
-G.add_node(a0, shape = "cylinder", style = "solid")
-G.add_nodes_from([a1, a11, a12, a121, a2],
+G.add_nodes_from([a0, a1, a5, a6,],
                   shape = "polygen", style = "solid")
 
-G.add_edge([a0, a1], arrowsize = 0.8)
-G.add_edge([a1, a11], arrowsize = 0.8)
-G.add_edge([a1, a12], arrowsize = 0.8)
-G.add_edge([a12, a121], arrowsize = 0.8)
-G.add_edges_from([[a11, a2],[a121, a2]], arrowsize = 0.8)
+G.add_nodes_from([a2, a3, a4],
+                  shape = "polygen", style = "solid", color = "#58FF33")
 
-
+G.add_edges_from([[a0, a1], [a1, a3], [a3, a4], [a2, a5], [a3, a5], [a4, a5],
+                  [a5, a6]],
+                  arrowsize=0.3)
+G.add_edges_from([[a2, a3], [a2, a4]],
+                  arrowsize=0.3, dir = "both")
+                  
 
 G.layout()
-G.draw("figuresqueezenetflow.png", prog="dot")
+G.draw("figureflowchart.png", prog="dot")
+
+
+
+

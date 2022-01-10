@@ -62,7 +62,7 @@ def cal_distance(box1, box2):
     dis = ((center1[0] - center2[0]) ** 2 + (center1[1] - center2[1]) ** 2) **0.5
     return dis
 
-def uvuwh2uvuv(uvwh):
+def uvwh2uvuv(uvwh):
     u1 = uvwh[0] - uvwh[2]//2
     v1 = uvwh[1] - uvwh[3]//2
     u2 = uvwh[0] + uvwh[2]//2
