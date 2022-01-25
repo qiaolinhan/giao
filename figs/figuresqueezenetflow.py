@@ -24,7 +24,7 @@ a0 = "dataset"
 a1 = "1x1 Conv, ReLU"
 
 a11 = "1x1 Conv"
-a12 = "3x3 DeepWise Conv"
+a12 = "3x3 DepthWise Conv"
 a121 = "Channel Shufle"
 a111 = "."
 
