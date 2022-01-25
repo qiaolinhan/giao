@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import numpy as np
 import sys
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, 'giao/havingfun/common')
+sys.path.insert(0, 'giao/havingfun/dev/common')
 
 from inout import Conv0, Conv_f
 from attentiongate import Attention_block

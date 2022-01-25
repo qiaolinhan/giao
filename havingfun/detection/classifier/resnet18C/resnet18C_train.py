@@ -169,8 +169,6 @@ if __name__ == '__main__':
         save_model(epochs, model, optimizer, criterion)
         print('-' * 50)
 
-
-
     save_plots(train_acc, valid_acc, train_loss, valid_loss)
     save_entire_model(epochs, model, optimizer, criterion)
     print('TRAINING COMPLETE')
