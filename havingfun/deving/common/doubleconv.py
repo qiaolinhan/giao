@@ -32,3 +32,24 @@ class TBlock(nn.Module):
 
     def forward(self, x):
         return self.tblock(x)
+
+class Up_conv(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(Up_conv, self).__init__()
+        self.upconv = nn.Sequential(
+            nn.Upsample(scale_factor=2),
+            nn.Conv2d(in_channels, out_channels, kernel_size = 2, stride = 1, padding = 0, bias = False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace = True),
+        )
+
+    def forward(self, x):
+        return self.upconv(x)
+
+if __name__ == '__main__':
+    layer1 = Block(in_channels=3, out_channels=64)
+    layer2 = TBlock(in_channels=128, out_channels=64)
+    layer3 = Up_conv(in_channels=256, out_channels=128)
+    feature_in = torch.randn((4, 256, 255, 255))
+    feature_out = layer3(feature_in)
+    print(feature_out.shape)
