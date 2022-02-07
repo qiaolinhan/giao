@@ -9,15 +9,14 @@ sys.path.insert(0, '/home/qiao/dev/giao/havingfun/deving/common')
 from inout import Inputlayer, Outlayer
 from attentiongate import Attention_block
 from doubleconv import Block, TBlock, Up_conv
-
+from depthwise import DDepthwise, UDepthwise
 
 class LightUnet(nn.Module):
     def __init__(self, in_channels = 3, out_channels = 1, scale_factor = 1):
         super(LightUnet, self).__init__()
-
+        num = np.array([2, 2, 2, 2])
         filters = np.array([64, 128, 256, 512])
         filters = filters // scale_factor
-
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.scale_factor = scale_factor
@@ -25,24 +24,40 @@ class LightUnet(nn.Module):
 
         # down-sampling
         self.Conv0 = Inputlayer(in_channels, filters[0])
+        # self.Conv1 = Block(filters[0], filters[0])
+        # self.Conv2 = Block(filters[0], filters[1])
+        # self.Conv3 = Block(filters[1], filters[2])
 
-        self.Conv1 = Block(filters[0], filters[0])
-        self.Conv2 = Block(filters[0], filters[1])
-        self.Conv3 = Block(filters[1], filters[2])
-
-        # neck part
-        self.Neck = Block(filters[2], filters[3])
+        # self.down1 = nn.ModuleList()
+        # self.down1.append(DDepthwise(filters[0], filters[0]))
+        # self.down1.append(DDepthwise(filters[0], filters[0]))
+        self.down1 = nn.Sequential(
+                DDepthwise(filters[0], filters[0]),
+                DDepthwise(filters[0], filters[0])
+                )
+        self.down2 = nn.Sequential(
+                DDepthwise(filters[0], filters[1]),
+                DDepthwise(filters[1], filters[1])
+                )
+        self.down3 = nn.Sequential(
+                DDepthwise(filters[1], filters[2]),
+                DDepthwise(filters[2], filters[2])
+                )
+        self.neck = nn.Sequential(
+                DDepthwise(filters[2], filters[3]),
+                DDepthwise(filters[3], filters[3])
+                )
 
         # up_sampling
-        # self.Up3 = Up_conv(filters[3], filters[2])
+        self.Up3 = Up_conv(filters[3], filters[2])
         self.Att3 = Attention_block(filters[2], filters[3])
         self.up_conv3 = TBlock(filters[3], filters[2])
 
-        # self.Up2 = Up_conv(filters[2], filters[1])
+        self.Up2 = Up_conv(filters[2], filters[1])
         self.Att2 = Attention_block(filters[1], filters[2])
         self.up_conv2 = TBlock(filters[2], filters[1])
 
-        # self.Up1 = Up_conv(filters[1], filters[0])
+        self.Up1 = Up_conv(filters[1], filters[0])
         self.Att1 = Attention_block(filters[0], filters[1])
         self.up_conv1 = TBlock(filters[1], filters[0])
 
@@ -50,31 +65,36 @@ class LightUnet(nn.Module):
 
     def forward(self, x):
         x0 = self.Conv0(x)
-
-        x1 = self.Conv1(x0)
-        g1 = x1
-
+        print('input-c64 size :', x0.size())
+        x1 = self.down1(x0)
+        print('c64-c64 size:', x1.size())
         x2 = self.Maxpool(x1)
-        x2 = self.Conv2(x2)
-        g2 = x2
-
+        x2 = self.down2(x2)
+        print('c64-c128 size:', x2.size())
         x3 = self.Maxpool(x2)
-        x3 = self.Conv3(x3)
-        g3 = x3
+        x3 = self.down3(x3)
+        x_neck = self.Maxpool(x3)
+        print('c128-c256 size:', x3.size())
+        x_neck = self.neck(x_neck)
+        print('c256-c512 neck size:', x_neck.size())
+        gate3 = self.Att3(x3, x_neck)
+        print(gate3.size())     
+        _up3 = self.Up3(x_neck)
+        print(_up3.size())
+        up3 = torch.cat((gate3, _up3), 1)
+        up3 = self.up_conv3(up3)
 
-        x_neck = self.Neck(x3)
+        gate2 = self.Att2(x2, up3)
+        _up2 = self.Up2(up3)
+        up2 = torch.cat((gate2, _up2), 1)
+        up2 = self.up_conv2(up2)
 
-        gate3 = self.Att3(g3, x_neck)
-        # out = gate3
-        up3 = self.up_conv3(gate3)
+        gate1 = self.Att1(x1, up2)
+        _up1 = self.Up1(up2)
+        up1 = torch.cat((gate1, _up1), 1)
+        up1 = self.up_conv1(up1)
 
-        gate2 = self.Att2(g2, up3)
-        up2 = self.up_conv2(gate2)
-
-        gate1 = self.Att1(g1, up2)
-        up1 = self.up_conv1(gate1)
-
-        out = self.outlayer(up2)
+        out = self.outlayer(up1)
 
         return out
 
@@ -85,8 +105,8 @@ if __name__ == '__main__':
     model = LightUnet(in_channels=3, out_channels = 1)
     print(model.eval())
     preds = model(img)
-    print('input shape:', img.shape)
-    print('preds shape:', preds.shape)
+    print('input shape:', img.size())
+    print('preds shape:', preds.size())
 
 
 
