@@ -30,7 +30,7 @@ class Attention_block(nn.Module):
         # gl = self.phi(g)
         gl_size = gl.size()
 
-        print('xl_size:', (H, W), 'gl_size:', gl_size[2:])
+        # print('xl_size:', (H, W), 'gl_size:', gl_size[2:])
 
         psi_in = self.relu(xl + gl)
         psi = self.psi(psi_in)

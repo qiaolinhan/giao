@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import sys
+import torchvision.transforms.functional as TF
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(0, '/home/qiao/dev/giao/havingfun/deving/common')
 
@@ -86,11 +87,13 @@ class LightUnet(nn.Module):
 
         gate2 = self.Att2(x2, up3)
         _up2 = self.Up2(up3)
+        _up2 = TF.resize(_up2, size = gate2.shape[2:])
         up2 = torch.cat((gate2, _up2), 1)
         up2 = self.up_conv2(up2)
 
         gate1 = self.Att1(x1, up2)
         _up1 = self.Up1(up2)
+        _up1 = TF.resize(_up1, size = gate1.shape[2:])
         up1 = torch.cat((gate1, _up1), 1)
         up1 = self.up_conv1(up1)
 
@@ -104,6 +107,8 @@ if __name__ == '__main__':
     # model = Resnet34(img_channels=3, num_classes=3)
     model = LightUnet(in_channels=3, out_channels = 1)
     print(model.eval())
+    params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f'The depthwise seperable convolution uses {params} parameters.')
     preds = model(img)
     print('input shape:', img.size())
     print('preds shape:', preds.size())
