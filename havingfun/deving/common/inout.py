@@ -23,10 +23,11 @@ class Outlayer(nn.Module):
         super(Outlayer, self).__init__()
         # 1x1 Conv
         self.convf = nn.Conv2d(in_channels, out_channels, 1, 1, 0)
-    
+        self.sigmoid = nn.Sigmoid()
     def forward(self, x):
-        return self.convf(x)
-
+        y = self.convf(x)
+        y = self.sigmoid(y)
+        return y
 
 if __name__ == "__main__":
     layer1 = Inputlayer(in_channels=3, out_channels=64)

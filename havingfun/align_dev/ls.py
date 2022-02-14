@@ -22,19 +22,20 @@ q_rgb = np.vstack((q_rgb_2d, 1))
 print('q_irt', q_irt)
 print('q_irt.shape', q_irt.shape)
 # i += 1
-funcLine = lambda R, q_irt: np.dot(R, q_irt)
-func = funcLine
-Errorfunc = lambda R, q_ir_t, q_rgb: func(R, q_ir_t) - q_rgb
+R_init = np.random.rand(3, 4)
+np.dot(R_init, q_irt)
+print("dot pass!")
+
+Errorfunc = lambda R, q_irt, q_rgb: np.dot(R, q_irt) - q_rgb
 
 R_init = np.random.rand(3, 4)
-R_init = np.matrix(R_init.reshape(3,4))
-# print('R_init.shape', R_init.shape)
+print('R_init.shape', R_init.shape)
 
-# a = np.dot(R_init, q_irt)
-# print(a.shape)
+a = np.dot(R_init, q_irt)
+print(a.shape)
 
-# Rt_final, success = leastsq(Errorfunc, R_init, args = (q_irt, q_rgb))
-# print('final params', Rt_final)
+Rt_final, success = leastsq(Errorfunc, R_init, args = (q_irt, q_rgb))
+print('final params', Rt_final)
 
 
 
