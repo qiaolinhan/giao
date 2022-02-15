@@ -1,3 +1,4 @@
+from pickle import FALSE
 import torch
 from tqdm import tqdm
 import torch.nn as nn
@@ -15,12 +16,12 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 from lightdata import JinglingDataset
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
 # Hyperparameters etc.
 
-Learning_rate = 1e-5
+
 Batch_size = 4
 Num_workers = 2
 Image_hight = 400
@@ -44,23 +45,39 @@ parser.add_argument(
     '-t',
     '--troot',
     type = str,
-    default = '/home/qiao/dev/giao/dataset/imgs/Jingling',
-    help = 'Input the training dataset path'
+    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/images',
+    help = 'Input the image dataset path'
 )
 
 parser.add_argument(
     '-m',
     '--mroot',
     type = str,
-    default = '/home/qiao/dev/giao/dataset/imgs/Jingling',
+    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/masks',
     help = 'Input the mask dataset path'
+)
+
+parser.add_argument(
+    '-l',
+    '--lr',
+    type = float,
+    default = 1e-5,
+    help = 'Learning rate for training'
+)
+
+parser.add_argument(
+    '-load',
+    '--load',
+    default = FALSE,
+    help = 'Learning rate for training'
 )
 
 args = vars(parser.parse_args())
 Num_epochs = args['epochs']
 Img_dir = args['troot']
 Mask_dir = args['mroot']
-
+Learning_rate = args['lr']
+Load_model = args['load']
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Computation device: {Device}\n')
 
@@ -103,7 +120,9 @@ val_transform = A.Compose(
         ToTensorV2(), 
     ]
 )
-img, mask = JinglingDataset(Img_dir, Mask_dir)
+img, mask = JinglingDataset(img_dir = Img_dir,
+                            mask_dir = Mask_dir,
+                            )
 
 train_img, val_img, train_mask, val_mask = train_test_split(img, mask, 
                                                                 test_size=Valid_split,
@@ -113,10 +132,7 @@ def getloaders(
     train_img, val_img, train_mask, val_mask, batch_size,
     train_transform, val_transform, pin_memory=True, 
 ):
-    train_ds = JinglingDataset(
-        (train_img, train_mask),
-        transform = train_transform,
-    )
+    train_ds = ((train_img, train_mask), train_transform)
     train_loader = DataLoader(
         train_ds,
         batch_size = Batch_size,
@@ -124,10 +140,7 @@ def getloaders(
         pin_memory=pin_memory,
         shuffle=True,
     )
-    val_ds = JinglingDataset(
-        (val_img, val_mask),
-        transform=val_transform,
-    )
+    val_ds = ((val_img, val_mask), val_transform)
     val_loader = DataLoader(
         val_ds,
         batch_size=Batch_size,
