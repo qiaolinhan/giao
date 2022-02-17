@@ -1,4 +1,4 @@
-from pickle import FALSE
+from pickle import FALSE, TRUE
 import torch
 from tqdm import tqdm
 import torch.nn as nn
@@ -14,7 +14,7 @@ from lightutils import (
 import argparse
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-
+import numpy as np
 from lightdata import JinglingDataset
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
@@ -27,7 +27,7 @@ Num_workers = 2
 Image_hight = 400
 Image_weight = 400
 Pin_memory = True
-Load_model = False
+
 Valid_split = 0.2
 Modeluse = LightUnet
 
@@ -60,7 +60,7 @@ parser.add_argument(
 parser.add_argument(
     '-l',
     '--lr',
-    type = float,
+    type = np.float32,
     default = 1e-5,
     help = 'Learning rate for training'
 )
@@ -79,14 +79,14 @@ Mask_dir = args['mroot']
 Learning_rate = args['lr']
 Load_model = args['load']
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
-print(f'Computation device: {Device}\n')
+print(f'\nComputation device: {Device}\n')
 
 # load the model
 model = Modeluse(in_channels=3, out_channels=1)
 model.to(device = Device)
 
 total_params = sum(p.numel() for p in model.parameters())
-print(f'{total_params:,} total parameters.')
+print(f'There are {total_params:,} total parameters in the model.\n')
 # total_trainable_params = sum(p.numel() for p in model.parameters()
 #                                       if p.requires_grad)
 # print(f'{total_trainable_params:} total parameters need training.')
@@ -95,7 +95,7 @@ optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 loss_fn = nn.CrossEntropyLoss()
 
 
-train_transform = A.Compose(
+Train_transform = A.Compose(
         [
             A.Resize(height = Image_hight, width = Image_weight),
             A.Rotate(limit = 35, p = 1.0),
@@ -109,7 +109,7 @@ train_transform = A.Compose(
             ToTensorV2(),
         ]
     )
-val_transform = A.Compose(
+Val_transform = A.Compose(
     [
         A.Resize(height = Image_hight, width = Image_weight),
         A.Normalize(
@@ -120,19 +120,18 @@ val_transform = A.Compose(
         ToTensorV2(), 
     ]
 )
-img, mask = JinglingDataset(img_dir = Img_dir,
-                            mask_dir = Mask_dir,
-                            )
+datas = JinglingDataset(img_dir = Img_dir,mask_dir = Mask_dir)
 
-train_img, val_img, train_mask, val_mask = train_test_split(img, mask, 
-                                                                test_size=Valid_split,
-                                                                random_state=42
-    )
+train_data, val_data = train_test_split(datas, test_size=Valid_split, random_state=42)
+
+print(f'There are {len(train_data)} images for training, and {len(val_data)} images for validation.\n')
+
 def getloaders(
-    train_img, val_img, train_mask, val_mask, batch_size,
-    train_transform, val_transform, pin_memory=True, 
-):
-    train_ds = ((train_img, train_mask), train_transform)
+    train_data, val_data, 
+    train_transform, val_transform,
+    batch_size, pin_memory=True, 
+    ):
+    train_ds = (train_data, train_transform)
     train_loader = DataLoader(
         train_ds,
         batch_size = Batch_size,
@@ -140,7 +139,7 @@ def getloaders(
         pin_memory=pin_memory,
         shuffle=True,
     )
-    val_ds = ((val_img, val_mask), val_transform)
+    val_ds = (val_data, val_transform)
     val_loader = DataLoader(
         val_ds,
         batch_size=Batch_size,
@@ -151,28 +150,31 @@ def getloaders(
     return train_loader, val_loader
 
 train_loader, val_loader = getloaders(
-    Img_dir,
-    Mask_dir,
-    Batch_size,
+    train_data,
+    val_data,
+    train_transform = Train_transform,
+    val_transform = Val_transform,
+    batch_size = Batch_size,
     )
-
+print(enumerate(train_loader).size())
 def train_fn(train_loader, model, optimizer, loss_fn, scaler):
     print('====> Training process')
+    model.train()
     train_running_loss = 0.0
     train_running_acc = 0.0
     counter = 0
-
-    loop = tqdm(enumerate(train_loader), total = len(train_loader))
-    for batch_idx, (img, mask) in loop:
+    # _len_ = len(train_loader)
+    for i, train_data in tqdm(enumerate(train_loader), total = len(train_loader)):
         counter += 1
-        data = img.to(device = Device)
-        targets = mask.float().unsqueeze(1).to(devie = Device)
+        img, mask = train_data
+        img.to(device = Device)
+        mask.unsqueeze(1).to(devie = Device)
         # forward
         with torch.cuda.amp.autocast():
-            predictions = model(data)
-            loss = loss_fn(predictions, targets)
+            preds = model(img)
+            loss = loss_fn(preds, mask)
             train_running_loss += loss.item()
-            
+            train_running_acc += 0.0
         # backward
         optimizer.zero_garad()
         scaler.scale(loss).backward()
@@ -182,16 +184,29 @@ def train_fn(train_loader, model, optimizer, loss_fn, scaler):
         # update tqdm loop
         loop.set_postfix(loss = loss.item()) 
     epoch_loss = train_running_loss / counter
-    epoch_acc = 100. * (train_running_acc / len(train_loader))
+    epoch_acc = 100. * (train_running_acc )
     return epoch_loss, epoch_acc
 
+# def val_fn(val_loader, model, optimizer, loss_fn, scaler):
+#     val_running_loss = 0.0
+#     val_running_acc =0.0
+#     counter = 0
+#     with torch.no_grad():
+#         for i, val_data in tqdm(enumerate(val_loader), total = len(val_loader)):
+#             counter += 1
+#             img, mask = val_data
+#             img.to(device = Device)
+#             mask.to(device = Device)
+#             preds = model(img)
+
+
 def main():
-    if Load_model:
+    if Load_model is TRUE:
         load_model(torch.load('Lightuent18S_1e5_e18.pth'), model)
 
     train_loss, val_loss = [], []
     train_acc, val_acc = [], []
-    check_accuracy(val_loader, model, device = Device)
+    # check_accuracy(val_loader, model, device = Device)
     scaler = torch.cuda.amp.GradScaler()
     for epoch in range(Num_epochs):
         train_epoch_loss, train_epoch_acc = train_fn(train_loader, model,
@@ -210,7 +225,7 @@ def main():
         }
         save_model(checkpoint)
         # check accuracy
-        check_accuracy(val_loader, model, device = Device)
+        # check_accuracy(val_loader, model, device = Device)
 
         # print some examples to a folder
         save_predictions_as_imgs(val_loader, 
