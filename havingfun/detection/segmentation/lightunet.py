@@ -6,7 +6,7 @@ import sys
 import torchvision.transforms.functional as TF
 # insert at 1, 0 is the script path (or '' in REPL)
 sys.path.insert(0, '/home/qiao/dev/giao/havingfun/deving/common')
-
+import torchvision.transforms as T
 from inout import Inputlayer, Outlayer
 from attentiongate import Attention_block
 from doubleconv import Block, TBlock, Up_conv
@@ -66,22 +66,22 @@ class LightUnet(nn.Module):
 
     def forward(self, x):
         x0 = self.Conv0(x)
-        print('input-c64 size :', x0.size())
+        # print('input-c64 size :', x0.size())
         x1 = self.down1(x0)
-        print('c64-c64 size:', x1.size())
+        # print('c64-c64 size:', x1.size())
         x2 = self.Maxpool(x1)
         x2 = self.down2(x2)
-        print('c64-c128 size:', x2.size())
+        # print('c64-c128 size:', x2.size())
         x3 = self.Maxpool(x2)
         x3 = self.down3(x3)
         x_neck = self.Maxpool(x3)
-        print('c128-c256 size:', x3.size())
+        # print('c128-c256 size:', x3.size())
         x_neck = self.neck(x_neck)
-        print('c256-c512 neck size:', x_neck.size())
+        # print('c256-c512 neck size:', x_neck.size())
         gate3 = self.Att3(x3, x_neck)
-        print(gate3.size())     
+        # print(gate3.size())     
         _up3 = self.Up3(x_neck)
-        print(_up3.size())
+        # print(_up3.size())
         up3 = torch.cat((gate3, _up3), 1)
         up3 = self.up_conv3(up3)
 
@@ -98,7 +98,8 @@ class LightUnet(nn.Module):
         up1 = self.up_conv1(up1)
 
         out = self.outlayer(up1)
-
+        process = T.Resize(400)
+        out = process(out)
         return out
 
 if __name__ == '__main__':

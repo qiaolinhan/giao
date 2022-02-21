@@ -19,9 +19,8 @@ from lightdata import JinglingDataset
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
+
 # Hyperparameters etc.
-
-
 Batch_size = 4
 Num_workers = 2
 Image_hight = 400
@@ -87,13 +86,10 @@ model.to(device = Device)
 
 total_params = sum(p.numel() for p in model.parameters())
 print(f'There are {total_params:,} total parameters in the model.\n')
-# total_trainable_params = sum(p.numel() for p in model.parameters()
-#                                       if p.requires_grad)
-# print(f'{total_trainable_params:} total parameters need training.')
+
 optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 
 loss_fn = nn.CrossEntropyLoss()
-
 
 Train_transform = A.Compose(
         [
@@ -106,7 +102,7 @@ Train_transform = A.Compose(
                 std = [1.0, 1.0, 1.0],
                 max_pixel_value=255.0,
             ),
-            ToTensorV2(),
+            # ToTensorV2(),
         ]
     )
 Val_transform = A.Compose(
@@ -131,7 +127,9 @@ def getloaders(
     train_transform, val_transform,
     batch_size, pin_memory=True, 
     ):
-    train_ds = (train_data, train_transform)
+    # train_ds = (train_data, train_transform)
+    train_ds = TensorDataset(train_data[i] for i in range(train_data))
+    print('type', train_ds.type())
     train_loader = DataLoader(
         train_ds,
         batch_size = Batch_size,
@@ -156,7 +154,7 @@ train_loader, val_loader = getloaders(
     val_transform = Val_transform,
     batch_size = Batch_size,
     )
-print(enumerate(train_loader).size())
+print(enumerate(train_loader))
 def train_fn(train_loader, model, optimizer, loss_fn, scaler):
     print('====> Training process')
     model.train()
@@ -182,7 +180,7 @@ def train_fn(train_loader, model, optimizer, loss_fn, scaler):
         scaler.update()
 
         # update tqdm loop
-        loop.set_postfix(loss = loss.item()) 
+        tqdm(enumerate(train_loader)).set_postfix(loss = loss.item()) 
     epoch_loss = train_running_loss / counter
     epoch_acc = 100. * (train_running_acc )
     return epoch_loss, epoch_acc
