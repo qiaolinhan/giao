@@ -102,7 +102,7 @@ Train_transform = A.Compose(
                 std = [1.0, 1.0, 1.0],
                 max_pixel_value=255.0,
             ),
-            # ToTensorV2(),
+        ToTensorV2(),
         ]
     )
 Val_transform = A.Compose(

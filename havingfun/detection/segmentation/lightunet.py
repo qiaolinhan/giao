@@ -98,8 +98,7 @@ class LightUnet(nn.Module):
         up1 = self.up_conv1(up1)
 
         out = self.outlayer(up1)
-        process = T.Resize(400)
-        out = process(out)
+
         return out
 
 if __name__ == '__main__':
@@ -111,6 +110,8 @@ if __name__ == '__main__':
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'The depthwise seperable convolution uses {params} parameters.')
     preds = model(img)
+    process = T.Resize(img.size()[2])
+    preds = process(preds)
     print('input shape:', img.size())
     print('preds shape:', preds.size())
 
