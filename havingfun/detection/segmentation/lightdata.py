@@ -1,10 +1,33 @@
 # data loading part
-from operator import index
 import os
 from PIL import Image
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, Subset
 import numpy as np
 import matplotlib.pyplot as plt
+import torchvision.transforms as T
+import albumentations as A
+import torch
+Image_hight =400
+Image_weight = 400
+# transform = A.Compose([
+#     A.Resize(Image_hight, Image_weight),
+#     A.HorizontalFlip(p = 0.2),
+#     A.RandomBrightnessContrast(p = 0.2),
+#     A.Normalize(
+#         mean = [0.0, 0.0, 0.0],
+#         std = [1.0, 1.0, 1.0],
+#         max_pixel_value=255.0,
+#     ),
+#     # A.ToTensorV2(),
+# ])
+transform = T.Compose([
+    T.Resize((Image_hight, Image_weight)),
+    T.ToTensor(), 
+    T.Normalize(
+        mean = [0.0, 0.0, 0.0],
+        std = [1.0, 1.0, 1.0],
+    ),
+    ])
 
 class JinglingDataset(Dataset):
     def __init__(self,  img_dir, mask_dir, transform = None):
@@ -18,26 +41,46 @@ class JinglingDataset(Dataset):
         return len(self.imgs)
 
     def __getitem__(self, index):
+        convert_tensor = T.ToTensor()
         img_path = os.path.join(self.img_dir, self.imgs[index])
-        img = np.array(Image.open(img_path).convert('RGB'))
-        img.sort()
+        img_im = Image.open(img_path).convert('RGB')
+        img_tensor = convert_tensor(img_im)
+        img = img_tensor
         mask_path = os.path.join(self.mask_dir, self.masks[index])
-        mask = np.array(Image.open(mask_path).convert('L'), dtype = np.float32)
-        mask[mask == 255.0] = 1.0
-
-        if self.transform is not None:
-            augmentations = self.transform(img = img, mask = mask)
-            img = augmentations['img']
-            mask = augmentations['mask']
-
+        mask_im = Image.open(mask_path).convert('L')
+        mask_tensor = convert_tensor(mask_im)
+        mask = mask_tensor
+        if self.transform:
+            img_np = np.array(img_im)
+            mask_np = np.array(mask_im)
+            augmentations = self.transform(img_np, mask_np)
+            convert_tensor = T.ToTensor()
+            img_a = augmentations['img']
+            img = convert_tensor(img_a)
+            mask_a = augmentations['mask']
+            mask = convert_tensor(mask_a)
         return img, mask
 
 if __name__ == '__main__':
     Img_dir = ('dataset/imgs/jinglingseg/images')
     Mask_dir = ('dataset/imgs/jinglingseg/masks')
     data = JinglingDataset(img_dir=Img_dir, mask_dir = Mask_dir)
-    plt.imshow(data[0][1])
-    plt.show()
+    for i in range(len(data)):
+        img, mask = data[i][0], data[i][1]
+    print(img[1].shape)
+
+    dataset_size = len(data)
+    print(f"Total number of images: {dataset_size}")
+    valid_split = 0.2
+    valid_size = int(valid_split*dataset_size)
+    indices = torch.randperm(len(data)).tolist()
+    train_data = Subset(data, indices[:-valid_size])
+    val_data = Subset(data, indices[-valid_size:])
+    print(f"Total training images: {len(train_data)}")
+    print(f"Total valid_images: {len(val_data)}")
+    # print(train_data[0][1].size())
+    # plt.imshow(data[0][2])
+    # plt.show()
 
 
 
