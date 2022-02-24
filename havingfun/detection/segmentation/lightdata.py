@@ -47,12 +47,12 @@ class JinglingDataset(Dataset):
         img_im = Image.open(img_path).convert('RGB')
         img_np = np.array(img_im)
         mask_path = os.path.join(self.mask_dir, self.masks[index])
-        mask_im = Image.open(mask_path).convert('L')
-        mask_np = np.array(mask_im)
+        mask_np = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
+        mask_np[mask_np > 0.0] = 1.0
         if self.transform:           
             augmentations = self.transform(image = img_np, mask = mask_np)
             img_tensor = augmentations['image']
-            mask_tensor = augmentations['mask']
+            mask_tensor = augmentations['mask'].long()
         return img_tensor, mask_tensor
 
 if __name__ == '__main__':
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     # print(img.shape)
     for i in range(len(data)):
         img, mask = data[i][0], data[i][1]
-    print(img[1].shape)
+    print(mask[1].shape)
 
     dataset_size = len(data)
     print(f"Total number of images: {dataset_size}")

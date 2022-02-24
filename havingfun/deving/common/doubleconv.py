@@ -49,7 +49,7 @@ class Up_conv(nn.Module):
 if __name__ == '__main__':
     layer1 = Block(in_channels=3, out_channels=64)
     layer2 = TBlock(in_channels=128, out_channels=64)
-    layer3 = Up_conv(in_channels=256, out_channels=128)
-    feature_in = torch.randn((4, 3, 255, 255))
-    feature_out = layer1(feature_in)
+    layer3 = Up_conv(in_channels=256, out_channels=1)
+    feature_in = torch.randn((4, 256, 255, 255))
+    feature_out = layer3(feature_in)
     print(feature_out.shape)

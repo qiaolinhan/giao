@@ -22,31 +22,24 @@ class LightUnet(nn.Module):
         self.out_channels = out_channels
         self.scale_factor = scale_factor
         self.Maxpool = nn.MaxPool2d(kernel_size = 2, stride = 2)
-
         # down-sampling
         self.Conv0 = Inputlayer(in_channels, filters[0])
-        # self.Conv1 = Block(filters[0], filters[0])
-        # self.Conv2 = Block(filters[0], filters[1])
-        # self.Conv3 = Block(filters[1], filters[2])
 
-        # self.down1 = nn.ModuleList()
-        # self.down1.append(DDepthwise(filters[0], filters[0]))
-        # self.down1.append(DDepthwise(filters[0], filters[0]))
         self.down1 = nn.Sequential(
                 DDepthwise(filters[0], filters[0]),
-                DDepthwise(filters[0], filters[0])
+                UDepthwise(filters[0], filters[0])
                 )
         self.down2 = nn.Sequential(
                 DDepthwise(filters[0], filters[1]),
-                DDepthwise(filters[1], filters[1])
+                UDepthwise(filters[1], filters[1])
                 )
         self.down3 = nn.Sequential(
                 DDepthwise(filters[1], filters[2]),
-                DDepthwise(filters[2], filters[2])
+                UDepthwise(filters[2], filters[2])
                 )
         self.neck = nn.Sequential(
                 DDepthwise(filters[2], filters[3]),
-                DDepthwise(filters[3], filters[3])
+                UDepthwise(filters[3], filters[3])
                 )
 
         # up_sampling
@@ -62,6 +55,7 @@ class LightUnet(nn.Module):
         self.Att1 = Attention_block(filters[0], filters[1])
         self.up_conv1 = TBlock(filters[1], filters[0])
 
+        # self.up_conv0 = Up_conv(filters[0], out_channels)
         self.outlayer = Outlayer(filters[0], out_channels)
 
     def forward(self, x):
@@ -81,6 +75,7 @@ class LightUnet(nn.Module):
         gate3 = self.Att3(x3, x_neck)
         # print(gate3.size())     
         _up3 = self.Up3(x_neck)
+        _up3 = TF.resize(_up3, size = gate3.shape[2:])
         # print(_up3.size())
         up3 = torch.cat((gate3, _up3), 1)
         up3 = self.up_conv3(up3)
@@ -96,7 +91,7 @@ class LightUnet(nn.Module):
         _up1 = TF.resize(_up1, size = gate1.shape[2:])
         up1 = torch.cat((gate1, _up1), 1)
         up1 = self.up_conv1(up1)
-
+        # up0 = self.up_conv0(up1)
         out = self.outlayer(up1)
 
         return out
@@ -110,8 +105,8 @@ if __name__ == '__main__':
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'The depthwise seperable convolution uses {params} parameters.')
     preds = model(img)
-    process = T.Resize(img.size()[2])
-    preds = process(preds)
+#     process = T.Resize(img.size()[2])
+#     preds = process(preds)
     print('input shape:', img.size())
     print('preds shape:', preds.size())
 

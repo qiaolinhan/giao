@@ -67,9 +67,10 @@ class UNET(nn.Module):
         return self.final_conv(x)
 
 def test():
-    x = torch.randn((3, 1, 161, 161))
+    x = torch.randn((3, 1, 400, 400))
     model = UNET(in_channels=1, out_channels=1)
     preds = model(x)
+    print(preds.shape)
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'The depthwise seperable convolution uses {params} parameters.')
     assert preds.shape == x.shape
