@@ -74,9 +74,8 @@ if __name__ == '__main__':
     val_data = Subset(data, indices[-valid_size:])
     print(f"Total training images: {len(train_data)}")
     print(f"Total valid_images: {len(val_data)}")
-    # print(train_data[0][1].size())
-    # plt.imshow(data[0][2])
-    # plt.show()
+    plt.imshow(train_data[3][1])
+    plt.show()
 
 
 
