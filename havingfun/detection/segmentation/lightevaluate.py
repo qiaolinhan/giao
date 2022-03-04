@@ -1,13 +1,16 @@
+# This block is for evaluate the segmentation result using confusion matrix and compute F1-score
+# '''
+# P/T  T   N
+# T   TP  FP
+# N   FN  TN
+# '''
+import torch
 import numpy as np
 import cv2
-from sklearn.metrics import confusion_matrix
+# from sklearn.metrics import confusion_matrix
 
 __all__ = ['segmentationmatric']
-'''
-P/T  T   N
-T   TP  FP
-N   FN  TN
-'''
+
 class Segratio(object):
     def __init__(self, num_class):
         self.num_class = num_class
@@ -60,10 +63,22 @@ class Segratio(object):
         self.confusion_matrix = np.zeros((self.num_class, self.num_class))
 
 if __name__ == '__main__':
-    preds = cv2.imread('/home/qiao/dev/giao/dataset/imgs/jinglingseg1/images/img6.png')
-    masks = cv2.imread('/home/qiao/dev/giao/dataset/imgs/jinglingseg1/images/img9.png')
-    preds = np.array( preds / 255., dtype = np.uint8)
-    masks = np.array ( masks/ 255., dtype = np.uint8)
+    # preds = cv2.imread('/home/qiao/dev/giao/dataset/imgs/jinglingseg1/images/img6.png')
+    # masks = cv2.imread('/home/qiao/dev/giao/dataset/imgs/jinglingseg1/images/img9.png')
+    # preds = np.array( preds / 255., dtype = np.uint8)
+    # masks = np.array ( masks/ 255., dtype = np.uint8)
+
+    preds = torch.randn(2, 1, 400, 400)
+    masks = torch.randn(2, 1, 400, 400)
+    preds = preds.squeeze(1).permute(1, 2, 0)
+    masks = masks.squeeze(1).permute(1, 2, 0)
+    print('preds size:', preds.shape)
+    print('masks size:', masks.shape)
+
+    preds = (preds/255).detach().numpy().astype(np.uint8)
+    masks = masks.detach().numpy().astype(np.uint8)
+    print('preds size:', preds.shape)
+    print('masks size:', masks.shape)
     metric = Segratio(2)
     hist = metric.addbatch(preds, masks)
     pa = metric.get_acc()
@@ -71,4 +86,8 @@ if __name__ == '__main__':
     mpa = metric.get_MPA()
     iou = metric.iou()
     miou = metric.meaniou()
+    print('preds size:', preds.shape)
+    print('masks size:', masks.shape)
+    print(1080*1920*3)
     print(hist, pa, cpa, mpa, iou, miou)
+
