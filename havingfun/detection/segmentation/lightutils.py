@@ -1,3 +1,4 @@
+import sklearn
 import torch
 import torchvision
 import matplotlib
@@ -5,11 +6,15 @@ import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
 
 import os
-root = os.path.dirname(os.path.join('/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'))
+root = os.path.dirname(os.path.join(
+    '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
+    ))
 
+import numpy as np
+import sklearn.metrics as metrics
 modelname = 'Lightunet18'
 lr = '1e4'
-epochs = 'e5'
+epochs = 'e100'
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
 loss_imgs = 'Loss_'+ modelname + '_' + lr + '_' + epochs +'.png'
@@ -43,34 +48,7 @@ codes = ['Target', 'Void']
 num_classes = 2
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
-
-def seg_acc(input, target):
-    target = target.squeeze(1)
-    mask = target != void_code
-    return (input.argmax(dim = 1)[mask]==target[mask]).float().mean()
-
-def check_accuracy(loader, model, device = 'cuda'):
-    num_correct = 0
-    num_pixels = 0
-    dice_score = 0
-    model.eval()
-
-    with torch.no_grad():
-        for x, y in loader:
-            x = x.to(device)
-            y = y.to(device).unsqueeze(1)
-            preds = torch.sigmoid(model(x))
-            preds = (preds > 0.5).float()
-            num_correct += (preds == y).sum()
-            num_pixels += torch.numel(preds)
-            dice_score += (2*(preds * y).sum())/(
-                (preds + y).sum() + 1e-8
-            )
-
-    print(f'Got {num_correct}/{num_pixels} with acc: {num_correct/num_correct * 100:.2f}')
-    print(f'Got dice score of: {dice_score/len(loader)}')
-    model.train()
-
+       
 def save_predictions_as_imgs(loader, model, folder = root, device = 'cuda'):
     print('===========> saving prediction')
     for idx, (x, y) in enumerate(loader):
@@ -79,9 +57,11 @@ def save_predictions_as_imgs(loader, model, folder = root, device = 'cuda'):
             preds = torch.sigmoid(model(x))
             preds = (preds > 0.5).float()
         torchvision.utils.save_image(
-            preds, f'{folder}/pred_{idx}.png'
+            preds, 
+            os.path.join(root, 'seg_result.png'),
         )
-        torchvision.utils.save_image(y.unsqueeze(1), f'{folder}{idx}.png')
+        torchvision.utils.save_image(
+            y.unsqueeze(1), f'{folder}{idx}.png')
 
     model.train()
 
