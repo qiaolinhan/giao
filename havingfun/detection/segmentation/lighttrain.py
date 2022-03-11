@@ -19,16 +19,21 @@ import numpy as np
 from lightdata import JinglingDataset, transform
 from torch.utils.data import DataLoader, Subset
 # from sklearn.model_selection import train_test_split
+import torchvision
 import torchvision.transforms.functional as TF
+from PIL import Image
 import matplotlib.pyplot as plt
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
-Batch_size = 1
+Batch_size = 2
 Num_workers = 0
 Image_hight = 400
 Image_weight = 400
 Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
+root = '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
+modelparam_path = root + 'Lightunet18_1e5_e50.pth'
+
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -65,15 +70,24 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 1e-4,
+    default = 1e-5,
     help = 'Learning rate for training'
 )
 parser.add_argument(
     '-load',
     '--load',
-    default = None,
+    default = True,
     help = 'loading the trained model for prediction'
 )
+
+parser.add_argument(
+    '-tar',
+    '--tar_img',
+    type = str,
+    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/images/img1.png',
+    help = 'Load the target image to be detected'
+)
+
 
 args = vars(parser.parse_args())
 Num_epochs = args['epochs']
@@ -81,6 +95,7 @@ Img_dir = args['troot']
 Mask_dir = args['mroot']
 Learning_rate = args['lr']
 Load_model = args['load']
+Target_img = args['tar_img']
 
 # the device used fir training
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -216,41 +231,53 @@ def valid(val_loader, model, loss_fn):
 
 def main():
     if Load_model is not None:
-        pass
-        load_model(torch.load('Lightuent18S_1e5_e18.pth'), model)
+        load_model(torch.load(modelparam_path), model)
+        img_path = Target_img
+        img_im = Image.open(img_path).convert('RGB')
+        trans2tensor = torchvision.transforms.ToTensor()
+        img_tensor = trans2tensor(img_im).unsqueeze(0)
+        pred_tensor = model(img_tensor).squeeze(0)
+        print(pred_tensor.size())
+        pred_np = pred_tensor.detach().numpy()
+        print(pred_np)
+        # trans2img = torchvision.transforms.ToPILImage()
+        # pred_im = trans2img(pred_tensor).convert('L')
+        # plt.plot(pred_im)
+        # plt.show()
 
-    train_loss, val_loss = [], []
-    train_acc, val_acc = [], []
-    # check_accuracy(val_loader, model, device = Device)
-    scaler = torch.cuda.amp.GradScaler()
-    for epoch in range(Num_epochs):
-        train_epoch_loss, train_epoch_acc = fit(train_loader, model,
-                                                     optimizer, loss_fn, scaler)
-        # tqdm(enumerate(train_loader)).set_postfix(loss = train_epoch_loss(), acc = train_epoch_loss())
-        val_epoch_loss, val_epoch_acc = valid(val_loader, model,loss_fn)
-        # tqdm(enumerate(val_loader)).set_postfix(loss = val_epoch_loss.item(), acc = val_epoch_loss())
-        train_loss.append(train_epoch_loss)
-        val_loss.append(val_epoch_loss)
-        train_acc.append(train_epoch_acc)
-        val_acc.append(val_epoch_acc)
+    else:
+        train_loss, val_loss = [], []
+        train_acc, val_acc = [], []
+        # check_accuracy(val_loader, model, device = Device)
+        scaler = torch.cuda.amp.GradScaler()
+        for epoch in range(Num_epochs):
+            train_epoch_loss, train_epoch_acc = fit(train_loader, model,
+                                                        optimizer, loss_fn, scaler)
+            # tqdm(enumerate(train_loader)).set_postfix(loss = train_epoch_loss(), acc = train_epoch_loss())
+            val_epoch_loss, val_epoch_acc = valid(val_loader, model,loss_fn)
+            # tqdm(enumerate(val_loader)).set_postfix(loss = val_epoch_loss.item(), acc = val_epoch_loss())
+            train_loss.append(train_epoch_loss)
+            val_loss.append(val_epoch_loss)
+            train_acc.append(train_epoch_acc)
+            val_acc.append(val_epoch_acc)
 
-        
-    # save entire model
-    save_model(Num_epochs, model, optimizer, loss_fn)
-    # check accuracy
-    # check_accuracy(val_loader, model, device = Device)
+            
+            # save entire model
+            save_model(Num_epochs, model, optimizer, loss_fn)
+            # check accuracy
+            # check_accuracy(val_loader, model, device = Device)
 
-    # print some examples to a folder
-    # save_predictions_as_imgs(val_loader, 
-    #                             model, 
-    #                             folder = 'saved_imgs/', 
-    #                             device = Device)
+            # print some examples to a folder
+            # save_predictions_as_imgs(val_loader, 
+            #                             model, 
+            #                             folder = 'saved_imgs/', 
+            #                             device = Device)
 
-    # plot loss and acc
-    save_plots(train_acc, val_acc, train_loss, val_loss)
+            # plot loss and acc
+            save_plots(train_acc, val_acc, train_loss, val_loss)
 
-    # # save final model
-    save_entire_model(Num_epochs, model, optimizer, loss_fn)
+            # # save final model
+            save_entire_model(Num_epochs, model, optimizer, loss_fn)
 
     print('\n============> TEST PASS!!!\n')
 

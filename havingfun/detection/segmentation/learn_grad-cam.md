@@ -8,3 +8,4 @@ Produce a localization map from image classification CNNs where <u>global-averag
 
 In Pytorch, it is able to use __forward hooks__ to visualize activations of NNs.  
 __Forward Hooks__: functions called after do forward pass.
+

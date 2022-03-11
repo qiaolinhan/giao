@@ -54,7 +54,7 @@ class JinglingDataset(Dataset):
             img_tensor = augmentations['image']
             mask_tensor = augmentations['mask'].long()
         return img_tensor, mask_tensor
-
+    
 if __name__ == '__main__':
     Img_dir = ('dataset/imgs/jinglingseg/images')
     Mask_dir = ('dataset/imgs/jinglingseg/masks')
@@ -63,19 +63,19 @@ if __name__ == '__main__':
     # print(img.shape)
     for i in range(len(data)):
         img, mask = data[i][0], data[i][1]
-    print(mask[1].shape)
+    print(mask[1])
 
-    dataset_size = len(data)
-    print(f"Total number of images: {dataset_size}")
-    valid_split = 0.2
-    valid_size = int(valid_split*dataset_size)
-    indices = torch.randperm(len(data)).tolist()
-    train_data = Subset(data, indices[:-valid_size])
-    val_data = Subset(data, indices[-valid_size:])
-    print(f"Total training images: {len(train_data)}")
-    print(f"Total valid_images: {len(val_data)}")
-    plt.imshow(train_data[3][1])
-    plt.show()
+    # dataset_size = len(data)
+    # print(f"Total number of images: {dataset_size}")
+    # valid_split = 0.2
+    # valid_size = int(valid_split*dataset_size)
+    # indices = torch.randperm(len(data)).tolist()
+    # train_data = Subset(data, indices[:-valid_size])
+    # val_data = Subset(data, indices[-valid_size:])
+    # print(f"Total training images: {len(train_data)}")
+    # print(f"Total valid_images: {len(val_data)}")
+    # plt.imshow(train_data[3][1])
+    # plt.show()
 
 
 
