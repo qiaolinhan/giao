@@ -1,7 +1,7 @@
-# 1 kernel works for one channel
+# Every 3x3 conv kernel works for one channel of input tensor
 # deep wise 3x3: n_kernels = in_channels, then for every filter nn.Conv2d(1, out_channels, 3, 3, 1)
 # num_parameter for each filter: 3x3x1xout_channels
-# point wise 1x1: num_parameter for each filter: 1x1xin_channelsxout_channels
+# point wise 1x1: num_parameter for each filter: 1x1x in_channels x out_channels
 
 import torch
 import torch.nn as nn
@@ -45,8 +45,9 @@ class UDepthwise(nn.Module):
 if __name__ == '__main__':
     block = DDepthwise(in_channels=64, out_channels=128)
     print(block.eval())
-    feature_in = torch.randn((4, 64, 255, 255))
+    feature_in = torch.randn((4, 64, 400, 400))
     params = sum(p.numel() for p in block.parameters() if p.requires_grad)
     print(f'The depthwise seperable convolution uses {params} parameters.')
     feature_out = block(feature_in)
     print(feature_in.size())
+    print(feature_out.size())
