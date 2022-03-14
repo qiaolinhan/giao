@@ -14,7 +14,7 @@ class DDepthwise(nn.Module):
             nn.Conv2d(in_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace = True),
-            nn.Conv2d(out_channels, out_channels, 3, 1, 1, groups = in_channels),
+            nn.Conv2d(out_channels, out_channels, 3, 1, 1, groups = out_channels),
             nn.Conv2d(out_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace = True),
@@ -32,7 +32,7 @@ class UDepthwise(nn.Module):
             nn.ConvTranspose2d(in_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
-            nn.ConvTranspose2d(out_channels, out_channels, 3, 1, 1, groups = in_channels),
+            nn.ConvTranspose2d(out_channels, out_channels, 3, 1, 1, groups = out_channels),
             nn.ConvTranspose2d(out_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(),
@@ -42,10 +42,23 @@ class UDepthwise(nn.Module):
         y = self.udepthwise(x)
         return y
 
+class Up_conv(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(Up_conv, self).__init__()
+        self.upconv = nn.Sequential(
+            nn.Upsample(scale_factor=2),
+            nn.ConvTranspose2d(in_channels, out_channels, kernel_size = 1, stride = 1, padding = 0, bias = False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace = True),
+        )
+
+    def forward(self, x):
+        return self.upconv(x)
+
 if __name__ == '__main__':
-    block = DDepthwise(in_channels=64, out_channels=128)
+    block = Up_conv(in_channels=128, out_channels=64)
     print(block.eval())
-    feature_in = torch.randn((4, 64, 400, 400))
+    feature_in = torch.randn((4, 128, 400, 400))
     params = sum(p.numel() for p in block.parameters() if p.requires_grad)
     print(f'The depthwise seperable convolution uses {params} parameters.')
     feature_out = block(feature_in)

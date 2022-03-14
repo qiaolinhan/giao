@@ -24,13 +24,13 @@ class Outlayer(nn.Module):
         # 1x1 Conv
         self.convf = nn.ConvTranspose2d(in_channels, out_channels, 1, 1, 0)
         self.relu = nn.ReLU()
-        self.outscale = nn.Upsample(scale_factor=2)
+        # self.outscale = nn.Upsample(scale_factor=2)
         self.convo = nn.ConvTranspose2d(in_channels, out_channels, 7, 2, 3)
         self.sigmoid = nn.Sigmoid()
     def forward(self, x):
         y = self.convf(x)
         y = self.relu(y)
-        y = self.outscale(x)
+        # y = self.outscale(x)
         y = self.convo(y)
         y = self.sigmoid(y)
         return y
