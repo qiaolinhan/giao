@@ -34,7 +34,7 @@ Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
 root = '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
-modelparam_path = root + 'Lightunet18SGD_1e4_e5.pth'
+modelparam_path = root + 'Lightunet18Adam_1e2_e5.pth'
 checkpoint = torch.load(modelparam_path)
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
@@ -44,7 +44,7 @@ parser.add_argument(
     '-e',
     '--epochs',
     type = int,
-    default = 5,
+    default = 20,
     help = 'Numbers of epochs to train the network'
 )
 
@@ -52,9 +52,25 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 1e-2,
+    default = 1e-5,
     help = 'Learning rate for training'
 )
+
+# specifying whether to test the trained model
+parser.add_argument(
+    '-load',
+    '--load',
+    default = None,
+    help = 'loading the trained model for prediction'
+)
+parser.add_argument(
+    '-tar',
+    '--tar_img',
+    type = str,
+    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/images/img1.png',
+    help = 'Load the target image to be detected'
+)
+tarmask_path = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/masks/img1_mask.png'
 
 parser.add_argument(
     '-t',
@@ -71,21 +87,7 @@ parser.add_argument(
     help = 'Input the mask dataset path'
 )
 
-# specifying whether to test the trained model
-parser.add_argument(
-    '-load',
-    '--load',
-    default = True,
-    help = 'loading the trained model for prediction'
-)
-parser.add_argument(
-    '-tar',
-    '--tar_img',
-    type = str,
-    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/images/img1.png',
-    help = 'Load the target image to be detected'
-)
-tarmask_path = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/masks/img1_mask.png'
+
 
 # classes add codes
 codes = ['Target', 'Void']
@@ -159,7 +161,7 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
     for i, data in tqdm(enumerate(train_loader), total = len(train_data) // Batch_size):
         counter += 1
 
-        img, mask = data[i]
+        img, mask = data
         img.to(device = Device)
         
         mask = mask.unsqueeze(1)
@@ -198,8 +200,11 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
 
             mpa = metric.get_MPA()
             train_running_mpa += mpa.item()
+
         # backward
         optimizer.zero_grad()
+        # loss.backward()
+        # optimizer.step()
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update() 
@@ -209,6 +214,11 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
     epoch_loss = train_running_loss / counter
     epoch_acc = 100. * train_running_acc / counter
     epoch_mpa = 100. * train_running_mpa / counter
+
+    # f, ax = plt.subplots(1, 2)
+    # ax[0].imshow(preds)
+    # ax[1].imshow(mask)
+    # plt.show()
     return epoch_loss, epoch_acc, epoch_mpa
 
 def valid(val_loader, model, loss_fn):

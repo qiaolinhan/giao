@@ -27,12 +27,16 @@ class Outlayer(nn.Module):
         self.outscale = nn.Upsample(scale_factor=2, mode='nearest')
         self.convo = nn.ConvTranspose2d(out_channels, out_channels, 7, 2, 3)
         self.sigmoid = nn.Sigmoid()
+        
     def forward(self, x):
         y = self.convf(x)
         y = self.relu(y)
         y = self.outscale(y)
         y = self.convo(y)
+        y = (y, requires_grad = True)
         y = self.sigmoid(y)
+        threshold = torch.tensor([0.5])
+        y = (y > threshold).float()*1
         return y
 
 if __name__ == "__main__":
@@ -40,4 +44,4 @@ if __name__ == "__main__":
     layer2 = Outlayer(in_channels=64, out_channels=1)
     feature_in = torch.randn((4, 64, 99, 99))
     feature_out = layer2(feature_in)
-    print(feature_out.shape)
+    print(feature_out)

@@ -14,8 +14,8 @@ import numpy as np
 import sklearn.metrics as metrics
 
 modelname = 'Lightunet18Adam'
-lr = '1e2'
-epochs = 'e5'
+lr = '1e5'
+epochs = 'e20'
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
 loss_imgs = 'Loss_'+ modelname + '_' + lr + '_' + epochs +'.png'
