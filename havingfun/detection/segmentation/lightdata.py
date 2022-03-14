@@ -4,11 +4,12 @@ from PIL import Image
 from torch.utils.data import Dataset, Subset
 import numpy as np
 import matplotlib.pyplot as plt
-# import torchvision.transforms as T
+from torch.utils.data import DataLoader
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import torch
-
+from tqdm import tqdm
+import torchvision
 Image_hight =400
 Image_weight = 400
 transform = A.Compose([
@@ -46,7 +47,8 @@ class JinglingDataset(Dataset):
         img_path = os.path.join(self.img_dir, self.imgs[index])
         img_im = Image.open(img_path).convert('RGB')
         img_np = np.array(img_im)
-        mask_path = os.path.join(self.mask_dir, self.masks[index])
+        # mask_path = os.path.join(self.mask_dir, self.masks[index])
+        mask_path = os.path.join(self.mask_dir, self.imgs[index].replace('.png', '_mask.png'))
         mask_np = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
         mask_np[mask_np > 0.0] = 1.0
         if self.transform:           
@@ -63,19 +65,32 @@ if __name__ == '__main__':
     # print(img.shape)
     for i in range(len(data)):
         img, mask = data[i][0], data[i][1]
-    print(mask[1])
+    # print(mask[1])
 
-    # dataset_size = len(data)
-    # print(f"Total number of images: {dataset_size}")
-    # valid_split = 0.2
-    # valid_size = int(valid_split*dataset_size)
-    # indices = torch.randperm(len(data)).tolist()
-    # train_data = Subset(data, indices[:-valid_size])
-    # val_data = Subset(data, indices[-valid_size:])
-    # print(f"Total training images: {len(train_data)}")
-    # print(f"Total valid_images: {len(val_data)}")
-    # plt.imshow(train_data[3][1])
-    # plt.show()
+    dataset_size = len(data)
+    print(f"Total number of images: {dataset_size}")
+    valid_split = 0.2
+    valid_size = int(valid_split*dataset_size)
+    indices = torch.randperm(len(data)).tolist()
+    train_data = Subset(data, indices[:-valid_size])
+    val_data = Subset(data, indices[-valid_size:])
+    print(f"Total training images: {len(train_data)}")
+    print(f"Total valid_images: {len(val_data)}")
+    batch_size = 2
+    counter = 0
+    train_loader = DataLoader(train_data, batch_size = batch_size, 
+                          num_workers = 0, 
+                          pin_memory = 2,
+                          shuffle = True)
+
+    for j, data in tqdm(enumerate(train_loader), total = len(train_data) // batch_size):
+        counter += 1
+        img_tensor, mask_tensor = data
+
+    f, ax = plt.subplots(1, 2)
+    ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
+    ax[1].imshow(mask_tensor.permute(1, 2, 0))
+    plt.show()
 
 
 

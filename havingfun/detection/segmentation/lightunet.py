@@ -1,5 +1,6 @@
 # 2022-03-14
-# there are 2,073,986 parameters
+# For U-net with structure of Resnet18, 31,036,481 params are needed.
+# For this model, there are 2,070,899 parameters.
 # this is a light U-net model based on the structure of resnet18 based Unet. The main purpose is tp decrease the model size
 # so that it could be deplyed on the on-board computer of M300 for smoke and fire segmentation
 import torch
@@ -25,26 +26,30 @@ class LightUnet(nn.Module):
         self.in_channels = in_channels
         self.out_channels = out_channels
         self.scale_factor = scale_factor
-        self.Maxpool = nn.MaxPool2d(kernel_size = 2, stride = 2)
+        
         # down-sampling
         self.Conv0 = Inputlayer(in_channels, filters[0])
 
         self.down1 = nn.Sequential(
                 DDepthwise(filters[0], filters[0]),
-                UDepthwise(filters[0], filters[0])
+                DDepthwise(filters[0], filters[0]),
+                nn.MaxPool2d(kernel_size = 2, stride = 2),
                 )
         self.down2 = nn.Sequential(
                 DDepthwise(filters[0], filters[1]),
-                UDepthwise(filters[1], filters[1])
+                DDepthwise(filters[1], filters[1]),
+                nn.MaxPool2d(kernel_size = 2, stride = 2),
                 )
         self.down3 = nn.Sequential(
                 DDepthwise(filters[1], filters[2]),
-                UDepthwise(filters[2], filters[2])
+                DDepthwise(filters[2], filters[2]),
+                nn.MaxPool2d(kernel_size = 2, stride = 2),
                 )
         self.neck = nn.Sequential(
                 DDepthwise(filters[2], filters[3]),
-                UDepthwise(filters[3], filters[3])
+                DDepthwise(filters[3], filters[3])
                 )
+        # self.Maxpool = nn.MaxPool2d(kernel_size = 2, stride = 2)
 
         # up_sampling
         self.Up3 = UDepthwise(filters[3], filters[2])
@@ -64,25 +69,25 @@ class LightUnet(nn.Module):
 
     def forward(self, x):
         x0 = self.Conv0(x)
-        print('input-c64 size :', x0.size())
+        # print('input-c64 size :', x0.size())
         x1 = self.down1(x0)
-        print('c64-c64 size:', x1.size())
-        x2 = self.Maxpool(x1)
-        x2 = self.down2(x2)
-        print('c64-c128 size:', x2.size())
-        x3 = self.Maxpool(x2)
-        x3 = self.down3(x3)
-        x_neck = self.Maxpool(x3)
-        print('c128-c256 size:', x3.size())
-        x_neck = self.neck(x_neck)
+        # print('c64-c64 size:', x1.size())
+        # x2 = self.Maxpool(x1)
+        x2 = self.down2(x1)
+        # print('c64-c128 size:', x2.size())
+        # x3 = self.Maxpool(x2)
+        x3 = self.down3(x2)
+        # x_neck = self.Maxpool(x3)
+        # print('c128-c256 size:', x3.size())
+        x_neck = self.neck(x3)
         # print('c256-c512 neck size:', x_neck.size())
         gate3 = self.Att3(x3, x_neck)
         # print(gate3.size())     
         _up3 = self.Up3(x_neck)
-        print('_up3 size before resieze', _up3.size())
-        print('gate3 size', gate3.size())
+        # print('_up3 size before resieze', _up3.size())
+        # print('gate3 size', gate3.size())
         _up3 = sizechange(_up3, gate3)
-        print('_up3 size after resize', _up3.size())
+        # print('_up3 size after resize', _up3.size())
         
         up3 = torch.cat((gate3, _up3), 1)
         up3 = self.up_conv3(up3)
@@ -106,14 +111,16 @@ class LightUnet(nn.Module):
 if __name__ == '__main__':
     # batchsize = 4, channels = 3, inputsize = 400*400
     img = torch.randn((4, 3, 400, 400))
+    mask = torch.randn((4, 1, 400, 400))
     # model = Resnet34(img_channels=3, num_classes=3)
     model = LightUnet(in_channels=3, out_channels = 1)
     print(model.eval())
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'The depthwise seperable convolution uses {params} parameters.')
     preds = model(img)
-#     process = T.Resize(img.size()[2])
-#     preds = process(preds)
+    if preds.shape != mask.shape:
+        # preds = TF.resize(preds, size=mask.shape[2:])
+        preds = sizechange(preds, mask)
     print('input shape:', img.size())
     print('preds shape:', preds.size())
 

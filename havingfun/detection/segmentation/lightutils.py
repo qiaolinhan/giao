@@ -13,9 +13,9 @@ root = os.path.dirname(os.path.join(
 import numpy as np
 import sklearn.metrics as metrics
 
-modelname = 'Lightunet18SGD'
-lr = '1e4'
-epochs = 'e99'
+modelname = 'Lightunet18Adam'
+lr = '1e2'
+epochs = 'e5'
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
 loss_imgs = 'Loss_'+ modelname + '_' + lr + '_' + epochs +'.png'
@@ -93,18 +93,16 @@ def save_plots(train_acc, val_acc, train_loss, val_loss):
     
     plt.savefig(os.path.join(root, loss_imgs))
 
-def plot_img_and_mask(img, mask):
-    classes = mask.shape[0] if len(mask.shape) > 2 else 1
-    fig, ax = plt.subplots(1, classes +1)
+def plot_img_and_mask(img, pred, mask):
+    print('=====> Saving prediction result')
+    fig, ax = plt.subplots(1, 3)
     ax[0].set_title('Input image')
     ax[0].imshow(img)
-    if classes > 1:
-        for i in range(classes):
-            ax[i + 1].set_title(f'Ouput mask (class {i + 1})')
-            ax[i + 1].imshow(mask[:, :, i])
-    else:
-        ax[1].set_title(f'Output mask')
-        ax[1].imshow(mask)
+    ax[1].set_title(f'Output prediction')
+    ax[1].imshow(pred)
+    ax[2].set_title('Target mask')
+    ax[2].imshow(mask)
+    plt.grid = False 
     plt.xticks([]), plt.yticks([])
     plt.savefig(os.path.join(root, show_imgs))
 
