@@ -32,15 +32,15 @@ Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
 root = '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
-modelparam_path = root + 'Lightunet18_1e5_e50.pth'
-
+modelparam_path = root + 'Lightunet18_1e4_e30.pth'
+checkpoint = torch.load(modelparam_path)
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
 parser.add_argument(
     '-e',
     '--epochs',
     type = int,
-    default = 50,
+    default = 99,
     help = 'Numbers of epochs to train the network'
 )
 parser.add_argument(
@@ -70,13 +70,13 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 1e-5,
+    default = 1e-4,
     help = 'Learning rate for training'
 )
 parser.add_argument(
     '-load',
     '--load',
-    default = True,
+    default = None,
     help = 'loading the trained model for prediction'
 )
 
@@ -109,9 +109,9 @@ print(model.eval())
 print('#############################################################')
 print(f'There are {total_params:,} total parameters in the model.\n')
 # optimizer used for training
-optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
+optimizer = optim.SGD(model.parameters(), lr = Learning_rate)
 # loss function for training
-loss_fn = nn.BCELoss()
+loss_fn = nn.BCEWithLogitsLoss()
 # loss_fn = nn.CrossEntropyLoss()
 
 # load dataset
@@ -143,7 +143,7 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
     train_running_loss = 0.0
     train_running_acc = 0.0
     counter = 0
-    for i, data in tqdm(enumerate(train_loader), total = len(train_data)):
+    for i, data in tqdm(enumerate(train_loader), total = len(train_data) // Batch_size):
         counter += 1
 
         img, mask = data
@@ -159,6 +159,12 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             if preds.shape != mask.shape:
                 preds = TF.resize(preds, size=mask.shape[2:])
 
+
+            # trans2img = torchvision.transforms.ToPILImage()
+            # preds = trans2img(preds).convert('L').squeeze(0)
+            # print(preds.size())
+            # plt.imshow(preds)
+            # plt.show()
             loss = loss_fn(preds, mask)
             train_running_loss += loss.item()
 
@@ -192,7 +198,7 @@ def valid(val_loader, model, loss_fn):
     val_running_loss = 0.0
     val_running_acc = 0.0
     counter = 0
-    for i, data in tqdm(enumerate(val_loader), total = len(val_data)):
+    for i, data in tqdm(enumerate(val_loader), total = len(val_data) // Batch_size):
         counter += 1
 
         img, mask = data
@@ -202,12 +208,12 @@ def valid(val_loader, model, loss_fn):
         mask = mask.float()
         mask.to(device = Device)
 
-        # forward
+        # forwardSGD
         with torch.cuda.amp.autocast():
             preds = model(img)
             if preds.shape != mask.shape:
                 preds = TF.resize(preds, size = mask.shape[2:])
-            
+
             val_loss = loss_fn(preds, mask)
             val_running_loss += val_loss.item()
 
@@ -231,19 +237,24 @@ def valid(val_loader, model, loss_fn):
 
 def main():
     if Load_model is not None:
-        load_model(torch.load(modelparam_path), model)
         img_path = Target_img
         img_im = Image.open(img_path).convert('RGB')
+
         trans2tensor = torchvision.transforms.ToTensor()
-        img_tensor = trans2tensor(img_im).unsqueeze(0)
-        pred_tensor = model(img_tensor).squeeze(0)
-        print(pred_tensor.size())
-        pred_np = pred_tensor.detach().numpy()
-        print(pred_np)
-        # trans2img = torchvision.transforms.ToPILImage()
-        # pred_im = trans2img(pred_tensor).convert('L')
-        # plt.plot(pred_im)
-        # plt.show()
+        img_tensor = trans2tensor(img_im).unsqueeze(0).to(device = Device)
+        load_model(checkpoint, model)
+        pred_tensor = 255 * model(img_tensor)
+
+        if pred_tensor.shape != img_tensor.shape:
+            pred_tensor = TF.resize(pred_tensor, size = img_tensor.shape[2:])
+            print(pred_tensor.size())
+
+        pred_tensor = pred_tensor.squeeze(1)
+        trans2img = torchvision.transforms.ToPILImage()
+        pred_im = trans2img(pred_tensor).convert('L')
+        plt.imshow(pred_im)
+        plt.grid(False)
+        plt.show()
 
     else:
         train_loss, val_loss = [], []
@@ -260,8 +271,7 @@ def main():
             val_loss.append(val_epoch_loss)
             train_acc.append(train_epoch_acc)
             val_acc.append(val_epoch_acc)
-
-            
+ 
             # save entire model
             save_model(Num_epochs, model, optimizer, loss_fn)
             # check accuracy
@@ -277,7 +287,7 @@ def main():
             save_plots(train_acc, val_acc, train_loss, val_loss)
 
             # # save final model
-            save_entire_model(Num_epochs, model, optimizer, loss_fn)
+        save_entire_model(Num_epochs, model, optimizer, loss_fn)
 
     print('\n============> TEST PASS!!!\n')
 
