@@ -33,7 +33,7 @@ class Outlayer(nn.Module):
         y = self.relu(y)
         y = self.outscale(y)
         y = self.convo(y)
-        y = (y, requires_grad = True)
+        
         y = self.sigmoid(y)
         threshold = torch.tensor([0.5])
         y = (y > threshold).float()*1
@@ -45,3 +45,4 @@ if __name__ == "__main__":
     feature_in = torch.randn((4, 64, 99, 99))
     feature_out = layer2(feature_in)
     print(feature_out)
+    print(feature_out.size())

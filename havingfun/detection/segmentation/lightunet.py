@@ -10,7 +10,7 @@ import numpy as np
 import sys
 import torchvision.transforms.functional as TF
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, '/home/qiao/dev/giao/havingfun/deving/common')
+sys.path.insert(0, 'giao/havingfun/deving/common')
 import torchvision.transforms as T
 from inout import Inputlayer, Outlayer
 from attentiongate import Attention_block
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     model = LightUnet(in_channels=3, out_channels = 1)
     print(model.eval())
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f'The depthwise seperable convolution uses {params} parameters.')
+    print(f'=====>The depthwise seperable convolution uses {params} parameters.')
     preds = model(img)
     if preds.shape != mask.shape:
         # preds = TF.resize(preds, size=mask.shape[2:])

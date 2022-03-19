@@ -48,7 +48,7 @@ class JinglingDataset(Dataset):
         img_im = Image.open(img_path).convert('RGB')
         img_np = np.array(img_im)
         # mask_path = os.path.join(self.mask_dir, self.masks[index])
-        mask_path = os.path.join(self.mask_dir, self.imgs[index].replace('.png', '_mask.png'))
+        mask_path = os.path.join(self.mask_dir, 'label_' + self.imgs[index])
         mask_np = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
         mask_np[mask_np > 0.0] = 1.0
         if self.transform:           
@@ -58,8 +58,8 @@ class JinglingDataset(Dataset):
         return img_tensor, mask_tensor
     
 if __name__ == '__main__':
-    Img_dir = ('dataset/imgs/jinglingseg/images')
-    Mask_dir = ('dataset/imgs/jinglingseg/masks')
+    Img_dir = ('/home/qiaolinhan/dev/datas/S_kaggle_wildfire')
+    Mask_dir = ('/home/qiaolinhan/dev/datas/S_kaggle_wildfire_label')
     data = JinglingDataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = transform)
     # img, mask = data
     # print(img.shape)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
     val_data = Subset(data, indices[-valid_size:])
     print(f"Total training images: {len(train_data)}")
     print(f"Total valid_images: {len(val_data)}")
-    batch_size = 2
+    batch_size = 1
     counter = 0
     train_loader = DataLoader(train_data, batch_size = batch_size, 
                           num_workers = 0, 
@@ -86,10 +86,11 @@ if __name__ == '__main__':
     for j, data in tqdm(enumerate(train_loader), total = len(train_data) // batch_size):
         counter += 1
         img_tensor, mask_tensor = data
-
+    print(img_tensor.squeeze(0).size())
+    print(mask_tensor.squeeze(0).size())
     f, ax = plt.subplots(1, 2)
     ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
-    ax[1].imshow(mask_tensor.permute(1, 2, 0))
+    ax[1].imshow(mask_tensor.squeeze(0))
     plt.show()
 
 

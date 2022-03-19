@@ -7,7 +7,7 @@ matplotlib.style.use('ggplot')
 
 import os
 root = os.path.dirname(os.path.join(
-    '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
+    '/home/qiaolinhan/dev/giao/havingfun/detection/segmentation/saved_imgs'
     ))
 
 import numpy as np

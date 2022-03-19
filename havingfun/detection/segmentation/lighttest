@@ -33,6 +33,9 @@ Image_weight = 400
 Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
+root = '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
+modelparam_path = root + 'Lightunet18Adam_1e2_e5.pth'
+checkpoint = torch.load(modelparam_path)
 
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
@@ -53,61 +56,45 @@ parser.add_argument(
     help = 'Learning rate for training'
 )
 
+# specifying whether to test the trained model
+parser.add_argument(
+    '-tar',
+    '--tar_img',
+    type = str,
+    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/images/img1.png',
+    help = 'Load the target image to be detected'
+)
+tarmask_path = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/masks/img1_mask.png'
 
 
-parser.add_argument(
-    '-t',
-    '--troot',
-    type = str,
-    default = '/home/qiaolinhan/dev/datas/S_kaggle_wildfire',
-    help = 'Input the image dataset path'
-)
-parser.add_argument(
-    '-m',
-    '--mroot',
-    type = str,
-    default = '/home/qiaolinhan/dev/datas/S_kaggle_wildfire_label',
-    help = 'Input the mask dataset path'
-)
+
 
 # classes add codes
-codes = ['Fire', 'Smoke', 'Void']
-num_classes = 3
+codes = ['Target', 'Void']
+num_classes = 2
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 metric = Segratio(num_classes)
 
 args = vars(parser.parse_args())
-Num_epochs = args['epochs']
-Img_dir = args['troot']
-Mask_dir = args['mroot']
-Learning_rate = args['lr']
+Load_model = args['load']
+Target_img = args['tar_img']
 
 # the device used fir training
-train_on_gpu = torch.cuda.is_available()
-if train_on_gpu:
-    print("=====>CUDA is available! Training on GPU...")
-else:
-    print("=====>CUDA is not available. Training on CPU...")
-
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
 
 # load the model
 model = Modeluse(in_channels=3, out_channels=1)
-model = model.to(device = Device)
-
+model.to(device = Device)
 # print the parameter numbers of the model
 total_params = sum(p.numel() for p in model.parameters())
 print(model.eval())
 print('#############################################################')
 print(f'There are {total_params:,} total parameters in the model.\n')
-
 # optimizer used for training
 optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
-
 # loss function for training
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.BCEWithLogitsLoss()
 # loss_fn = nn.CrossEntropyLoss()
 
 # load dataset
@@ -122,7 +109,7 @@ val_data = Subset(data, indices[-valid_size:])
 print(f"Total training images: {len(train_data)}")
 print(f"Total valid_images: {len(val_data)}")
 
-# print(f'\nComputation device: {Device}\n')
+print(f'\nComputation device: {Device}\n')
 
 train_loader = DataLoader(train_data, batch_size = Batch_size, 
                           num_workers = Num_workers, 
@@ -149,12 +136,13 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
     counter = 0
     for i, data in tqdm(enumerate(train_loader), total = len(train_data) // Batch_size):
         counter += 1
+
         img, mask = data
-        img = img.to(device = Device)
+        img.to(device = Device)
         
         mask = mask.unsqueeze(1)
         mask = mask.float()
-        mask = mask.to(device = Device)
+        mask.to(device = Device)
 
         # forward
         with torch.cuda.amp.autocast():
@@ -220,13 +208,13 @@ def valid(val_loader, model, loss_fn):
         counter += 1
 
         img, mask = data
-        img = img.to(device = Device)
+        img.to(device = Device)
 
         mask = mask.unsqueeze(1)
         mask = mask.float()
-        mask = mask.to(device = Device)
+        mask.to(device = Device)
 
-        # forward
+        # forwardSGD
         with torch.cuda.amp.autocast():
             preds = model(img)
             if preds.shape != mask.shape:
@@ -257,47 +245,23 @@ def valid(val_loader, model, loss_fn):
     val_epoch_mpa = 100. * val_running_mpa / counter
     return val_epoch_loss, val_epoch_acc, val_epoch_mpa
 
-def main():
+def main():    
+    img_path = Target_img
+    img_im = Image.open(img_path).convert('RGB')
+    mask_im =Image.open(tarmask_path).convert('L')
+    trans2tensor = torchvision.transforms.ToTensor()
+    img_tensor = trans2tensor(img_im).unsqueeze(0).to(device = Device)
+    load_model(checkpoint, model)
+    pred_tensor = 255 * model(img_tensor)
 
-    train_loss, val_loss = [], []
-    train_acc, val_acc = [], []
-    # check_accuracy(val_loader, model, device = Device)
-    scaler = torch.cuda.amp.GradScaler()
-    for epoch in range(Num_epochs):
-        train_epoch_loss, train_epoch_acc, _ = fit(train_loader, model,
-                                                    optimizer, loss_fn, scaler)
-        # tqdm(enumerate(train_loader)).set_postfix(loss = train_epoch_loss(), acc = train_epoch_loss())
-        val_epoch_loss, val_epoch_acc, _ = valid(val_loader, model,loss_fn)
-        # tqdm(enumerate(val_loader)).set_postfix(loss = val_epoch_loss.item(), acc = val_epoch_loss())
-        train_loss.append(train_epoch_loss)
-        val_loss.append(val_epoch_loss)
-        train_acc.append(train_epoch_acc)
-        val_acc.append(val_epoch_acc)
+    # if pred_tensor.shape != img_tensor.shape:
+    #     pred_tensor = TF.resize(pred_tensor, size = img_tensor.shape[2:])
+    #     print(pred_tensor.size())
 
-        # save entire model
-        save_model(Num_epochs, model, optimizer, loss_fn)
-        # check accuracy
-        # check_accuracy(val_loader, model, device = Device)
-
-        # print some examples to a folder
-        # save_predictions_as_imgs(val_loader, 
-        #                             model, 
-        #                             folder = 'saved_imgs/', 
-        #                             device = Device)
-
-        # plot loss and acc
-        save_plots(train_acc, val_acc, train_loss, val_loss)
-
-        # # save final model
-    save_entire_model(Num_epochs, model, optimizer, loss_fn)
-
-print('\n============> TEST PASS!!!\n')
-
-
-if __name__ == "__main__":
-    main()
-
-
-
-
-
+    pred_tensor = pred_tensor.squeeze(1)
+    trans2img = torchvision.transforms.ToPILImage()
+    pred_im = trans2img(pred_tensor).convert('L')
+    # plt.imshow(pred_im)
+    # plt.grid(False)
+    # plt.show()
+    plot_img_and_mask(img_im, pred_im, mask_im)
