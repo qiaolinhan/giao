@@ -1,7 +1,8 @@
 __pycache__/
 datasets/
-*.zip
-classifierresult/
-*.pth
 order/
 papers/
+classifierresult/
+*.zip
+*.pth
+
