@@ -52,4 +52,4 @@ if __name__ == '__main__':
     layer3 = Up_conv(in_channels=256, out_channels=1)
     feature_in = torch.randn((4, 256, 255, 255))
     feature_out = layer3(feature_in)
-    print(feature_out.shape)
+    print('feature out size:', feature_out.shape)

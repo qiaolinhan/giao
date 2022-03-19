@@ -10,11 +10,13 @@ import numpy as np
 import sys
 import torchvision.transforms.functional as TF
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, 'havingfun/deving/common')
+sys.path.insert(1, 'havingfun/deving/blocks')
 import torchvision.transforms as T
-from inout import Inputlayer, Outlayer
-from attentiongate import Attention_block
-from depthwise import DDepthwise, UDepthwise, Up_conv
+from inoutblock import Inputlayer, Outlayer
+from attentiongateblock import Attention_block
+from depthwiseblock import DDepthwise, UDepthwise, Up_conv
+
+sys.path.insert(1, 'havingfun/deving/tools')
 from resizetensor import sizechange
 
 class LightUnet(nn.Module):

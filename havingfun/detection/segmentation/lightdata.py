@@ -58,8 +58,8 @@ class JinglingDataset(Dataset):
         return img_tensor, mask_tensor
     
 if __name__ == '__main__':
-    Img_dir = ('/home/qiaolinhan/dev/datas/S_kaggle_wildfire')
-    Mask_dir = ('/home/qiaolinhan/dev/datas/S_kaggle_wildfire_label')
+    Img_dir = ('datasets/S_kaggle_wildfire')
+    Mask_dir = ('datasets/S_kaggle_wildfire_label')
     data = JinglingDataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = transform)
     # img, mask = data
     # print(img.shape)

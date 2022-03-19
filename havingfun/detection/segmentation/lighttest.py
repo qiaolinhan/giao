@@ -33,7 +33,7 @@ Image_weight = 400
 Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
-root = '/home/qiao/dev/giao/havingfun/detection/segmentation/saved_imgs/'
+root = 'havingfun/detection/segmentation/saved_imgs/'
 modelparam_path = root + 'Lightunet18Adam_1e2_e5.pth'
 checkpoint = torch.load(modelparam_path)
 
@@ -61,17 +61,17 @@ parser.add_argument(
     '-tar',
     '--tar_img',
     type = str,
-    default = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/images/img1.png',
+    default = 'datasets/imgs/jinglingseg/images/img1.png',
     help = 'Load the target image to be detected'
 )
-tarmask_path = '/home/qiao/dev/giao/dataset/imgs/jinglingseg/masks/img1_mask.png'
+tarmask_path = 'datasets/imgs/jinglingseg/masks/img1_mask.png'
 
 
 
 
 # classes add codes
-codes = ['Target', 'Void']
-num_classes = 2
+codes = ['Fire', 'Smoke', 'Void']
+num_classes = 3
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 metric = Segratio(num_classes)
