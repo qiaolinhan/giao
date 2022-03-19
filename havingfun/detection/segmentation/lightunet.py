@@ -10,7 +10,7 @@ import numpy as np
 import sys
 import torchvision.transforms.functional as TF
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, 'giao/havingfun/deving/common')
+sys.path.insert(0, 'havingfun/deving/common')
 import torchvision.transforms as T
 from inout import Inputlayer, Outlayer
 from attentiongate import Attention_block
