@@ -26,7 +26,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
-Batch_size = 1
+Batch_size = 2
 Num_workers = 0
 Image_hight = 400
 Image_weight = 400
@@ -59,14 +59,14 @@ parser.add_argument(
     '-t',
     '--troot',
     type = str,
-    default = '/home/qiaolinhan/dev/datas/S_kaggle_wildfire',
+    default = 'datasets/S_kaggle_wildfire',
     help = 'Input the image dataset path'
 )
 parser.add_argument(
     '-m',
     '--mroot',
     type = str,
-    default = '/home/qiaolinhan/dev/datas/S_kaggle_wildfire_label',
+    default = 'datasets/S_kaggle_wildfire_label',
     help = 'Input the mask dataset path'
 )
 
@@ -159,8 +159,8 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         # forward
         with torch.cuda.amp.autocast():
             preds = model(img)
-            # print('preds size before resize', preds.size())
-            # print('mask size', mask.size())
+            print('preds size before resize', preds.size())
+            print('mask size', mask.size())
 
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
