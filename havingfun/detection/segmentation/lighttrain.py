@@ -59,14 +59,14 @@ parser.add_argument(
     '-t',
     '--troot',
     type = str,
-    default = '/home/qiaolinhan/dev/datas/S_kaggle_wildfire',
+    default = 'datasets/S_kaggle_wildfire',
     help = 'Input the image dataset path'
 )
 parser.add_argument(
     '-m',
     '--mroot',
     type = str,
-    default = '/home/qiaolinhan/dev/datas/S_kaggle_wildfire_label',
+    default = 'datasets/S_kaggle_wildfire_label',
     help = 'Input the mask dataset path'
 )
 
