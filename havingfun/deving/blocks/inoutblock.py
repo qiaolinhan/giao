@@ -35,10 +35,8 @@ class Outlayer(nn.Module):
         y = self.outscale(y)
         y = self.convo(y)
         
-        # y = self.sigmoid(y).to(device = Device)
-        # threshold = torch.tensor([0.5]).to(device = Device)
-        y = self.sigmoid(y)
-        threshold = torch.tensor([.5])
+        y = self.sigmoid(y).to(device = Device)
+        threshold = torch.tensor([0.5]).to(device = Device)
         y = (y > threshold).float()*1
         return y
 

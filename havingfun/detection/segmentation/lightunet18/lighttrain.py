@@ -103,7 +103,7 @@ print(f'There are {total_params:,} total parameters in the model.\n')
 optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 
 # loss function for training
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.CrossEntropyLoss(ignore_index=0)
 loss_fn = loss_fn.to(device = Device)
 
 # load dataset
@@ -162,6 +162,16 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             if preds.shape != mask.shape:
                 preds = sizechange(preds, mask)
                 # print('preds size after resize', preds.size())
+
+
+        # # y = self.sigmoid(y)
+        # # threshold = torch.tensor([.5])
+        # # y = (y > threshold).float()*1
+            
+        #     preds = nn.Sigmoid(preds)
+        #     threshold = torch.tensor([.5])
+        #     preds = (preds > threshold).float()*1
+        #     preds = preds.to(device = Device)
 
             mask = mask.squeeze(1)
             loss = loss_fn(preds, mask)
