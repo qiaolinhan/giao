@@ -15,7 +15,7 @@ from utils import (
 ##########################################
 import sys
 sys.path.append("havingfun/detection/segmentation")
-from lightunet import LightUnet
+from havingfun.detection.segmentation.lightunet18.lightunet import LightUnet
 ##########################################
 
 # Hyperparameters etc.
