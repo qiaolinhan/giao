@@ -38,7 +38,7 @@ parser.add_argument(
     '-e',
     '--epochs',
     type = int,
-    default = 20,
+    default = 30,
     help = 'Numbers of epochs to train the network'
 )
 
@@ -66,10 +66,18 @@ parser.add_argument(
 )
 
 # classes add codes
-codes = ['Fire', 'Smoke', 'Void']
-num_classes = 3
+codes = ['Void', 'Fire', 'Smoke']
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
+print('name2id:', name2id)
+num_classes = len(name2id)
+print('num_classes:', num_classes)
+
+# def acc_smoke(input, target):
+#     target = target.squeeze(1)
+#     mask = target != void_code
+#     return (input.argmax(dim = 1)[mask] == target[mask]).float().mean()
+# metric = acc_smoke
 metric = Segratio(num_classes)
 
 args = vars(parser.parse_args())
@@ -95,7 +103,7 @@ model = model.to(device = Device)
 
 # print the parameter numbers of the model
 total_params = sum(p.numel() for p in model.parameters())
-print(model.eval())
+# print(model.eval())
 print('#############################################################')
 print(f'There are {total_params:,} total parameters in the model.\n')
 
@@ -103,7 +111,7 @@ print(f'There are {total_params:,} total parameters in the model.\n')
 optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 
 # loss function for training
-loss_fn = nn.CrossEntropyLoss(ignore_index=0)
+loss_fn = nn.MSELoss()
 loss_fn = loss_fn.to(device = Device)
 
 # load dataset
@@ -130,8 +138,8 @@ val_loader = DataLoader(val_data, batch_size = Batch_size,
 # resize tensor in up-sampling process                        
 def sizechange(input_tensor, gate_tensor):
     sizechange = nn.UpsamplingBilinear2d(size = gate_tensor.shape[2:])
-    out = sizechange(input_tensor)
-    return out
+    out_tensor = sizechange(input_tensor)
+    return out_tensor
 
 # training process
 def fit(train_loader, model, optimizer, loss_fn, scaler):
@@ -147,44 +155,41 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         img = img.to(device = Device)
         
         mask = mask.unsqueeze(1)
-        mask = mask.long()
+        mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
         with torch.cuda.amp.autocast():
             preds = model(img)
-            # print('preds size before resize', preds.size())
-            # print('mask size', mask.size())
+            # print('preds size before resize:', preds.size())
+            # print('mask size:', mask.size())
+
+
+            # for multiple class segmentation, the result should be 0, 1, 2, ...
+            sig = nn.Sigmoid()
+            preds = sig(preds)
+            # print('preds size afoter sigmoid:', preds.size())
 
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
             # therefore, the tensor need to be resized
             if preds.shape != mask.shape:
                 preds = sizechange(preds, mask)
-                # print('preds size after resize', preds.size())
+                # print('preds size after resize:', preds.size())
 
-
-        # # y = self.sigmoid(y)
-        # # threshold = torch.tensor([.5])
-        # # y = (y > threshold).float()*1
-            
-        #     preds = nn.Sigmoid(preds)
-        #     threshold = torch.tensor([.5])
-        #     preds = (preds > threshold).float()*1
-        #     preds = preds.to(device = Device)
-
-            mask = mask.squeeze(1)
+            # print(mask)
+            # mask = mask.squeeze(1)
             loss = loss_fn(preds, mask)
             train_running_loss += loss.item()
 
 
             preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.permute(1, 2, 0)
+            mask = mask.squeeze(1).permute(1, 2, 0)
             preds = (preds/255).detach().numpy().astype(np.uint8)
             mask = mask.detach().numpy().astype(np.uint8)
 
-            print('preds size:', preds.shape)
-            print('masks size:', mask.shape)
+            # print('preds size:', preds.shape)
+            # print('masks size:', mask.shape)
 
             hist = metric.addbatch(preds, mask)
             acc = metric.get_acc()
@@ -227,7 +232,7 @@ def valid(val_loader, model, loss_fn):
         img = img.to(device = Device)
 
         mask = mask.unsqueeze(1)
-        mask = mask.long()
+        mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
@@ -238,12 +243,11 @@ def valid(val_loader, model, loss_fn):
                 # preds = TF.resize(preds, size = mask.shape[2:])
                 preds = sizechange(preds, mask)
 
-            mask = mask.squeeze(1)
             val_loss = loss_fn(preds, mask)
             val_running_loss += val_loss.item()
 
             preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.permute(1, 2, 0)
+            mask = mask.squeeze(1).permute(1, 2, 0)
             preds = (preds/255).detach().numpy().astype(np.uint8)
             mask = mask.detach().numpy().astype(np.uint8)
 
@@ -282,16 +286,11 @@ def main():
 
         # save entire model
         save_model(Num_epochs, model, optimizer, loss_fn)
+
         # check accuracy
         # check_accuracy(val_loader, model, device = Device)
 
-        # print some examples to a folder
-        # save_predictions_as_imgs(val_loader, 
-        #                             model, 
-        #                             folder = 'saved_imgs/', 
-        #                             device = Device)
 
-        # plot loss and acc
         save_plots(train_acc, val_acc, train_loss, val_loss)
 
         # # save final model

@@ -50,12 +50,12 @@ parser.add_argument(
 )
 tarmask_path = 'datasets/S_kaggle_wildfire_label/label_000005.jpg'
 
-# classes add codes
-codes = ['Fire', 'Smoke', 'Void']
-num_classes = 3
-name2id = {v:k for k, v in enumerate(codes)}
-void_code = name2id['Void']
-metric = Segratio(num_classes)
+# # classes add codes
+# codes = ['Fire', 'Smoke', 'Void']
+# num_classes = 3
+# name2id = {v:k for k, v in enumerate(codes)}
+# void_code = name2id['Void']
+# metric = Segratio(num_classes)
 
 args = vars(parser.parse_args())
 Load_model = args['load']
@@ -99,3 +99,11 @@ def main():
     # plt.grid(False)
     # plt.show()
     plot_img_and_mask(img_im, pred_im, mask_im)
+
+    # print some examples to a folder
+    # save_predictions_as_imgs(val_loader, 
+    #                             model, 
+    #                             folder = 'havingfun/detection/segmentation/saved_imgs', 
+    #                             device = Device)
+
+    # plot loss and acc
