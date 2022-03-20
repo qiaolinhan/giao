@@ -31,7 +31,7 @@ img_tensor = trans2tensor(img_im).unsqueeze(0)
 #                                 mean=[0, 0, 0],
 #                                 std=[1, 1, 1])
 
-modelparam_path = 'havingfun/detection/segmentation/saved_imgs/Lightunet18_1e4_e30.pth'
+modelparam_path = 'havingfun/detection/segmentation/saved_imgs/Lightunet18_1e5_e30.pth'
 checkpoint = torch.load(modelparam_path)
 img_tensor.to(device = Device)
 model = LightUnet(in_channels=3, out_channels=1).to(device=Device)

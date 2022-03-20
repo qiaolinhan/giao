@@ -33,41 +33,22 @@ Image_weight = 400
 Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
-root = 'havingfun/detection/segmentation/saved_imgs/'
-modelparam_path = root + 'Lightunet18Adam_1e2_e5.pth'
+root = 'havingfun/detection/segmentation/saved_imgs'
+modelparam_path = root + 'Lightunet18Adam_1e5_e30.pth'
 checkpoint = torch.load(modelparam_path)
 
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
-
-parser.add_argument(
-    '-e',
-    '--epochs',
-    type = int,
-    default = 20,
-    help = 'Numbers of epochs to train the network'
-)
-
-parser.add_argument(
-    '-l',
-    '--lr',
-    type = np.float32,
-    default = 1e-5,
-    help = 'Learning rate for training'
-)
 
 # specifying whether to test the trained model
 parser.add_argument(
     '-tar',
     '--tar_img',
     type = str,
-    default = 'datasets/imgs/jinglingseg/images/img1.png',
+    default = 'datasets/S_kaggle_wildfire/000005.jpg',
     help = 'Load the target image to be detected'
 )
-tarmask_path = 'datasets/imgs/jinglingseg/masks/img1_mask.png'
-
-
-
+tarmask_path = 'datasets/S_kaggle_wildfire_label/label_000005.jpg'
 
 # classes add codes
 codes = ['Fire', 'Smoke', 'Void']
@@ -88,162 +69,15 @@ model = Modeluse(in_channels=3, out_channels=1)
 model.to(device = Device)
 # print the parameter numbers of the model
 total_params = sum(p.numel() for p in model.parameters())
-print(model.eval())
+# print(model.eval())
 print('#############################################################')
 print(f'There are {total_params:,} total parameters in the model.\n')
-# optimizer used for training
-optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
-# loss function for training
-loss_fn = nn.BCEWithLogitsLoss()
-# loss_fn = nn.CrossEntropyLoss()
-
-# load dataset
-data = JinglingDataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = transform)
-dataset_size = len(data)
-print(f"Total number of images: {dataset_size}")
-valid_split = 0.2
-valid_size = int(valid_split*dataset_size)
-indices = torch.randperm(len(data)).tolist()
-train_data = Subset(data, indices[:-valid_size])
-val_data = Subset(data, indices[-valid_size:])
-print(f"Total training images: {len(train_data)}")
-print(f"Total valid_images: {len(val_data)}")
-
-print(f'\nComputation device: {Device}\n')
-
-train_loader = DataLoader(train_data, batch_size = Batch_size, 
-                          num_workers = Num_workers, 
-                          pin_memory = Pin_memory,
-                          shuffle = True)
-val_loader = DataLoader(val_data, batch_size = Batch_size, 
-                        num_workers = Num_workers, 
-                        pin_memory = Pin_memory,
-                        shuffle = True)
 
 # resize tensor in up-sampling process                        
 def sizechange(input_tensor, gate_tensor):
     sizechange = nn.UpsamplingBilinear2d(size = gate_tensor.shape[2:])
     out = sizechange(input_tensor)
     return out
-
-# training process
-def fit(train_loader, model, optimizer, loss_fn, scaler):
-    print('====> Fitting process')
-
-    train_running_loss = 0.0
-    train_running_acc = 0.0
-    train_running_mpa = 0.0
-    counter = 0
-    for i, data in tqdm(enumerate(train_loader), total = len(train_data) // Batch_size):
-        counter += 1
-
-        img, mask = data
-        img.to(device = Device)
-        
-        mask = mask.unsqueeze(1)
-        mask = mask.float()
-        mask.to(device = Device)
-
-        # forward
-        with torch.cuda.amp.autocast():
-            preds = model(img)
-            # print('preds size before resize', preds.size())
-            # print('mask size', mask.size())
-
-            # for now, the predictions are tensors
-            # becaus of the U-net characteristic, the output is croped at edges
-            # therefore, the tensor need to be resized
-            if preds.shape != mask.shape:
-                # preds = TF.resize(preds, size=mask.shape[2:])
-                preds = sizechange(preds, mask)
-                # print('preds size after resize', preds.size())
-
-            loss = loss_fn(preds, mask)
-            train_running_loss += loss.item()
-
-
-            preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.squeeze(1).permute(1, 2, 0)
-            preds = (preds/255).detach().numpy().astype(np.uint8)
-            mask = mask.detach().numpy().astype(np.uint8)
-
-            # print('preds size:', preds.shape)
-            # print('masks size:', mask.shape)
-
-            hist = metric.addbatch(preds, mask)
-            acc = metric.get_acc()
-            train_running_acc += acc.item()
-
-            mpa = metric.get_MPA()
-            train_running_mpa += mpa.item()
-
-        # backward
-        optimizer.zero_grad()
-        # loss.backward()
-        # optimizer.step()
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update() 
-
-        tqdm(enumerate(train_loader)).set_postfix(loss = loss.item(), acc = acc.item(), MPA = mpa.item())
-
-    epoch_loss = train_running_loss / counter
-    epoch_acc = 100. * train_running_acc / counter
-    epoch_mpa = 100. * train_running_mpa / counter
-
-    # f, ax = plt.subplots(1, 2)
-    # ax[0].imshow(preds)
-    # ax[1].imshow(mask)
-    # plt.show()
-    return epoch_loss, epoch_acc, epoch_mpa
-
-def valid(val_loader, model, loss_fn):
-    print('====> Validation process')
-
-    val_running_loss = 0.0
-    val_running_acc = 0.0
-    val_running_mpa = 0.0
-    counter = 0
-    for i, data in tqdm(enumerate(val_loader), total = len(val_data) // Batch_size):
-        counter += 1
-
-        img, mask = data
-        img.to(device = Device)
-
-        mask = mask.unsqueeze(1)
-        mask = mask.float()
-        mask.to(device = Device)
-
-        # forwardSGD
-        with torch.cuda.amp.autocast():
-            preds = model(img)
-            if preds.shape != mask.shape:
-                # preds = TF.resize(preds, size = mask.shape[2:])
-                preds = sizechange(preds, mask)
-
-            val_loss = loss_fn(preds, mask)
-            val_running_loss += val_loss.item()
-
-            preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.squeeze(1).permute(1, 2, 0)
-            preds = (preds/255).detach().numpy().astype(np.uint8)
-            mask = mask.detach().numpy().astype(np.uint8)
-
-            # print('preds size:', preds.shape)
-            # print('masks size:', mask.shape)
-
-            hist = metric.addbatch(preds, mask)
-            val_acc = metric.get_acc()
-            val_running_acc += val_acc.item()
-            val_mpa = metric.get_MPA()
-            val_running_mpa += val_mpa.item()
-
-        tqdm(enumerate(val_loader)).set_postfix(loss = val_loss.item(), acc = val_acc.item(), mpa = val_mpa.item())
-
-    val_epoch_loss = val_running_loss / counter
-    val_epoch_acc = 100. * val_running_acc / counter
-    val_epoch_mpa = 100. * val_running_mpa / counter
-    return val_epoch_loss, val_epoch_acc, val_epoch_mpa
 
 def main():    
     img_path = Target_img

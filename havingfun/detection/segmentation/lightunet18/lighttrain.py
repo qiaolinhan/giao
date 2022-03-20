@@ -53,8 +53,6 @@ parser.add_argument(
     help = 'Learning rate for training'
 )
 
-
-
 parser.add_argument(
     '-t',
     '--troot',
@@ -91,7 +89,7 @@ else:
     print("=====>CUDA is not available. Training on CPU...")
 
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+# print(f'\nComputation device: {Device}\n')
 
 # load the model
 model = Modeluse(in_channels=3, out_channels=1)
@@ -121,8 +119,6 @@ train_data = Subset(data, indices[:-valid_size])
 val_data = Subset(data, indices[-valid_size:])
 print(f"Total training images: {len(train_data)}")
 print(f"Total valid_images: {len(val_data)}")
-
-# print(f'\nComputation device: {Device}\n')
 
 train_loader = DataLoader(train_data, batch_size = Batch_size, 
                           num_workers = Num_workers, 
