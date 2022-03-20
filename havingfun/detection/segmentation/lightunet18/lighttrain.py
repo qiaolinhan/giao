@@ -1,3 +1,4 @@
+from turtle import clear
 from tqdm import tqdm
 
 import torch
@@ -69,8 +70,8 @@ parser.add_argument(
 )
 
 # classes add codes
-codes = ['Fire', 'Smoke', 'Void']
-num_classes = 3
+codes = ['Fire', 'Smoke', 'Human', 'Void']
+num_classes = 4
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 metric = Segratio(num_classes)
@@ -106,7 +107,7 @@ optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 
 # loss function for training
 loss_fn = nn.CrossEntropyLoss()
-# loss_fn = nn.CrossEntropyLoss()
+loss_fn = loss_fn.to(device = Device)
 
 # load dataset
 data = JinglingDataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = transform)
@@ -149,14 +150,14 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         img = img.to(device = Device)
         
         mask = mask.unsqueeze(1)
-        mask = mask.float()
+        mask = mask.long()
         mask = mask.to(device = Device)
 
         # forward
         with torch.cuda.amp.autocast():
             preds = model(img)
-            print('preds size before resize', preds.size())
-            print('mask size', mask.size())
+            # print('preds size before resize', preds.size())
+            # print('mask size', mask.size())
 
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
@@ -166,17 +167,18 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
                 preds = sizechange(preds, mask)
                 # print('preds size after resize', preds.size())
 
+            mask = mask.squeeze(1)
             loss = loss_fn(preds, mask)
             train_running_loss += loss.item()
 
 
             preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.squeeze(1).permute(1, 2, 0)
+            mask = mask.permute(1, 2, 0)
             preds = (preds/255).detach().numpy().astype(np.uint8)
             mask = mask.detach().numpy().astype(np.uint8)
 
-            # print('preds size:', preds.shape)
-            # print('masks size:', mask.shape)
+            print('preds size:', preds.shape)
+            print('masks size:', mask.shape)
 
             hist = metric.addbatch(preds, mask)
             acc = metric.get_acc()
@@ -219,21 +221,23 @@ def valid(val_loader, model, loss_fn):
         img = img.to(device = Device)
 
         mask = mask.unsqueeze(1)
-        mask = mask.float()
+        mask = mask.long()
         mask = mask.to(device = Device)
 
         # forward
         with torch.cuda.amp.autocast():
             preds = model(img)
+            preds = preds.squeeze(1)
             if preds.shape != mask.shape:
                 # preds = TF.resize(preds, size = mask.shape[2:])
                 preds = sizechange(preds, mask)
 
+            mask = mask.squeeze(1)
             val_loss = loss_fn(preds, mask)
             val_running_loss += val_loss.item()
 
             preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.squeeze(1).permute(1, 2, 0)
+            mask = mask.permute(1, 2, 0)
             preds = (preds/255).detach().numpy().astype(np.uint8)
             mask = mask.detach().numpy().astype(np.uint8)
 
@@ -287,7 +291,7 @@ def main():
         # # save final model
     save_entire_model(Num_epochs, model, optimizer, loss_fn)
 
-print('\n============> TEST PASS!!!\n')
+    print('\n============> TEST PASS!!!\n')
 
 
 if __name__ == "__main__":
