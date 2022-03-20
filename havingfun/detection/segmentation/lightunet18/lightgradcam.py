@@ -14,8 +14,8 @@ import requests
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-img_path = 'datasets/imgs/jinglingseg/images/img6.png'
-mask_path = 'datasets/imgs/jinglingseg/masks/img6_mask.png'
+img_path = 'datasets/S_google_wildfire/001.png'
+mask_path = 'datasets/S_google_wildfire_label/Label_001.png'
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
 img_im = Image.open(img_path).convert('RGB')
 img_np = np.array(img_im)

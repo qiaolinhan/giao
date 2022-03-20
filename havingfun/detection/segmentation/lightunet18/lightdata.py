@@ -86,8 +86,8 @@ if __name__ == '__main__':
     for j, data in tqdm(enumerate(train_loader), total = len(train_data) // batch_size):
         counter += 1
         img_tensor, mask_tensor = data
-    print(img_tensor.squeeze(0).size())
-    print(mask_tensor.squeeze(0).size())
+    print('img_tensor size:', img_tensor.squeeze(0).size())
+    print('mask_tensor size:', mask_tensor.squeeze(0).size())
     f, ax = plt.subplots(1, 2)
     ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
     ax[1].imshow(mask_tensor.squeeze(0))
