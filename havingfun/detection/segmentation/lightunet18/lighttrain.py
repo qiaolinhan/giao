@@ -238,7 +238,10 @@ def valid(val_loader, model, loss_fn):
         # forward
         with torch.cuda.amp.autocast():
             preds = model(img)
-            preds = preds.squeeze(1)
+
+            sig = nn.Sigmoid()
+            preds = sig(preds)
+            
             if preds.shape != mask.shape:
                 # preds = TF.resize(preds, size = mask.shape[2:])
                 preds = sizechange(preds, mask)
