@@ -12,7 +12,7 @@ from tqdm import tqdm
 import torchvision
 Image_hight =400
 Image_weight = 400
-transform = A.Compose([
+Atransform = A.Compose([
     A.Resize(Image_hight, Image_weight),
     A.HorizontalFlip(p = 0.2),
     A.RandomBrightnessContrast(p = 0.2),
@@ -60,7 +60,7 @@ class JinglingDataset(Dataset):
 if __name__ == '__main__':
     Img_dir = ('datasets/S_kaggle_wildfire')
     Mask_dir = ('datasets/S_kaggle_wildfire_label')
-    data = JinglingDataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = transform)
+    data = JinglingDataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = Atransform)
     # img, mask = data
     # print(img.shape)
     for i in range(len(data)):

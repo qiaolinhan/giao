@@ -25,7 +25,7 @@ class Outlayer(nn.Module):
         # 1x1 Conv
         self.convf = nn.ConvTranspose2d(in_channels, out_channels, 1, 1, 0)
         self.relu = nn.ReLU()
-        self.outscale = nn.Upsample(scale_factor=2, mode='nearest')
+        self.outscale = nn.UpsamplingNearest2d(scale_factor=2)
         self.convo = nn.ConvTranspose2d(out_channels, out_channels, 7, 2, 3)
         self.sigmoid = nn.Sigmoid()
         
@@ -35,8 +35,10 @@ class Outlayer(nn.Module):
         y = self.outscale(y)
         y = self.convo(y)
         
-        y = self.sigmoid(y).to(device = Device)
-        threshold = torch.tensor([0.5]).to(device = Device)
+        # y = self.sigmoid(y).to(device = Device)
+        # threshold = torch.tensor([0.5]).to(device = Device)
+        y = self.sigmoid(y)
+        threshold = torch.tensor([.5])
         y = (y > threshold).float()*1
         return y
 

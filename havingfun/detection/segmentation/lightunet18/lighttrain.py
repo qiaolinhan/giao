@@ -18,13 +18,9 @@ import argparse
 
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
-from lightdata import JinglingDataset, transform
+from lightdata import JinglingDataset, Atransform
 from torch.utils.data import DataLoader, Subset
 # from sklearn.model_selection import train_test_split
-import torchvision
-import torchvision.transforms.functional as TF
-from PIL import Image
-import matplotlib.pyplot as plt
 
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
 Batch_size = 2
@@ -70,8 +66,8 @@ parser.add_argument(
 )
 
 # classes add codes
-codes = ['Fire', 'Smoke', 'Human', 'Void']
-num_classes = 4
+codes = ['Fire', 'Smoke', 'Void']
+num_classes = 3
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 metric = Segratio(num_classes)
@@ -90,6 +86,7 @@ else:
     print("=====>CUDA is not available. Training on CPU...")
 
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
+# Device = 'cpu'
 # print(f'\nComputation device: {Device}\n')
 
 # load the model
@@ -110,7 +107,7 @@ loss_fn = nn.CrossEntropyLoss()
 loss_fn = loss_fn.to(device = Device)
 
 # load dataset
-data = JinglingDataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = transform)
+data = JinglingDataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = Atransform)
 dataset_size = len(data)
 print(f"Total number of images: {dataset_size}")
 valid_split = 0.2
@@ -163,7 +160,6 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             # becaus of the U-net characteristic, the output is croped at edges
             # therefore, the tensor need to be resized
             if preds.shape != mask.shape:
-                # preds = TF.resize(preds, size=mask.shape[2:])
                 preds = sizechange(preds, mask)
                 # print('preds size after resize', preds.size())
 
