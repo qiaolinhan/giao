@@ -22,7 +22,7 @@ Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
 root = 'havingfun/detection/segmentation/saved_imgs/'
-modelparam_path = root + 'Lightunet18_MSE_Adam_1e5_e30.pth'
+modelparam_path = root + 'Lightunet18_MSE_Adam_1e4_e30.pth'
 
 # the device used fir training
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -37,10 +37,10 @@ parser.add_argument(
     '-tar',
     '--tar_img',
     type = str,
-    default = 'datasets/S_kaggle_wildfire/000005.jpg',
+    default = 'datasets/S_kaggle_wildfire/000044.jpg',
     help = 'Load the target image to be detected'
 )
-tarmask_path = 'datasets/S_kaggle_wildfire_label/label_000005.jpg'
+tarmask_path = 'datasets/S_kaggle_wildfire_label/label_000044.jpg'
 
 args = vars(parser.parse_args())
 Target_img = args['tar_img']
@@ -74,6 +74,7 @@ def main():
     plt.imshow(pred_im)
     plt.grid(False)
     plt.show()
+
     plot_img_and_mask(img_im, pred_im, mask_im)
 
     # print some examples to a folder
