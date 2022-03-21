@@ -23,7 +23,11 @@ Valid_split = 0.2
 Modeluse = LightUnet
 root = 'havingfun/detection/segmentation/saved_imgs/'
 modelparam_path = root + 'Lightunet18_MSE_Adam_1e5_e30.pth'
-checkpoint = torch.load(modelparam_path)
+
+# the device used fir training
+Device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+checkpoint = torch.load(modelparam_path, map_location=torch.device(Device))
 
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
@@ -41,8 +45,7 @@ tarmask_path = 'datasets/S_kaggle_wildfire_label/label_000005.jpg'
 args = vars(parser.parse_args())
 Target_img = args['tar_img']
 
-# the device used fir training
-Device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 
 # load the model
 model = Modeluse(in_channels=3, out_channels=1)
@@ -80,3 +83,6 @@ def main():
     #                             device = Device)
 
     # plot loss and acc
+
+if __name__ == '__main__':
+    main()
