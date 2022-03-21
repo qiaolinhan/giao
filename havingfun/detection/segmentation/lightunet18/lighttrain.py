@@ -46,7 +46,7 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 1e-5,
+    default = 1e-4,
     help = 'Learning rate for training'
 )
 
@@ -185,8 +185,8 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
 
             preds = preds.squeeze(1).permute(1, 2, 0)
             mask = mask.squeeze(1).permute(1, 2, 0)
-            preds = (preds/255).detach().numpy().astype(np.uint8)
-            mask = mask.detach().numpy().astype(np.uint8)
+            preds = (preds/255).cpu().detach().numpy().astype(np.uint8)
+            mask = mask.cpu().detach().numpy().astype(np.uint8)
 
             # print('preds size:', preds.shape)
             # print('masks size:', mask.shape)
@@ -251,8 +251,8 @@ def valid(val_loader, model, loss_fn):
 
             preds = preds.squeeze(1).permute(1, 2, 0)
             mask = mask.squeeze(1).permute(1, 2, 0)
-            preds = (preds/255).detach().numpy().astype(np.uint8)
-            mask = mask.detach().numpy().astype(np.uint8)
+            preds = (preds/255).cpu().detach().numpy().astype(np.uint8)
+            mask = mask.cpu().detach().numpy().astype(np.uint8)
 
             # print('preds size:', preds.shape)
             # print('masks size:', mask.shape)

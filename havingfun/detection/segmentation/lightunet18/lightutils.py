@@ -7,15 +7,15 @@ matplotlib.style.use('ggplot')
 
 import os
 root = os.path.dirname(os.path.join(
-    'havingfun/detection/segmentation/saved_imgs'
+    'havingfun/detection/segmentation/saved_imgs/'
     ))
 
 import numpy as np
 import sklearn.metrics as metrics
 
-modelname = 'Lightunet18Adam'
-lr = '1e5'
-epochs = 'e20'
+modelname = 'Lightunet18_MSE_Adam'
+lr = '1e4'
+epochs = 'e30'
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
 loss_imgs = 'Loss_'+ modelname + '_' + lr + '_' + epochs +'.png'
@@ -104,6 +104,7 @@ def plot_img_and_mask(img, pred, mask):
     ax[2].imshow(mask)
     plt.grid = False 
     plt.xticks([]), plt.yticks([])
+    plt.show()
     plt.savefig(os.path.join(root, show_imgs))
 
 # if __name__ == '__main__':
