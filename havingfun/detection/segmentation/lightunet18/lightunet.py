@@ -107,7 +107,7 @@ class LightUnet(nn.Module):
         up1 = self.up_conv1(up1)
         # up0 = self.up_conv0(up1)
         out = self.outlayer(up1)
-
+        out = sizechange(out, x)
         return out
 
 if __name__ == '__main__':
@@ -120,9 +120,9 @@ if __name__ == '__main__':
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'=====>The depthwise seperable convolution uses {params} parameters.')
     preds = model(img)
-    if preds.shape != mask.shape:
-        # preds = TF.resize(preds, size=mask.shape[2:])
-        preds = sizechange(preds, mask)
+#     if preds.shape != mask.shape:
+#         # preds = TF.resize(preds, size=mask.shape[2:])
+#         preds = sizechange(preds, mask)
     print('input shape:', img.size())
     print('preds shape:', preds.size())
 
