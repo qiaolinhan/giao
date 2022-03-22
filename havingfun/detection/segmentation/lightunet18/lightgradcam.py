@@ -43,15 +43,14 @@ def load_model(checkpoint, model):
 load_model(checkpoint, model)
 # print(model.eval())
 
-
 if torch.cuda.is_available():
     model = model.cuda()
     img_tensor = img_tensor.cuda()
 
 preds = model(img_tensor)
 
-if preds.shape != img_tensor.shape:
-    preds = TF.resize(preds, size = img_tensor.shape[2:])
+# if preds.shape != img_tensor.shape:
+#     preds = TF.resize(preds, size = img_tensor.shape[2:])
 output = preds.squeeze(0)
 output = torch.sigmoid(output)
 print(output.size())
