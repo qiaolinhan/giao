@@ -63,7 +63,7 @@ def main():
     # img_im = Image.open(img_path).convert('RGB')
     # mask_im =Image.open(tarmask_path).convert('L')
 
-    img_cv2 = cv2.imread(img_path)
+    img_cv2 = cv2.imread(img_path, cv2.COLOR_BGR2RGB)
     mask_cv2 = cv2.imread(tarmask_path, cv2.COLOR_BAYER_BG2GRAY)
     img_im = Image.fromarray(img_cv2)
     mask_im = Image.fromarray(mask_cv2)
