@@ -40,7 +40,7 @@ def save_entire_model(epochs, model, optimizer, criterion):
     }, os.path.join(root, model_param))
 
 def load_model(checkpoint, model):
-    print('====> Loading checkpoint')
+    print('======> Loading checkpoint')
     model.load_state_dict(checkpoint['model_state_dict'])
 
 # compute accuracy
