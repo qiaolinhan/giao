@@ -66,7 +66,6 @@ smoke_mask = normalized_masks[0, :, :].argmax(axis = 0).detach().cpu().numpy()
 smoke_mask_uint8 = 255 * np.uint8(smoke_mask == smoke_category)
 smoke_mask_float = np.float32(smoke_mask == smoke_category)
 
-
 img_in = trans2img(img_tensor.squeeze(0))
 img_out = trans2img(output).convert('L')
 mask_tar = mask_im
@@ -89,8 +88,6 @@ plt.figure()
 # Image.fromarray(both_images)
 # Image.show()
 
-
-
 class SemanticSegmentationTarget:
     def __init__(self, category, mask):
         self.category = category
@@ -106,8 +103,8 @@ target_layers = [model.neck]
 targets = [SemanticSegmentationTarget(smoke_category, smoke_mask_float)]
 # with GradCAM(model=model,target_layers=target_layers,
 #              use_cuda=torch.cuda.is_available()) as cam:
-with GradCAM(model=model,target_layers=target_layers) as cam:
-    grayscale_cam = cam(input_tensor=img_tensor, targets=targets)[0, :]
+cam = GradCAM(model=model,target_layers=target_layers)
+grayscale_cam = cam(input_tensor=img_tensor, targets=targets)[0, :]
     
 print(grayscale_cam)
 camed_image = show_cam_on_image(img_im, grayscale_cam, use_rgb=True)

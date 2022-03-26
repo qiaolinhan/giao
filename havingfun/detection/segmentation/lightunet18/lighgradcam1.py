@@ -70,6 +70,7 @@ seg_classes = ['__Background__', 'Smoke', 'Flame',]
 class2idx = {cls: idx for (idx, cls) in enumerate(seg_classes)}
 
 smoke_category = class2idx['Smoke']
+print('======> smoke_category:', smoke_category)
 smoke_mask = normalized_mask[0, :, :, :].argmax(axis = 0).detach().cpu().numpy()
 smoke_mask_uint8 = 255 * np.uint8(smoke_mask == smoke_category)
 smoke_mask_gray = np.mean(smoke_mask == smoke_category)
@@ -97,60 +98,14 @@ class SematicSegmentationTarget:
 # For the target, take all the pixels that belong to 'Smoke', and sum their 
 target_layers = [model.neck[-1]]
 targets = [SematicSegmentationTarget(smoke_category, smoke_mask_float)]
-
-with GradCAM(model=model,
+print(targets[0, :])
+cam = GradCAM(model=model,
              target_layers=target_layers,
-             use_cuda=torch.cuda.is_available()) as cam:
-    grayscale_cam = cam(input_tensor=img_tensor,
-                        targets=targets)[0, :]
-    cam_img = show_cam_on_image(img_np, grayscale_cam, use_rgb=True)
-
-cam_img = Image.fromarray(cam_img)
-
-# codes = ['Void', 'Smoke', 'Fire',]
-# # This helps to create a different color for each class
-# COLORS = np.random.uniform(0, 255, size=(len(codes), 3))
-
-# def predict(input_tensor, model, device, detection_threshold):
-#     outputs = model(input_tensor)
-#     # pred_classes = [codes[i] for i in outputs[0]['labels'].cpu().numpy()]
-#     pred_labels = outputs[0]['labels'].cpu().numpy()
-#     # pred_scores = outputs[0]['scores'].detach().cpu().numpy()
-#     # pred_bboxes = outputs[0]['boxes'].detach().cpu().numpy()
-    
-#     boxes, classes, labels, indices = [], [], [], []
-#     for index in range(len(pred_scores)):
-#         if pred_scores[index] >= detection_threshold:
-#             boxes.append(pred_bboxes[index].astype(np.int32))
-#             classes.append(pred_classes[index])
-#             labels.append(pred_labels[index])
-#             indices.append(index)
-#     boxes = np.int32(boxes)
-#     return boxes, classes, labels, indices
-
-# def draw_boxes(boxes, labels, classes, image):
-#     for i, box in enumerate(boxes):
-#         color = COLORS[labels[i]]
-#         cv2.rectangle(
-#             image,
-#             (int(box[0]), int(box[1])),
-#             (int(box[2]), int(box[3])),
-#             color, 2
-#         )
-#         cv2.putText(image, classes[i], (int(box[0]), int(box[1] - 5)),
-#                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2,
-#                     lineType=cv2.LINE_AA)
-#     return image
-
-# masks = predict(input_tensor, model, Device, 0.9)
-
-# # cam = EigenCAM(model,
-# #                target_layers, 
-# #                use_cuda=torch.cuda.is_available(),)
-
-# # grayscale_cam = cam(input_tensor, targets=targets)
-# # # Take the first image in the batch:
-# # grayscale_cam = grayscale_cam[0, :]
-# # cam_image = show_cam_on_image(image_float_np, grayscale_cam, use_rgb=True)
-# # Image.fromarray(cam_image)
-# # plt.show()
+             use_cuda=torch.cuda.is_available())
+# grayscale_cam = cam(input_tensor=img_tensor,
+#                     targets=targets)[0, :]
+# cam_img = show_cam_on_image(img_np, grayscale_cam, use_rgb=True)
+# cam_img = Image.fromarray(cam_img)
+# plt.imshow(cam_img)
+# plt.grid(False)
+# plt.show()
