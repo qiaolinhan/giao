@@ -111,7 +111,8 @@ print(f'There are {total_params:,} total parameters in the model.\n')
 optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 
 # loss function for training
-loss_fn = nn.MSELoss()
+# loss_fn = nn.MSELoss()
+loss_fn = nn.CrossEntropyLoss()
 loss_fn = loss_fn.to(device = Device)
 
 # load dataset
