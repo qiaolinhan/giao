@@ -1,14 +1,11 @@
 '''
-assume width of every cell is 100(m)
-each cell can be in 4 states: 
+Assume width of every cell is 100(m), each cell can be in 4 states: 
     clear, vegetation, ignit, buruning
-if cell is burning, it will ignite the heating around it.
+If cell is burning, it will ignite the heating around it.
 
 cell states
 0 = clear, 1 = vegetation, 2 = ignit, 3 = burning
-spreading rules: shown in figcellspreading.py
-
-
+spreading rules: shown in figurecellspreading.py
 
 Assume width of one cell is 100
 the step time is \hat t = 100/u_flat or \hat t = 100/u_slope
@@ -20,11 +17,6 @@ import math
 from eqPoability import prob
 from eqRateOfSpreading import ros, n_step
 
-# # P_burn works for s(x, y, t) = 1
-# P_veg = 0.9 # related to different kinds of vegetation
-# P_den = 0.8 # related to different vegetation cover density
-# P_w = 0.9 # ralated to wind velocity
-# P_s = 0.7 # related to topography slope
 # # measurements
 # V = 200
 # theta = math.radians(30)
@@ -34,13 +26,15 @@ from eqRateOfSpreading import ros, n_step
 # cell_size = 100
 # u_test = ros(V, theta, s)
 
+# probability of ignition, count of spreading steps
 P_ignit = 0.8 
-steps = 200
 # P_ignit = prob(P_veg, P_den, P_w, P_s)
-# print("the probability of ignition is:", P_ignit)
+print("======> The probability of ignition is:", P_ignit)
+
+steps = 200
 # steps = n_step(u_test, total_time, cell_size)
-# print("The rate of spreading is:", u_test)
-# print("The whole num_iteration is:", step)
+# print("======> The rate of spreading is:", u_test)
+print("======> The whole num_iteration is:", steps)
 p = [P_ignit, 1-P_ignit]
 
 # simulation size
@@ -52,6 +46,7 @@ states = np.zeros((*terrian_size, steps))
 states[0] = fild
 # the pm
 pm = np.array([+1, -1])
+
 # set the middle cell on fire
 states[terrian_size[0]//2, terrian_size[1]//2, 0] = 2
 
@@ -61,7 +56,7 @@ for t in range(1, steps-1):
     for x in range(1, terrian_size[0]-1):
         for y in range(1, terrian_size[1]-1):
             # if it is burning, it continues
-            if states[x, y, t-1] >= 2:
+            if states[x, y, t-1].any() >= 2:
                 states[x, y, t] == 3
                 # igniting neibour cells
                 if states[x + pm, y + pm, t-1] == 0:
@@ -105,4 +100,4 @@ for t in range(states.shape[0]):
 
 croped = colored[:300, 1:terrian_size[0]-1, 1:terrian_size[1]-1]
 
-imageio.mimsave('./prediction.gif', croped)
+imageio.mimsave('havingfun/prediction_dev/saved_imgs/prediction.gif', croped)
