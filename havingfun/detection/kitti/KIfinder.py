@@ -1,7 +1,7 @@
 # this function is to find appropriate learning rate for NNs
 from torch_lr_finder import LRFinder
-from lightunet import LightUnet
-from lightCVloader import CVdataset
+from KIUnet import LightUnet
+from KIdataset import CVdataset
 
 from torch.utils.data import DataLoader
 import torch.nn as nn
@@ -27,24 +27,25 @@ Atransform = A.Compose([
 ])
 
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
-Img_dir = ('datasets/S_kaggle_wildfire')
-Mask_dir = ('datasets/S_kaggle_wildfire_label')
+Img_dir = ('datasets/kittiseg/training/image_2')
+Mask_dir = ('datasets/kittiseg/training/instance')
 Data = CVdataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = Atransform)
+dataset_size = len(Data)
+print(f"Total number of images: {dataset_size}")
 
 Model = LightUnet(in_channels=3, out_channels=1)
 # Loss_fn = nn.MSELoss()
-Loss_fn = nn.CrossEntropyLoss() # mask type `long`
-Optimizer = optim.Adam(Model.parameters(), lr = 1e-7, weight_decay = 1e-2)
-batch_size = 2
+loss_fn = nn.CrossEntropyLoss()
+Optimizer = optim.Adam(Model.parameters(), lr = 1e-4, weight_decay = 1e-2)
+batch_size = 1
 counter = 0
 data_loader = DataLoader(Data, batch_size = batch_size, 
                           num_workers = 0, 
-                          pin_memory = True,
+                          pin_memory = 2,
                           shuffle = True)
-# remember to change the iteration to cover all data, 
-# if the iteration is to short, there would be data not covered.
-lr_finder = LRFinder(model = Model, optimizer=Optimizer, criterion=Loss_fn, device = Device)
-lr_finder.range_test(train_loader=data_loader, end_lr = 50, num_iter=100)
+
+lr_finder = LRFinder(model = Model, optimizer=Optimizer, criterion=loss_fn, device = Device)
+lr_finder.range_test(train_loader=data_loader, end_lr = 50, num_iter=50)
 lr_finder.plot()
-# plt.show()
+plt.show()
 lr_finder.reset()

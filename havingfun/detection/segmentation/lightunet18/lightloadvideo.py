@@ -49,12 +49,12 @@ TOSAVE_VIDEO_SIZE = (400, 400)
 capture = cv2.VideoCapture(INPUT_VIDEO_PATH)
 all_frame_num = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
 print(f'======> There are {all_frame_num:} total frames.')
-video_saver = cv2.VideoWriter("videosegresult.avi", cv2.VideoWriter_fourcc(*'DIVX'), 5,
+video_saver = cv2.VideoWriter("segresult.avi", cv2.VideoWriter_fourcc(*'DIVX'), 5,
                               TOSAVE_VIDEO_SIZE)
 
 
 if __name__ == "__main__":
-    for img_cv2 in range(0, all_frame_num, 100):
+    for img_cv2 in range(0, all_frame_num, 10):
         ret, frame = capture.read() 
         resized = cv2.resize(frame, TOSAVE_VIDEO_SIZE)
         # print("read the frame %d\n", img_cv2)
@@ -62,17 +62,16 @@ if __name__ == "__main__":
         trans2tensor = torchvision.transforms.ToTensor()
         img_tensor = trans2tensor(img_im).unsqueeze(0).to(device = Device)    
         pred_tensor = model(img_tensor).squeeze(1)
-        # print(pred_tensor.size())
+
         pred_tensor = pred_tensor.squeeze(1)
         trans2img = torchvision.transforms.ToPILImage()
         pred_im = trans2img(pred_tensor)
-        # pred_cv2 = np.asarray(pred_im.convert(''))
         pred_cv2 = np.asarray(pred_im)[:,::-1].copy()
         cv2.imshow('img', pred_cv2)
         cv2.waitKey(1)
 
-        # video_saver.write(resized)
-        video_saver.write(pred_cv2)
+        video_saver.write(resized)
+        # video_saver.write(pred_cv2)
         print("write the frame %d\n", img_cv2)
 
     video_saver.release()

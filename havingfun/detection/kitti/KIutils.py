@@ -13,9 +13,9 @@ root = os.path.dirname(os.path.join(
 import numpy as np
 import sklearn.metrics as metrics
 
-modelname = 'Lightunet18_CE_Adam'
-lr = '5.96e6'
-epochs = 'e10'
+modelname = 'Lightunet18_MSE_Adam'
+lr = '1e4'
+epochs = 'e30'
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
 loss_imgs = 'Loss_'+ modelname + '_' + lr + '_' + epochs +'.png'

@@ -22,7 +22,6 @@ from resizetensor import sizechange
 class LightUnet(nn.Module):
     def __init__(self, in_channels = 3, out_channels = 1, scale_factor = 1):
         super(LightUnet, self).__init__()
-        num = np.array([2, 2, 2, 2])
         filters = np.array([64, 128, 256, 512])
         filters = filters // scale_factor
         self.in_channels = in_channels
@@ -113,7 +112,7 @@ class LightUnet(nn.Module):
 if __name__ == '__main__':
     # batchsize = 4, channels = 3, inputsize = 400*400
     img = torch.randn((4, 3, 400, 400))
-    mask = torch.randn((4, 1, 400, 400))
+    mask = torch.randn((4, 400, 400))
     # model = Resnet34(img_channels=3, num_classes=3)
     model = LightUnet(in_channels=3, out_channels = 1)
     print(model.eval())

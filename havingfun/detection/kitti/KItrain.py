@@ -46,7 +46,7 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 5.96e-6,
+    default = 1e-4,
     help = 'Learning rate for training'
 )
 
@@ -155,8 +155,8 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         img, mask = data
         img = img.to(device = Device)
         
-        # mask = mask.unsqueeze(1)
-        # mask = mask.float()
+        mask = mask.unsqueeze(1)
+        mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
@@ -174,8 +174,8 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
             # therefore, the tensor need to be resized
-            # if preds.shape != mask.shape:
-            #     preds = sizechange(preds, mask)
+            if preds.shape != mask.shape:
+                preds = sizechange(preds, mask)
                 # print('preds size after resize:', preds.size())
 
             # print(mask)
@@ -232,8 +232,8 @@ def valid(val_loader, model, loss_fn):
         img, mask = data
         img = img.to(device = Device)
 
-        # mask = mask.unsqueeze(1)
-        # mask = mask.float()
+        mask = mask.unsqueeze(1)
+        mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
@@ -243,9 +243,9 @@ def valid(val_loader, model, loss_fn):
             sig = nn.Sigmoid()
             preds = sig(preds)
             
-            # if preds.shape != mask.shape:
-            #     # preds = TF.resize(preds, size = mask.shape[2:])
-            #     preds = sizechange(preds, mask)
+            if preds.shape != mask.shape:
+                # preds = TF.resize(preds, size = mask.shape[2:])
+                preds = sizechange(preds, mask)
 
             val_loss = loss_fn(preds, mask)
             val_running_loss += val_loss.item()

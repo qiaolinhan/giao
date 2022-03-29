@@ -34,7 +34,7 @@ class Outlayer(nn.Module):
         y = self.relu(y)
         y = self.outscale(y)
         y = self.convo(y)
-        
+        y = self.sigmoid(y)
         return y
 
 if __name__ == "__main__":
