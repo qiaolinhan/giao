@@ -4,8 +4,8 @@
 
 import cv2
 import torch
-from lightunet import LightUnet
-from lightutils import (
+from KIUnet import LightUnet
+from KIutils import (
     load_model,
     # save_predictions_as_imgs,
     plot_img_and_mask,
@@ -21,7 +21,7 @@ import numpy as np
 
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
 Modeluse = LightUnet
-root = 'havingfun/detection/segmentation/saved_imgs/'
+root = 'havingfun/detection/segmentation/saved_imgs'
 modelparam_path = root + 'Lightunet18_CE_Adam_5.96e6_e10.pth'
 checkpoint = torch.load(modelparam_path, map_location=torch.device(Device))
 # load the model
@@ -33,8 +33,9 @@ total_params = sum(p.numel() for p in model.parameters())
 print(f'======> There are {total_params:,} total parameters of this model.\n')
 # print(model.eval())
 
-# flexible hyper params: dataset for testing
+# flexible hyper params: 
 parser = argparse.ArgumentParser()
+# dataset for testing
 parser.add_argument(
     '-tar',
     '--tar_video',

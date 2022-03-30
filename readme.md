@@ -17,6 +17,12 @@ Install the relying packages
 4. Ready to train the model, traing on [train](havingfun/detection/segmentation/lightunet18/lighttrain.py)
 5. Test on images with [imgtest](havingfun/detection/segmentation/lightunet18/lighttest.py) and videos with [videotest](havingfun/detection/segmentation/lightunet18/lightloadvideo.py). The opencv is recommonded to load the video and image, but ther is convert part happen in the `.py` files.
 
-### Files Explain
-* `util.py`: Some functions are stored, such as saving accuracy's and loss's plots.
+### Files and Packages Explain
+#### Cross Entropy Loss
+commonly, use __Sum of the Squared Residuals__ to determine how well the Neural network fits the data. 
+$$SSR = \sum_{i = 1}^{n = 3}{Observed_i - Predicted_i)^2}$$
+
+The `.py` files are relying on the blocks and tools in [deving](havingfun/deving)
+* `util.py`: Some functions are stored, such as: saving model at every iteration; save entire model; saving predicted result; saving accuracy's and loss's plots; plot image, pred, mask in a figure ...  
+
 

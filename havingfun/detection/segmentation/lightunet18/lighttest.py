@@ -1,3 +1,4 @@
+from cv2 import IMREAD_UNCHANGED
 import torch
 from lightunet import LightUnet
 from lightutils import (
@@ -22,7 +23,7 @@ Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
 root = 'havingfun/detection/segmentation/saved_imgs/'
-modelparam_path = root + 'Lightunet18_MSE_Adam_1e4_e30.pth'
+modelparam_path = root + 'Lightunet18_CE_Adam_5.96e6_e10.pth'
 
 # the device used fir training
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -37,10 +38,10 @@ parser.add_argument(
     '-tar',
     '--tar_img',
     type = str,
-    default = 'datasets/S_kaggle_wildfire/000044.jpg',
+    default = 'datasets/S_google_wildfire/022.png',
     help = 'Load the target image to be detected'
 )
-tarmask_path = 'datasets/S_kaggle_wildfire_label/label_000044.jpg'
+tarmask_path = 'datasets/S_google_wildfire_label/Label_022.png'
 
 args = vars(parser.parse_args())
 Target_img = args['tar_img']
@@ -63,7 +64,8 @@ def main():
     # img_im = Image.open(img_path).convert('RGB')
     # mask_im =Image.open(tarmask_path).convert('L')
 
-    img_cv2 = cv2.imread(img_path, cv2.COLOR_BGR2RGB)
+    img_cv2 = cv2.imread(img_path)
+    img_cv2 = img_cv2[..., ::-1]
     mask_cv2 = cv2.imread(tarmask_path, cv2.COLOR_BAYER_BG2GRAY)
     img_im = Image.fromarray(img_cv2)
     mask_im = Image.fromarray(mask_cv2)

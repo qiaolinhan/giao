@@ -41,8 +41,11 @@ class CVdataset(Dataset):
         img_path = os.path.join(self.img_dir, self.imgs[index])
         mask_path = os.path.join(self.mask_dir, 'label_' + self.imgs[index])
         img_np = cv2.imread(img_path)
+        # convert to original image channels, because cv2.imread may change it
+        img_np = img_np[..., ::-1] 
         mask_np = cv2.imread(mask_path, cv2.COLOR_BGR2GRAY)
-        mask_np[mask_np > 0.0] = 1.0
+        # there are multiple classes for segmentation, then no need 
+        # mask_np[mask_np > 0.0] = 1.0
 
         if self.transform:           
             augmentations = self.transform(image = img_np, mask = mask_np)
