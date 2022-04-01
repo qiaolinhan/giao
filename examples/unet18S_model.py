@@ -38,8 +38,8 @@ class UNET(nn.Module):
             self, in_channels=3, out_channels=1, features=[64, 128, 256, 512],
     ):
         super(UNET, self).__init__()
-        self.ups = nn.ModuleList()
         self.downs = nn.ModuleList()
+        self.ups = nn.ModuleList()
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
 
         # Down part of UNET
@@ -61,19 +61,21 @@ class UNET(nn.Module):
 
     def forward(self, x):
         skip_connections = []
-
+        # down sampling part
         for down in self.downs:
             x = down(x)
-            print(x.shape)
+            # print(x.shape)
             skip_connections.append(x)
             x = self.pool(x)
 
+        # bottleneck part
         x = self.bottleneck(x)
         skip_connections = skip_connections[::-1]
 
+        # up sampling part
         for idx in range(0, len(self.ups), 2):
             x = self.ups[idx](x)
-            print(x.shape)
+            # print(x.shape)
             skip_connection = skip_connections[idx//2]
 
             if x.shape != skip_connection.shape:
@@ -88,7 +90,9 @@ def test():
     x = torch.randn((1, 3, 255, 255))
     model = UNET(in_channels=3, out_channels=1)
     preds = model(x)
-    assert preds.shape == x.shape
+    # print(x.shape)
+    # print(preds.shape)
+    assert preds.shape[2:] == x.shape[2:]
 
 if __name__ == "__main__":
     test()

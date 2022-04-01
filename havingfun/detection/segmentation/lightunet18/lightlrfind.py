@@ -26,7 +26,7 @@ Atransform = A.Compose([
 ])
 
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
-# the device used fir training
+# the device used for training
 train_on_gpu = torch.cuda.is_available()
 if train_on_gpu:
     print("=====>CUDA is available! Training on GPU...")
@@ -53,3 +53,4 @@ lr_finder = LRFinder(model = Model, optimizer=Optimizer, criterion=Loss_fn, devi
 lr_finder.range_test(train_loader=data_loader, end_lr = 50, num_iter=100)
 lr_finder.plot()
 lr_finder.reset()
+

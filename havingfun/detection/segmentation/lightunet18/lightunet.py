@@ -5,7 +5,7 @@
 # so that it could be deplyed on the on-board computer of M300 for smoke and fire segmentation
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
+# import torch.nn.functional as F
 import numpy as np
 import sys
 import torchvision.transforms.functional as TF

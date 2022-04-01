@@ -1,5 +1,9 @@
-# 2022-03-28
-# This model is used to test the video loading into network and save the output video
+# 2022-03-30
+# To test the kitti images loading into network 
+# functions: 
+# 1. Resize the images and output the video
+# 2. Save the processed images as a video
+# 3. * concatenate the videos to compare
 # Thanks for shun's example
 
 import cv2
@@ -7,8 +11,6 @@ import torch
 from KIUnet import LightUnet
 from KIutils import (
     load_model,
-    # save_predictions_as_imgs,
-    plot_img_and_mask,
 )
 import argparse
 
@@ -32,6 +34,12 @@ load_model(checkpoint, model)
 total_params = sum(p.numel() for p in model.parameters())
 print(f'======> There are {total_params:,} total parameters of this model.\n')
 # print(model.eval())
+
+
+# cv2 read the video cut images in a folder
+kiimgs_cv2 = [cv2.imread(img_o) 
+            for img_o in glob.glob('datasets/kittiseg/testing/image_2/*.png')]
+print(f'======> There are total {kiimgs_cv2:} images.')
 
 # flexible hyper params: 
 parser = argparse.ArgumentParser()

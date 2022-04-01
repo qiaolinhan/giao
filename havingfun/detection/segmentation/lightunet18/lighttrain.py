@@ -38,7 +38,7 @@ parser.add_argument(
     '-e',
     '--epochs',
     type = int,
-    default = 10,
+    default = 20,
     help = 'Numbers of epochs to train the network'
 )
 
@@ -46,7 +46,7 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 5.96e-6,
+    default = 3.82e-6,
     help = 'Learning rate for training'
 )
 

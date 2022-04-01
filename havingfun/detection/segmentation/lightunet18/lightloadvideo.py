@@ -7,8 +7,6 @@ import torch
 from lightunet import LightUnet
 from lightutils import (
     load_model,
-    # save_predictions_as_imgs,
-    plot_img_and_mask,
 )
 import argparse
 
@@ -16,15 +14,22 @@ import torchvision
 
 from PIL import Image
 import numpy as np
-# import matplotlib.pyplot as plt
-# import os
+import glob
 
+
+# sign the device
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
+train_on_gpu = torch.cuda.is_available()
+if train_on_gpu:
+    print("=====>CUDA is available! Training on GPU...")
+else:
+    print("=====>CUDA is not available. Training on CPU...")
+
+# load the model
 Modeluse = LightUnet
 root = 'havingfun/detection/segmentation/saved_imgs/'
 modelparam_path = root + 'Lightunet18_CE_Adam_5.96e6_e10.pth'
 checkpoint = torch.load(modelparam_path, map_location=torch.device(Device))
-# load the model
 model = Modeluse(in_channels=3, out_channels=1)
 model.to(device = Device)
 load_model(checkpoint, model)
@@ -43,6 +48,7 @@ parser.add_argument(
     help = 'Load the target video to be detected'
 )
 args = vars(parser.parse_args())
+
 INPUT_VIDEO_PATH = args['tar_video']
 TOSAVE_VIDEO_SIZE = (400, 400)
 
@@ -55,6 +61,7 @@ print(f'======> There are {all_frame_num:} total frames.')
 #                               TOSAVE_VIDEO_SIZE)
 video_saver2 = cv2.VideoWriter("concatresult.avi", cv2.VideoWriter_fourcc(*'DIVX'), 5,
                               TOSAVE_VIDEO_SIZE)
+
 
 if __name__ == "__main__":
     for img_cv2 in range(0, all_frame_num, 10):
