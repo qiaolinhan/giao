@@ -1,6 +1,6 @@
 # 2022-03-14
 # For U-net with structure of Resnet18, 31,036,481 params are needed.
-# For this model, there are 2,070,899 parameters.
+# For this model, there are 2,764,403 parameters.
 # this is a light U-net model based on the structure of resnet18 based Unet. The main purpose is tp decrease the model size
 # so that it could be deplyed on the on-board computer of M300 for smoke and fire segmentation
 import torch
@@ -13,7 +13,7 @@ import torchvision.transforms.functional as TF
 sys.path.insert(1, 'havingfun/deving/blocks')
 import torchvision.transforms as T
 from inoutblock import Inputlayer, Outlayer
-from attentiongateblock import Attention_block
+from attentiongateblock import Attentiongate_block
 from depthwiseblock import DDepthwise, UDepthwise, Up_conv
 
 sys.path.insert(1, 'havingfun/deving/tools')
@@ -55,15 +55,15 @@ class LightUnet(nn.Module):
 
         # up_sampling
         self.Up3 = UDepthwise(filters[3], filters[2])
-        self.Att3 = Attention_block(filters[2], filters[3])
+        self.Att3 = Attentiongate_block(filters[2], filters[3])
         self.up_conv3 = Up_conv(filters[3], filters[2])
 
         self.Up2 = UDepthwise(filters[2], filters[1])
-        self.Att2 = Attention_block(filters[1], filters[2])
+        self.Att2 = Attentiongate_block(filters[1], filters[2])
         self.up_conv2 = Up_conv(filters[2], filters[1])
 
         self.Up1 = UDepthwise(filters[1], filters[0])
-        self.Att1 = Attention_block(filters[0], filters[1])
+        self.Att1 = Attentiongate_block(filters[0], filters[1])
         self.up_conv1 = Up_conv(filters[1], filters[0])
 
         # self.up_conv0 = Up_conv(filters[0], out_channels)
@@ -73,39 +73,47 @@ class LightUnet(nn.Module):
         x0 = self.Conv0(x)
         # print('input-c64 size :', x0.size())
         x1 = self.down1(x0)
+        att1 = x1
         # print('c64-c64 size:', x1.size())
         # x2 = self.Maxpool(x1)
         x2 = self.down2(x1)
+        att2 = x2
         # print('c64-c128 size:', x2.size())
         # x3 = self.Maxpool(x2)
         x3 = self.down3(x2)
+        att3 = x3
         # x_neck = self.Maxpool(x3)
         # print('c128-c256 size:', x3.size())
         x_neck = self.neck(x3)
         # print('c256-c512 neck size:', x_neck.size())
-        gate3 = self.Att3(x3, x_neck)
-        # print(gate3.size())     
-        _up3 = self.Up3(x_neck)
+        gate3 = x_neck
+        print(gate3.size())     
+        _up30 = self.Att3(att3, gate3)
+        # print(f'_up30 size: {_up30.size()}')
+        _up31 = self.Up3(x_neck)
+        _up31 = sizechange(_up31, _up30)
+        _up3 = torch.cat((_up30, _up31), 1)
         # print('_up3 size before resieze', _up3.size())
         # print('gate3 size', gate3.size())
-        _up3 = sizechange(_up3, gate3)
-        # print('_up3 size after resize', _up3.size())
-        
-        up3 = torch.cat((gate3, _up3), 1)
-        up3 = self.up_conv3(up3)
+        up3 = self.up_conv3(_up3)
+        # print('up3 size', up3.size())
+        gate2 = up3
+        _up20 = self.Att2(att2, gate2)
+        _up21 = self.Up2(up3)
+        _up21 = sizechange(_up21, _up20)
+        _up2 = torch.cat((_up20, _up21), 1)
+        up2 = self.up_conv2(_up2)
 
-        gate2 = self.Att2(x2, up3)
-        _up2 = self.Up2(up3)
-        _up2 = sizechange(_up2, gate2)
-        up2 = torch.cat((gate2, _up2), 1)
-        up2 = self.up_conv2(up2)
+        gate1 = up2
+        _up10 = self.Att1(att1, gate1)
+        # print(f'_up10 size: {_up10.size()}')
+        _up11 = self.Up1(up2)
+        # print(f'_up11 size: {_up11.size()}')
+        _up11 = sizechange(_up11, _up10)
+        _up1 = torch.cat((_up10, _up11), 1)
+        up1 = self.up_conv1(_up1)
+        # print(f'up1 size: {up1.size()}')
 
-        gate1 = self.Att1(x1, up2)
-        _up1 = self.Up1(up2)
-        _up1 = sizechange(_up1, gate1)
-        up1 = torch.cat((gate1, _up1), 1)
-        up1 = self.up_conv1(up1)
-        # up0 = self.up_conv0(up1)
         out = self.outlayer(up1)
         out = sizechange(out, x).squeeze(1)
         return out
@@ -125,6 +133,7 @@ if __name__ == '__main__':
 #         preds = sizechange(preds, mask)
     print('input shape:', img.size())
     print('preds shape:', preds.size())
+    print(31036481//2764403)
 
 
 
