@@ -32,38 +32,42 @@ class LightUnet(nn.Module):
         # down-sampling
         self.Conv0 = Inputlayer(in_channels, filters[0])
 
-        self.down1 = nn.Sequential(
-                DDepthwise(filters[0], filters[0]),
+        self.down10 = DDepthwise(filters[0], filters[0])
+        self.down11 = nn.Sequential(
                 DDepthwise(filters[0], filters[0]),
                 nn.MaxPool2d(kernel_size = 2, stride = 2),
                 )
-        self.down2 = nn.Sequential(
-                DDepthwise(filters[0], filters[1]),
+
+        self.down20 = DDepthwise(filters[0], filters[1])
+        self.down21 = nn.Sequential(
                 DDepthwise(filters[1], filters[1]),
                 nn.MaxPool2d(kernel_size = 2, stride = 2),
                 )
-        self.down3 = nn.Sequential(
-                DDepthwise(filters[1], filters[2]),
+
+        self.down30 = DDepthwise(filters[1], filters[2])
+        self.down31 = nn.Sequential(
                 DDepthwise(filters[2], filters[2]),
                 nn.MaxPool2d(kernel_size = 2, stride = 2),
                 )
-        self.neck = nn.Sequential(
-                DDepthwise(filters[2], filters[3]),
-                DDepthwise(filters[3], filters[3])
+
+        self.neck0 = DDepthwise(filters[2], filters[3])
+        self.neck1 = nn.Sequential(
+                DDepthwise(filters[3], filters[3]),
+                # nn.MaxPool2d(kernel_size=2, stride=2),
                 )
         # self.Maxpool = nn.MaxPool2d(kernel_size = 2, stride = 2)
 
         # up_sampling
-        self.Up3 = UDepthwise(filters[3], filters[2])
-        self.Att3 = Attentiongate_block(filters[2], filters[3])
+        # self.Up3 = UDepthwise(filters[3], filters[2])
+        self.Att3 = Attentiongate_block(filters[3], filters[3])
         self.up_conv3 = Up_conv(filters[3], filters[2])
 
-        self.Up2 = UDepthwise(filters[2], filters[1])
-        self.Att2 = Attentiongate_block(filters[1], filters[2])
+        # self.Up2 = UDepthwise(filters[2], filters[1])
+        self.Att2 = Attentiongate_block(filters[2], filters[2])
         self.up_conv2 = Up_conv(filters[2], filters[1])
 
-        self.Up1 = UDepthwise(filters[1], filters[0])
-        self.Att1 = Attentiongate_block(filters[0], filters[1])
+        # self.Up1 = UDepthwise(filters[1], filters[0])
+        self.Att1 = Attentiongate_block(filters[1], filters[1])
         self.up_conv1 = Up_conv(filters[1], filters[0])
 
         # self.up_conv0 = Up_conv(filters[0], out_channels)
