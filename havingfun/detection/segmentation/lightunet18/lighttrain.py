@@ -38,7 +38,7 @@ parser.add_argument(
     '-e',
     '--epochs',
     type = int,
-    default = 20,
+    default = 10,
     help = 'Numbers of epochs to train the network'
 )
 
@@ -46,7 +46,7 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 3.82e-6,
+    default = 1.25e-2,
     help = 'Learning rate for training'
 )
 
@@ -66,7 +66,7 @@ parser.add_argument(
 )
 
 # classes add codes
-codes = ['Void', 'Fire', 'Smoke']
+codes = ['Smoke', 'Fire', 'Void']
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 print('name2id:', name2id)
@@ -154,9 +154,6 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         counter += 1
         img, mask = data
         img = img.to(device = Device)
-        
-        # mask = mask.unsqueeze(1)
-        # mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
@@ -167,9 +164,9 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
 
 
             # for multiple class segmentation, the result should be 0, 1, 2, ...
-            sig = nn.Sigmoid()
-            preds = sig(preds)
-            # print('preds size afoter sigmoid:', preds.size())
+            preds = torch.sigmoid(preds)
+            # print('preds size after sigmoid:', preds.size())
+            # preds = (preds > 0.5).float()
 
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges

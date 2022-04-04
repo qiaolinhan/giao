@@ -41,7 +41,7 @@ Model = LightUnet(in_channels=3, out_channels=1)
 # Loss_fn = nn.MSELoss()
 Loss_fn = nn.CrossEntropyLoss() # mask type `long`
 Optimizer = optim.Adam(Model.parameters(), lr = 1e-7, weight_decay = 1e-2)
-batch_size = 2
+batch_size = 1
 counter = 0
 data_loader = DataLoader(Data, batch_size = batch_size, 
                           num_workers = 0, 

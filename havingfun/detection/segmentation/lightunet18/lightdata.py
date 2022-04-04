@@ -43,12 +43,13 @@ class JinglingDataset(Dataset):
         # mask_path = os.path.join(self.mask_dir, self.masks[index])
         mask_path = os.path.join(self.mask_dir, 'label_' + self.imgs[index])
         mask_np = np.array(Image.open(mask_path).convert("L"), dtype=np.float32)
+        # print(mask_np.tolist())
         # mask_np[mask_np > 0.0] = 1.0
         if self.transform:           
             augmentations = self.transform(image = img_np, mask = mask_np)
             img_tensor = augmentations['image']
             # print(img_tensor.size()
-            mask_tensor = augmentations['mask'].float()
+            mask_tensor = augmentations['mask']
             # print(mask_tensor)
         return img_tensor, mask_tensor
     
@@ -82,8 +83,10 @@ if __name__ == '__main__':
     for j, data in tqdm(enumerate(train_loader), total = len(train_data) // batch_size):
         counter += 1
         img_tensor, mask_tensor = data[0], data[1]
+        
     print('img_tensor size:', img_tensor.size())
     print('mask_tensor size:', mask_tensor.size())
+
     f, ax = plt.subplots(1, 2)
     ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
     ax[1].imshow(mask_tensor.squeeze(0))

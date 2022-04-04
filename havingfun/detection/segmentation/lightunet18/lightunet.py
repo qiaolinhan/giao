@@ -87,7 +87,7 @@ class LightUnet(nn.Module):
         x_neck = self.neck(x3)
         # print('c256-c512 neck size:', x_neck.size())
         gate3 = x_neck
-        print(gate3.size())     
+        # print(gate3.size())     
         _up30 = self.Att3(att3, gate3)
         # print(f'_up30 size: {_up30.size()}')
         _up31 = self.Up3(x_neck)
