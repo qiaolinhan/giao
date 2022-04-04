@@ -39,7 +39,7 @@ Data = CVdataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = Atransform)
 
 Model = LightUnet(in_channels=3, out_channels=1)
 # Loss_fn = nn.MSELoss()
-Loss_fn = nn.CrossEntropyLoss() # mask type `long`
+Loss_fn = nn.NL() # mask type `long`
 Optimizer = optim.Adam(Model.parameters(), lr = 1e-7, weight_decay = 1e-2)
 batch_size = 1
 counter = 0

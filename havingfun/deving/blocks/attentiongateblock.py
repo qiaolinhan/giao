@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from torch.nn import functional as F
-from depthwiseblock import DDepthwise, UDepthwise
+from depthwiseblock import DDepthwise, UDepthwise, Up_conv
 
 import sys
 sys.path.insert(1, 'havingfun/deving/tools')
@@ -20,7 +20,7 @@ class Attentiongate_block(nn.Module):
             nn.Conv2d(att_channels, gating_channels, kernel_size = 1, stride = 1, padding = 0, bias = True),
             nn.BatchNorm2d(gating_channels),
             nn.Conv2d(gating_channels, gating_channels, 1, 2, 0), # to change H,W of feature map
-            nn.BatchNorm2d(gating_channels)
+            nn.BatchNorm2d(gating_channels),
         )
 
         self.phi = nn.Sequential(
@@ -43,8 +43,8 @@ class Attentiongate_block(nn.Module):
 
         gl = self.phi(gate)
         # print(f'gating size: {gl.size()}')
-        if gl.size() != att.size():
-             gl = sizechange(gl, att1)
+        # if gl.size() != att.size():
+        #      gl = sizechange(gl, att1)
         # print(f'resized gating size: {gl.size()}')
 
         psi_in = self.relu(att1 + gl)
@@ -60,12 +60,40 @@ class Attentiongate_block(nn.Module):
 if __name__ == '__main__':
 
     # batchsize = 2, channels = 128, inputsize = 255*255
-    feature_att = torch.randn((2, 64, 400, 400))
-    feature_gate = torch.randn((2, 128, 200, 200))
-    # model = Resnet34(img_channels=3, num_classes=3)
-    attgate = Attentiongate_block(att_channels=64, gating_channels=128)
-    # print(attgate.eval())
-    feature_out = attgate(feature_att, feature_gate)
-    print(f'att size: {feature_att.size()}')
-    print('up-sampling part shape:', feature_out.shape)
+    input = torch.randn((2, 128, 400, 400))
+    Down00 = DDepthwise(in_channels=128, out_channels=256)
+    down00 = Down00(input)
+    # print(f'down00 size: {down00.size()}')
+    Down01 = DDepthwise(in_channels = 256, out_channels=256)
+    Pooling1 = nn.MaxPool2d(2, 2, 0) 
+    down01 = Down01(down00)
+    down02 = Pooling1(down01)
+    print(f'down01 size: {down01.size()}')
+    # print(f'down02 size: {down02.size()}')
+
+    Down10 = DDepthwise(in_channels=256, out_channels=512)
+    down10 = Down10(down02)
+    # print(f'down10 size: {down10.size()}')
+    Down11 = DDepthwise(in_channels=512, out_channels=512)
+    down11 = Down11(down10)
+    print(f'down11 size: {down11.size()}')
+
+    att0 = down01
+    print(f'att0 size: {att0.size()}')
+    gate1 = down11
+    print(f'gate1 size: {gate1.size()}')
+    Attgate = Attentiongate_block(att_channels=256, gating_channels=512)
+    attgate = Attgate(att0, gate1)
+    print(f'attgate size: {attgate.size()}')
+
+    _up10 = attgate
+    print(f'_up10 size: {_up10.size()}')
+    Up10 = UDepthwise(in_channels = 512, out_channels=256)
+    _up11 = Up10(down11)
+    print(f'_up11 size: {_up11.size()}')
+    up_cat = torch.cat((_up10, _up11), 1)
+    print(f'up_cat size: {up_cat.size()}')
+    Up11 = Up_conv(in_channels=512, out_channels=256)
+    up1 = Up11(up_cat)
+    # print(f'up1 size: {up1.size()}')
 
