@@ -1,10 +1,10 @@
 学习一下这个loss function。 因为发现segmentation中，自己造的light U-net使用CEloss要么loss贼大，要么loss不下降。找不到原因，神烦。  
 ok doge  
-## 1. What is lossfunction
+## 1. What is Loss Function
 用来度量模型预测值，predection， 和真实值， label， 的差异程度的运算函数。  
 * 是一个非负实函数。 通常表示为 $L(Y, f(x))$  
 * 损失函数越小，模型鲁棒性越好
-## 2. Some loss functions
+## 2. Some Commonly Used Loss Functions
 ### 2.1 基于距离的损失函数
 输入数据映射到-基于距离度量的特征空间-（欧氏空间， 汉明空间， 等）  
 映射后的样本看作空间上的点， 采用合适的损失函数度量特征空间上-样本真值-和-模型预测值-之间的距离。  
