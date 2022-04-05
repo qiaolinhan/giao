@@ -50,7 +50,7 @@ class CVdataset(Dataset):
         if self.transform:           
             augmentations = self.transform(image = img_np, mask = mask_np)
             img_tensor = augmentations['image']
-            mask_tensor = augmentations['mask'].float()
+            mask_tensor = augmentations['mask'].float() / 2
         return img_tensor, mask_tensor
 
 if __name__ == '__main__':

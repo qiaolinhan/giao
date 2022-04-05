@@ -23,7 +23,7 @@ Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
 root = 'havingfun/detection/segmentation/saved_imgs/'
-modelparam_path = root + 'Lightunet18_CE_Adam_5.96e6_e10.pth'
+modelparam_path = root + 'Lightunet18_MSE_SGD_3.4e1_e10.pth'
 
 # the device used fir training
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -75,7 +75,7 @@ def main():
     print(img_tensor.size())
 
     load_model(checkpoint, model)
-    pred_tensor = model(img_tensor).squeeze(1)
+    pred_tensor = model(img_tensor).squeeze(1)/255
     print(pred_tensor.size())
     pred_tensor = pred_tensor.squeeze(1)
     trans2img = torchvision.transforms.ToPILImage()

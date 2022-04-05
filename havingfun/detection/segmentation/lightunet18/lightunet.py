@@ -45,80 +45,93 @@ class LightUnet(nn.Module):
         self.neck0 = DDepthwise(filters[2], filters[3])
         self.neck1 = DDepthwise(filters[3], filters[3])
 
-        # up_sampling
-        self.Up3 = UDepthwise(filters[3], filters[2])
+        # up_sampling        
         self.Att3 = Attentiongate_block(filters[2], filters[3])
-        self.up_conv3 = Up_conv(filters[3], filters[2])
+        self.Up_conv3 = Up_conv(filters[3], filters[2])
+        self.Up3 = UDepthwise(filters[3], filters[2])
 
-        self.Up2 = UDepthwise(filters[2], filters[1])
         self.Att2 = Attentiongate_block(filters[1], filters[2])
-        self.up_conv2 = Up_conv(filters[2], filters[1])
+        self.Up_conv2 = Up_conv(filters[2], filters[1])
+        self.Up2 = UDepthwise(filters[2], filters[1])
 
-        self.Up1 = UDepthwise(filters[1], filters[0])
         self.Att1 = Attentiongate_block(filters[0], filters[1])
-        self.up_conv1 = Up_conv(filters[1], filters[0])
+        self.Up_conv1 = Up_conv(filters[1], filters[0])
+        self.Up1 = UDepthwise(filters[1], filters[0])
 
         # self.up_conv0 = Up_conv(filters[0], out_channels)
         self.outlayer = Outlayer(filters[0], out_channels)
 
     def forward(self, input):
         x0 = self.Conv0(input)
-        # print(f'x0 size: {x0.size()}')
+        print(f'into encoder, x0 size: {x0.size()}')
+
         down10 = self.down10(x0)
         down11 = self.down11(down10)
         att1 = down11
         down12 = self.pooling(down11)
-        # print('c64-c64 size:', x1.size())
-        # x2 = self.Maxpool(x1)
+        print(f'down10 size: {down10.size()}')
+        print(f'down11 size, att1 size: {down11.size()}')
+        print(f'down12 size: {down12.size()}')
+        
         down20 = self.down20(down12)
         down21 =self.down21(down20)
         att2 = down21
         down22 = self.pooling(down21)
-        # print('c64-c128 size:', x2.size())
-        # x3 = self.Maxpool(x2)
+        print(f'down20 size: {down20.size()}')
+        print(f'down21 size, att2 size: {down21.size()}')
+        print(f'down22 size: {down22.size()}')
+
         down30 = self.down30(down22)
         down31 = self.down31(down30)
         att3 = down31
         down32 = self.pooling(down31)
-        # print(f'att3 size: {att3.size()}')
-        # x_neck = self.Maxpool(x3)
-        # print('c128-c256 size:', x3.size())
+        print(f'down30 size: {down30.size()}')
+        print(f'down31 size, att3 size: {down31.size()}')
+        print(f'down32 size: {down32.size()}')
+
+        # no pooling layer in bottle neck
         x_neck0 = self.neck0(down32)
-        # print('c256-c512 neck size:', x_neck.size())
         x_neck1 = self.neck1(x_neck0)
-        # print(f'x_neck1 size: {x_neck1.size()}')
         gate_neck = x_neck1
-        # print(f'gate_neck size: {gate_neck.size()}')     
+        print(f'x_neck0 size: {x_neck0.size()}')
+        print(f'x_neck1 size, gate_neck size: {x_neck1.size()}')
+
         _up30 = self.Att3(att3, gate_neck)
-        # print(f'_up30 size: {_up30.size()}')
-        _up31 = self.Up3(x_neck1)
-        # print(f'_up31 size: {_up31.size()}')
+        _up31 = self.Up_conv3(x_neck1)
+        _up31 = sizechange(_up31, _up30)
         _up3 = torch.cat((_up30, _up31), 1)
-        # print(f'_up3 size: {_up3.size()}')
-        up3 = self.up_conv3(_up3)
-        # print('up3 size', up3.size())
+        up3 = self.Up3(_up3)
         gate3 = up3
-        # print(f'att2 size: {att2.size()}')
-        # print(f'gate3 size {gate3.size()}')
+        print(f'_up30 size: {_up30.size()}')
+        print(f'_up31 size: {_up31.size()}')
+        print(f'_up3 size: {_up3.size()}')
+        print(f'up3 size, gate3 size: {up3.size()}')
+
+
         _up20 = self.Att2(att2, gate3)
-        _up21 = self.Up2(up3)
+        _up21 = self.Up_conv2(up3)
         _up21 = sizechange(_up21, _up20)
         _up2 = torch.cat((_up20, _up21), 1)
-        up2 = self.up_conv2(_up2)
-
+        up2 = self.Up2(_up2)
         gate2 = up2
+        print(f'_up20 size: {_up20.size()}')
+        print(f'_up21 size: {_up21.size()}')
+        print(f'_up2 size: {_up2.size()}')
+        print(f'up2 size, gate2 size: {up2.size()}')
+
         _up10 = self.Att1(att1, gate2)
-        # print(f'_up10 size: {_up10.size()}')
-        _up11 = self.Up1(up2)
-        # print(f'_up11 size: {_up11.size()}')
+        _up11 = self.Up_conv1(up2)
         _up11 = sizechange(_up11, _up10)
         _up1 = torch.cat((_up10, _up11), 1)
-        up1 = self.up_conv1(_up1)
-        # print(f'up1 size: {up1.size()}')
+        up1 = self.Up1(_up1)
+        print(f'_up10 size: {_up10.size()}')
+        print(f'_up11 size: {_up11.size()}')
+        print(f'_up1 size: {_up1.size()}')
+        print(f'up1 size: {up1.size()}')
 
         out = self.outlayer(up1)
         # print(f'unchange out size: {out.size()}')
-        out = sizechange(out, input)
+        out = sizechange(out, input).squeeze(1)
         return out
 
 if __name__ == '__main__':

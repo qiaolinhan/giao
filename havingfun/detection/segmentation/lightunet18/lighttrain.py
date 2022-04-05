@@ -46,7 +46,7 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 1.25e-2,
+    default = 8.59e-2,
     help = 'Learning rate for training'
 )
 
@@ -108,11 +108,12 @@ print('#############################################################')
 print(f'There are {total_params:,} total parameters in the model.\n')
 
 # optimizer used for training
-optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
+# optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 # loss function for training
-# loss_fn = nn.MSELoss()
-loss_fn = nn.CrossEntropyLoss()
+loss_fn = nn.MSELoss()
+# loss_fn = nn.CrossEntropyLoss()
 loss_fn = loss_fn.to(device = Device)
 
 # load dataset

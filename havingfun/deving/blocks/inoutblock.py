@@ -33,6 +33,12 @@ class Outlayer(nn.Module):
         y = self.convu(x)
         y = self.outscale(y)
         y = self.sigmoid(y)
+
+        # # change the y values
+        one = torch.ones_like(y)
+        zero = torch.zeros_like(y)
+        y = torch.where(y > 0.5, one, y)
+        # y = torch.where(y < 0.5, zero, y)
         return y
 
 if __name__ == "__main__":

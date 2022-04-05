@@ -49,7 +49,7 @@ class JinglingDataset(Dataset):
             augmentations = self.transform(image = img_np, mask = mask_np)
             img_tensor = augmentations['image']
             # print(img_tensor.size()
-            mask_tensor = augmentations['mask']
+            mask_tensor = augmentations['mask'].float()
             # print(mask_tensor)
         return img_tensor, mask_tensor
     
@@ -86,8 +86,9 @@ if __name__ == '__main__':
         
     print('img_tensor size:', img_tensor.size())
     print('mask_tensor size:', mask_tensor.size())
+    print(f'mask_tensor dtype, {mask_tensor.type()}')
 
-    f, ax = plt.subplots(1, 2)
-    ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
-    ax[1].imshow(mask_tensor.squeeze(0))
-    plt.show()
+    # f, ax = plt.subplots(1, 2)
+    # ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
+    # ax[1].imshow(mask_tensor.squeeze(0))
+    # plt.show()

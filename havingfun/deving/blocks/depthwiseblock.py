@@ -28,7 +28,7 @@ class UDepthwise(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(UDepthwise, self).__init__()
         self.udepthwise = nn.Sequential(
-            nn.Upsample(scale_factor=2, mode = 'nearest'),
+            # nn.Upsample(scale_factor=2, mode = 'nearest'),
             nn.ConvTranspose2d(in_channels, in_channels, 3, 1, 1, groups = int(in_channels)),
             nn.ConvTranspose2d(in_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
@@ -47,7 +47,7 @@ class Up_conv(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(Up_conv, self).__init__()
         self.upconv = nn.Sequential(
-            # nn.Upsample(scale_factor=2, mode = 'nearest'),
+            nn.Upsample(scale_factor=2, mode = 'nearest'),
             nn.ConvTranspose2d(in_channels, out_channels, kernel_size = 2, stride = 1, padding = 0, bias = False),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace = True),
