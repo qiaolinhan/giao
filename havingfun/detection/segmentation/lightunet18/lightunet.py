@@ -7,16 +7,23 @@ import torch
 import torch.nn as nn
 # import torch.nn.functional as F
 import numpy as np
-import sys
 import torchvision.transforms.functional as TF
-# insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(1, 'havingfun/deving/blocks')
 import torchvision.transforms as T
+
+import os
+import sys
+# module_path = os.path.abspath(os.path.join('..'))
+# if module_path not in sys.path:
+#     sys.path.append(module_path + "\\deving\blocks")
+#     sys.path.append(module_path + "\\deving\tools")
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(0, 'havingfun/deving/blocks')
+sys.path.insert(0, 'havingfun/deving/tools')
+
 from inoutblock import Inputlayer, Outlayer
 from attentiongateblock import Attentiongate_block
 from depthwiseblock import DDepthwise, UDepthwise, Up_conv
 
-sys.path.insert(1, 'havingfun/deving/tools')
 from resizetensor import sizechange
 
 class LightUnet(nn.Module):
@@ -63,38 +70,38 @@ class LightUnet(nn.Module):
 
     def forward(self, input):
         x0 = self.Conv0(input)
-        print(f'into encoder, x0 size: {x0.size()}')
+        # print(f'into encoder, x0 size: {x0.size()}')
 
         down10 = self.down10(x0)
         down11 = self.down11(down10)
         att1 = down11
         down12 = self.pooling(down11)
-        print(f'down10 size: {down10.size()}')
-        print(f'down11 size, att1 size: {down11.size()}')
-        print(f'down12 size: {down12.size()}')
+        # print(f'down10 size: {down10.size()}')
+        # print(f'down11 size, att1 size: {down11.size()}')
+        # print(f'down12 size: {down12.size()}')
         
         down20 = self.down20(down12)
         down21 =self.down21(down20)
         att2 = down21
         down22 = self.pooling(down21)
-        print(f'down20 size: {down20.size()}')
-        print(f'down21 size, att2 size: {down21.size()}')
-        print(f'down22 size: {down22.size()}')
+        # print(f'down20 size: {down20.size()}')
+        # print(f'down21 size, att2 size: {down21.size()}')
+        # print(f'down22 size: {down22.size()}')
 
         down30 = self.down30(down22)
         down31 = self.down31(down30)
         att3 = down31
         down32 = self.pooling(down31)
-        print(f'down30 size: {down30.size()}')
-        print(f'down31 size, att3 size: {down31.size()}')
-        print(f'down32 size: {down32.size()}')
+        # print(f'down30 size: {down30.size()}')
+        # print(f'down31 size, att3 size: {down31.size()}')
+        # print(f'down32 size: {down32.size()}')
 
         # no pooling layer in bottle neck
         x_neck0 = self.neck0(down32)
         x_neck1 = self.neck1(x_neck0)
         gate_neck = x_neck1
-        print(f'x_neck0 size: {x_neck0.size()}')
-        print(f'x_neck1 size, gate_neck size: {x_neck1.size()}')
+        # print(f'x_neck0 size: {x_neck0.size()}')
+        # print(f'x_neck1 size, gate_neck size: {x_neck1.size()}')
 
         _up30 = self.Att3(att3, gate_neck)
         _up31 = self.Up_conv3(x_neck1)
@@ -102,10 +109,10 @@ class LightUnet(nn.Module):
         _up3 = torch.cat((_up30, _up31), 1)
         up3 = self.Up3(_up3)
         gate3 = up3
-        print(f'_up30 size: {_up30.size()}')
-        print(f'_up31 size: {_up31.size()}')
-        print(f'_up3 size: {_up3.size()}')
-        print(f'up3 size, gate3 size: {up3.size()}')
+        # print(f'_up30 size: {_up30.size()}')
+        # print(f'_up31 size: {_up31.size()}')
+        # print(f'_up3 size: {_up3.size()}')
+        # print(f'up3 size, gate3 size: {up3.size()}')
 
 
         _up20 = self.Att2(att2, gate3)
@@ -114,20 +121,20 @@ class LightUnet(nn.Module):
         _up2 = torch.cat((_up20, _up21), 1)
         up2 = self.Up2(_up2)
         gate2 = up2
-        print(f'_up20 size: {_up20.size()}')
-        print(f'_up21 size: {_up21.size()}')
-        print(f'_up2 size: {_up2.size()}')
-        print(f'up2 size, gate2 size: {up2.size()}')
+        # print(f'_up20 size: {_up20.size()}')
+        # print(f'_up21 size: {_up21.size()}')
+        # print(f'_up2 size: {_up2.size()}')
+        # print(f'up2 size, gate2 size: {up2.size()}')
 
         _up10 = self.Att1(att1, gate2)
         _up11 = self.Up_conv1(up2)
         _up11 = sizechange(_up11, _up10)
         _up1 = torch.cat((_up10, _up11), 1)
         up1 = self.Up1(_up1)
-        print(f'_up10 size: {_up10.size()}')
-        print(f'_up11 size: {_up11.size()}')
-        print(f'_up1 size: {_up1.size()}')
-        print(f'up1 size: {up1.size()}')
+        # print(f'_up10 size: {_up10.size()}')
+        # print(f'_up11 size: {_up11.size()}')
+        # print(f'_up1 size: {_up1.size()}')
+        # print(f'up1 size: {up1.size()}')
 
         out = self.outlayer(up1)
         # print(f'unchange out size: {out.size()}')

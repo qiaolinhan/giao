@@ -54,8 +54,8 @@ class JinglingDataset(Dataset):
         return img_tensor, mask_tensor
     
 if __name__ == '__main__':
-    Img_dir = ('datasets/S_kaggle_wildfire')
-    Mask_dir = ('datasets/S_kaggle_wildfire_label')
+    Img_dir = ('datasets/S_google_wildfire')
+    Mask_dir = ('datasets/S_google_wildfire_label')
     Data = JinglingDataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = Atransform)
     # img, mask = data
     # print(img.shape)
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     print('mask_tensor size:', mask_tensor.size())
     print(f'mask_tensor dtype, {mask_tensor.type()}')
 
-    # f, ax = plt.subplots(1, 2)
-    # ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
-    # ax[1].imshow(mask_tensor.squeeze(0))
-    # plt.show()
+    f, ax = plt.subplots(1, 2)
+    ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
+    ax[1].imshow(mask_tensor.squeeze(0))
+    plt.show()

@@ -54,19 +54,19 @@ parser.add_argument(
     '-t',
     '--troot',
     type = str,
-    default = 'datasets/S_kaggle_wildfire',
+    default = 'datasets/S_google_wildfire',
     help = 'Input the image dataset path'
 )
 parser.add_argument(
     '-m',
     '--mroot',
     type = str,
-    default = 'datasets/S_kaggle_wildfire_label',
+    default = 'datasets/S_google_wildfire_label',
     help = 'Input the mask dataset path'
 )
 
 # classes add codes
-codes = ['Smoke', 'Fire', 'Void']
+codes = ['Background', 'Cloud', 'Smoke', 'Flame']
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 print('name2id:', name2id)
