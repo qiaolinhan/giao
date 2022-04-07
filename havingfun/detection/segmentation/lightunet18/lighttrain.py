@@ -13,14 +13,18 @@ from lightutils import (
     plot_img_and_mask,
     save_plots,
 )
-from lightevaluate import Segratio
+
 import argparse
 
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
-from lightdata import JinglingDataset, Atransform
+from lightdataPIL import JinglingDataset, Atransform
 from torch.utils.data import DataLoader, Subset
 # from sklearn.model_selection import train_test_split
+
+import sys
+sys.path.insert(0, 'havingfun/deving/blocks')
+from  evaluateratios import Segratio
 
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
 Batch_size = 2

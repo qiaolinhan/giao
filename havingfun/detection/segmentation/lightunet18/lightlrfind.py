@@ -52,7 +52,7 @@ data_loader = DataLoader(Data, batch_size = batch_size,
 # if the iteration is too short, there would be data not covered.
 lr_finder = LRFinder(model = Model, optimizer=Optimizer, criterion=Loss_fn, device = Device)
 
-lr_finder.range_test(train_loader=data_loader, end_lr = 10, num_iter=50)
+lr_finder.range_test(train_loader=data_loader, end_lr = 1e-1, num_iter=10)
 lr_finder.plot()
 lr_finder.reset()
 
