@@ -5,6 +5,5 @@ papers/
 classifierresult/
 *.zip
 *.pth
-*.avi
-*.mp4
+
 
