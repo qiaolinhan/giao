@@ -1,6 +1,6 @@
 # 2022-03-14
 # For U-net with structure of Resnet18, 31,036,481 params are needed.
-# For this model, there are 3,280,449 parameters.
+# For this model, there are 3,280,449 (4,174,657) parameters.
 # this is a light U-net model based on the structure of resnet18 based Unet. The main purpose is tp decrease the model size
 # so that it could be deplyed on the on-board computer of M300 for smoke and fire segmentation
 import torch
@@ -30,7 +30,7 @@ class LightUnet(nn.Module):
     def __init__(self, in_channels = 3, out_channels = 1, scale_factor = 1):
         super(LightUnet, self).__init__()
         num = np.array([2, 2, 2, 2])
-        filters = np.array([64, 128, 256, 512])
+        filters = np.array([64, 128, 256, 512, 1024])
         filters = filters // scale_factor
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -40,15 +40,19 @@ class LightUnet(nn.Module):
         self.Conv0 = Inputlayer(in_channels, filters[0])
         self.pooling = nn.MaxPool2d(kernel_size=2, stride=2)
 
+        self.res1 = DDepthwise(filters[0], filters[0])
         self.down10 = DDepthwise(filters[0], filters[0])
         self.down11 = DDepthwise(filters[0], filters[0])
 
+        self.res2 = DDepthwise(filters[0], filters[1])
         self.down20 = DDepthwise(filters[0], filters[1])
         self.down21 = DDepthwise(filters[1], filters[1])
 
+        self.res3 = DDepthwise(filters[1], filters[2])
         self.down30 = DDepthwise(filters[1], filters[2])
         self.down31 = DDepthwise(filters[2], filters[2])
 
+        self.resneck = DDepthwise(filters[2], filters[3])
         self.neck0 = DDepthwise(filters[2], filters[3])
         self.neck1 = DDepthwise(filters[3], filters[3])
 
@@ -70,22 +74,22 @@ class LightUnet(nn.Module):
 
     def forward(self, input):
         x0 = self.Conv0(input)
-        # print(f'into encoder, x0 size: {x0.size()}')
+        print(f'into encoder, x0 size: {x0.size()}')
 
         down10 = self.down10(x0)
         down11 = self.down11(down10)
         att1 = down11
         down12 = self.pooling(down11)
         # print(f'down10 size: {down10.size()}')
-        # print(f'down11 size, att1 size: {down11.size()}')
-        # print(f'down12 size: {down12.size()}')
+        print(f'down11 size, att1 size: {down11.size()}')
+        print(f'down12 size: {down12.size()}')
         
         down20 = self.down20(down12)
         down21 =self.down21(down20)
         att2 = down21
         down22 = self.pooling(down21)
         # print(f'down20 size: {down20.size()}')
-        # print(f'down21 size, att2 size: {down21.size()}')
+        print(f'down21 size, att2 size: {down21.size()}')
         # print(f'down22 size: {down22.size()}')
 
         down30 = self.down30(down22)

@@ -5,23 +5,33 @@
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 class DDepthwise(nn.Module):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, stride = 1):
         super(DDepthwise, self).__init__()
         self.ddepthwise = nn.Sequential(
-            nn.Conv2d(in_channels, in_channels, 3, 1, 1, groups = int(in_channels)),
+            nn.Conv2d(in_channels, in_channels, 3, stride = stride, padding = 1, groups = int(in_channels)),
             nn.Conv2d(in_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace = True),
             nn.Conv2d(out_channels, out_channels, 3, 1, 1, groups = int(out_channels)),
             nn.Conv2d(out_channels, out_channels, 1, 1, 0),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace = True),
         )
+
+        self.shortcut = nn.Sequential()
+        if stride != 1 or in_channels != out_channels:
+            self.shortcut = nn.Sequential(
+                nn.Conv2d(in_channels, out_channels, 1, 1, 0),
+                nn.BatchNorm2d(out_channels)
+            )
+
         self.maxpool = nn.MaxPool2d(2, 2, 0)
     def forward(self, x):
-        y = self.ddepthwise(x)
+        x_down = self.ddepthwise(x)
+        x_res = self.shortcut(x)
+        y = F.relu(x_down + x_res)
         return y
 
 class UDepthwise(nn.Module):
