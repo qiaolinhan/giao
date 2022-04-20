@@ -9,7 +9,7 @@ import torchvision.transforms as T
 import torchvision.transforms.functional as F
 
 def sizechange(input_tensor, gate_tensor):
-    sizechange = nn.UpsamplingNearest2d(size = gate_tensor.shape[2:])
+    sizechange = nn.UpsamplingBilinear2d(size = gate_tensor.shape[2:])
     out = sizechange(input_tensor)
     return out
 

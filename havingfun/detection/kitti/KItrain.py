@@ -13,18 +13,14 @@ from lightutils import (
     plot_img_and_mask,
     save_plots,
 )
-
+from lightevaluate import Segratio
 import argparse
 
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
-from lightdataPIL import JinglingDataset, Atransform
+from lightdata import JinglingDataset, Atransform
 from torch.utils.data import DataLoader, Subset
 # from sklearn.model_selection import train_test_split
-
-import sys
-sys.path.insert(0, 'havingfun/deving/blocks')
-from  evaluateratios import Segratio
 
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
 Batch_size = 2
@@ -42,7 +38,7 @@ parser.add_argument(
     '-e',
     '--epochs',
     type = int,
-    default = 10,
+    default = 30,
     help = 'Numbers of epochs to train the network'
 )
 
@@ -50,7 +46,7 @@ parser.add_argument(
     '-l',
     '--lr',
     type = np.float32,
-    default = 8.59e-2,
+    default = 1e-4,
     help = 'Learning rate for training'
 )
 
@@ -58,19 +54,19 @@ parser.add_argument(
     '-t',
     '--troot',
     type = str,
-    default = 'datasets/S_google_wildfire',
+    default = 'datasets/S_kaggle_wildfire',
     help = 'Input the image dataset path'
 )
 parser.add_argument(
     '-m',
     '--mroot',
     type = str,
-    default = 'datasets/S_google_wildfire_label',
+    default = 'datasets/S_kaggle_wildfire_label',
     help = 'Input the mask dataset path'
 )
 
 # classes add codes
-codes = ['Background', 'Cloud', 'Smoke', 'Flame']
+codes = ['Void', 'Fire', 'Smoke']
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Void']
 print('name2id:', name2id)
@@ -112,12 +108,11 @@ print('#############################################################')
 print(f'There are {total_params:,} total parameters in the model.\n')
 
 # optimizer used for training
-# optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
-optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
 
 # loss function for training
-loss_fn = nn.MSELoss()
-# loss_fn = nn.CrossEntropyLoss()
+# loss_fn = nn.MSELoss()
+loss_fn = nn.CrossEntropyLoss()
 loss_fn = loss_fn.to(device = Device)
 
 # load dataset
@@ -159,6 +154,9 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         counter += 1
         img, mask = data
         img = img.to(device = Device)
+        
+        mask = mask.unsqueeze(1)
+        mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
@@ -169,15 +167,15 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
 
 
             # for multiple class segmentation, the result should be 0, 1, 2, ...
-            preds = torch.sigmoid(preds)
-            # print('preds size after sigmoid:', preds.size())
-            # preds = (preds > 0.5).float()
+            sig = nn.Sigmoid()
+            preds = sig(preds)
+            # print('preds size afoter sigmoid:', preds.size())
 
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
             # therefore, the tensor need to be resized
-            # if preds.shape != mask.shape:
-            #     preds = sizechange(preds, mask)
+            if preds.shape != mask.shape:
+                preds = sizechange(preds, mask)
                 # print('preds size after resize:', preds.size())
 
             # print(mask)
@@ -234,8 +232,8 @@ def valid(val_loader, model, loss_fn):
         img, mask = data
         img = img.to(device = Device)
 
-        # mask = mask.unsqueeze(1)
-        # mask = mask.float()
+        mask = mask.unsqueeze(1)
+        mask = mask.float()
         mask = mask.to(device = Device)
 
         # forward
@@ -245,9 +243,9 @@ def valid(val_loader, model, loss_fn):
             sig = nn.Sigmoid()
             preds = sig(preds)
             
-            # if preds.shape != mask.shape:
-            #     # preds = TF.resize(preds, size = mask.shape[2:])
-            #     preds = sizechange(preds, mask)
+            if preds.shape != mask.shape:
+                # preds = TF.resize(preds, size = mask.shape[2:])
+                preds = sizechange(preds, mask)
 
             val_loss = loss_fn(preds, mask)
             val_running_loss += val_loss.item()

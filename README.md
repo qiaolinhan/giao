@@ -1,60 +1,28 @@
-# giao
- This repo is a test as learning how to use git with VScode.
+### Some Packages to Install
+First, get a Conda environment. (Not nessesary, just for showing and recording the steps)    
+`conda create -n 'name'`  
+Install the relying packages  
+`conda install pytorch torchvision torchaudio cudatoolkit=10.2 -c pytorch`  
+`conda install numpy`  
+`conda install matplotlib`  
+`pip install opencv-python`  
+`pip install -U albumentations`  
+`pip install torch-lr-finder`
+`conda install tqdm`
 
- * PyTorch provides methods to create random or zero-filled tensors (which we use to create weights or biases for a simple linear model).
-   * For the **weights**, set `requires_grad` **after** the initialization (we do not want that step included in the gradient).
-   * A tailing `_` in PyTorch signifies that the operation is performed in-place.
+### Steps to Run
+1. Change the dataset folder in [data](havingfun/detection/segmentation/lightunet18/lightdata.py) to load in the prepared images and masks to check.
+2. Check whether the [Network strucure](havingfun/detection/segmentation/lightunet18/lightunet.py) is okay enough, this model is based on Resnet18 Encoder-Decoder, add layers for more complex segmentation missions.
+3. Find appropriate learning rate based on Leslie method with [lrfinder](havingfun/detection/segmentation/lightunet18/lightlrfind.py), there is an [appliable package](https://pypi.org/project/torch-lr-finder/?msclkid=c492365aaf6c11ec9d78518a9cef19b9) could simply work it.
+4. Ready to train the model, traing on [train](havingfun/detection/segmentation/lightunet18/lighttrain.py)
+5. Test on images with [imgtest](havingfun/detection/segmentation/lightunet18/lighttest.py) and videos with [videotest](havingfun/detection/segmentation/lightunet18/lightloadvideo.py). The opencv is recommonded to load the video and image, but ther is convert part happen in the `.py` files.
 
----
-## 20210107
- Implement `negative log-likelihood` to use as the loss function.  
- ```
- nll = -input[range(target.shape[0], target)]
- nll = nll.mean()
- ```
-For each iteration:
-* Select  mini-batch of data of size `bs`
-* Use the model to make `preds`
-* Calculate the `loss` on the batch
-* Use `loss.backward()` to update the `grad` of the `model`
-* Update the prameters of the model using the `grad`
+### Files and Packages Explain
+#### Cross Entropy Loss
+commonly, use __Sum of the Squared Residuals__ to determine how well the Neural network fits the data. 
+$$SSR = \sum_{i = 1}^{n = 3}{(Observed_i - Predicted_i)^2}$$
 
-```python
-epochs = 2
-lr = 1e-4
+The `.py` files are relying on the blocks and tools in [deving](havingfun/deving)
+* `util.py`: Some functions are stored, such as: saving model at every iteration; save entire model; saving predicted result; saving accuracy's and loss's plots; plot image, pred, mask in a figure ...  
 
-def fit():
-  for epoch in range(epochs):
-      for ii in range((n-1)//bs+1):
-          start, end = ii * bs, ii * bs +bs
-          xb, yb = x_train[start:end], y_train[start:end]
 
-          pred = model(xb)
-          loss = loss_func(pred, yb)
-
-          loss.backward()
-          with torch.no_gard():
-              weights -= weights.grad * lr
-              biases -= biases.grad * lr
-              weights.grad.zero_()
-              biases.grad.zero_() 
-fit()   
-```
-### Refactor using `torch.nn.functional`
-code refactoring: 代码重构  
-concise： 简洁的  
-attributes: 属性  
-### Refactor using `nn.Module`
-Use `nn.Module` and `nn.Parameter` for clearer and more concise training loop  
-* `nn.Module`: we want to create a class  that holds our weights, biases, and method for the forward step.
-
-### Refactor using `nn.Linear`
-$ y = x * A^T + b$
-
-## 2021-11-5
-### Celluar Automata (CA)
-CA are (typically) spatially and temporally discrete. Cellls evolve in parallel at discrete time step  
-A CA consists of:
-* A grid cell
-* A set of states each cell can be in, e.g. burning, (heating,) not burning.
-* A set of rules to determine the evolution of the system based on the states each cell is in.

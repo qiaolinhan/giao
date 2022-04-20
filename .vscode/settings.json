@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "./havingfun/deving/tools",
+        "./havingfun/deving/blocks"
+    ],
+    "notebook.output.textLineLimit": 500
+}

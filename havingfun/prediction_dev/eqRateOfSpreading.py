@@ -40,6 +40,7 @@ def n_step(u_test=100, total_time = 200, cell_size = 100):
 # P_veg, P_den: vegetation related prob
 # P_w, P_s: wind velosity, topography slope ralated prob
 # P_burn = P_h * (1 + P_veg * (1 + P_den)) * P_w * P_s
+
 if __name__ == "__main__":
     V = 200 # m/s
     theta = math.radians(45) # between wind direction and normal spreading direction
