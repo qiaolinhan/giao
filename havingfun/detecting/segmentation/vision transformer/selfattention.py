@@ -6,6 +6,15 @@ import torch.nn as nn
 
 class SelfAttention(nn.Module):
     def __init__(self, embed_size, heads):
+        '''
+        Split embeddings into different parts, eg: embedding size(256), heads(8) -> 8 by 32 parts 
+        
+        Parameters
+        ------
+            embed_size: int, the size of the embedding; (256)
+            heads: int, the number of parts would like to separate; (8)
+            '''
+        super(SelfAttention, self).__init__()
         self.embed_size = embed_size
         self.heads = heads
         self.head_dim = embed_size // heads
@@ -14,11 +23,31 @@ class SelfAttention(nn.Module):
 
         # V, Q, K
         self.values = nn.Linear(self.head_dim, self.head_dim, bias = False)
-        self.queries = nn.Linear(self.head_dim, self.head_dim, bias = False)
         self.keys = nn.Linear(self.head_dim, self.head_dim, bias = False)
+        self.queries = nn.Linear(self.head_dim, self.head_dim, bias = False)
+
         self.fc_out = nn.Linear(heads * self.head_dim, embed_size)
 
     def forward(self, values, queries, keys, mask):
+        '''
+        split embedding into different parts
+        Parameters
+        ------
+            values: torch.tensor,
+                shape: ()
+            queries: torch.tensor,
+                shape: ()
+            keys: torch.tensor,
+                shape: ()
+            mask: torch.tensor,
+                shape: ()
+
+
+        returns
+        ------
+            outputs: torch.tensor,
+                shape: ()
+        '''
         N = queries.shape[0]
         values_len, keys_len, queries_len = values.shape[1], keys.shape[1], queries.shape[1]
 
@@ -26,6 +55,10 @@ class SelfAttention(nn.Module):
         values = values.reshape(N, values_len, self.heads, self.head_dim)
         keys = keys.reshape(N, keys_len, self.heads, self.head_dim)
         queries = queries.reshape(N, queries_len, self.heads, self.head_dim)
+
+        values = self.values(values)
+        keys = self.keys(keys)
+        queries = self.queries(queries)
 
         energy = torch.einsum("nqhd, nkhd -> nhqk", [queries, keys])
         '''
@@ -89,13 +122,14 @@ class Encoder(nn.Module):
                     dropout = dropout,
                     forward_expansion=forward_expansion
                 )
+            for _ in range(num_layers)
             ]
         )
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, mask):
         N, sequence_len = x.shape
-        positions = torch.arrange(0, sequence_len).expand(N, sequence_len).to(self.device)
+        positions = torch.arange(0, sequence_len).expand(N, sequence_len).to(self.device)
 
         out = self.dropout(self.word_embeding(x) + self.position_embeding(positions))
 
@@ -141,6 +175,7 @@ class Decoder(nn.Module):
             x = layer(x, enc_out, enc_out, src_mask, trg_mask)
 
         out = self.fc_out(x)
+        return out
 
 class Transformer(nn.Module):
     def __init__(self, 
@@ -192,5 +227,5 @@ if __name__ == "__main__":
     src_vocab_size = 10
     trg_vocab_size = 10
     model = Transformer(src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx).to(device)
-    out = model(x, trg[::-1])
+    out = model(x, trg[:, :-1])
     print(out.shape)
