@@ -3,8 +3,10 @@ datasets/
 order/
 papers/
 classifierresult/
+trainedparams/
+.ipynb_checkpoints/
+
 *.zip
 *.pth
 *.avi
 *.mp4
-
