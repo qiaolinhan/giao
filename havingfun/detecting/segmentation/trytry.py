@@ -19,3 +19,9 @@ if __name__ == "__main__":
     cal = DDepthwise(in_channels=64, out_channels=128)
     out_tensor = cal(in_tensor)
     print(out_tensor.size())
+
+
+    x_r = torch.tensor([1, 2, 3])
+    print(x_r.shape)
+    x_c = torch.tensor([[1], [2], [3]])
+    print(x_c.shape)
