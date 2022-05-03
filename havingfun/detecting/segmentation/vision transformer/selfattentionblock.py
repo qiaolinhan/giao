@@ -81,50 +81,74 @@ class SelfAttentionBlock(nn.Module):
         return out
 
 if __name__ == "__main__":
+    # params for the model
+    ################################
     source_vocab_size = 10
+    source_padding_idx = 0
+
+    target_vocab_size = 10
+    target_padding_idx = 0
+
     max_length = 100 
     dropout = 0.
     embed_size = 256
     heads = 8
     head_dim = embed_size // heads
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    x = torch.tensor([[1, 5 ,6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]).to(device)
-    print('======> x.shape', x.shape)
-
-
     embedding_model = EmbeddingBlock(source_vocab_size, embed_size, max_length, dropout, device).to(device)
-    values_x = embedding_model(x)
-    keys_x = embedding_model(x)
-    queries_x = embedding_model(x)
 
-    target = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]).to(device) # bottom input of decoder
-    print('======> target_mask.shape', target.shape)
-    print('======> target_mask input', target[:, :-1])
-    embedded_target = embedding_model(target[:, :-1])
-    print('======> target_f shape', embedded_target.size())
+    x = torch.tensor([[1, 5 ,6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]).to(device)
+    source = x
+    print('======> source shape', x.shape)
+    embedded_source = embedding_model(source)
+    values_x = embedded_source
+    keys_x = embedded_source
+    queries_x = embedded_source
 
-    # function to make source mask and target mask
+    # function to make source mask
     ################################
-    def make_source_mask(self, source):
-        source_mask = (source != self.source_pad_idx).unsqueeze(1).unsqueeze(2)
+    def make_source_mask(source):
+        '''
+        params
+        ------
+        source: torch.tensor, shape([2, 9, 256])
+        '''
+        source_mask = (source != source_padding_idx).unsqueeze(1).unsqueeze(2)
         # src_mask shape: (N, 1, 1, src_len) 
-        return source_mask.to(self.device)
+        return source_mask.to(device)
+    ################################
+    mask_source = make_source_mask(source)
+    print('======> mask_source shape', mask_source.shape)
 
-    def make_target_mask(self, embedded_target):
-        N, target_len = embedded_target.shape
-        target_mask = torch.tril(torch.ones((target_len, target_len))).expand(
+    # input at decoder part
+    y = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]).to(device) # bottom input of decoder
+    target = y
+    print('======> target.shape', target.shape)
+    # print('======> target input', target[:, :-1])
+    embedded_target = embedding_model(target[:, :-1])
+    values_y = embedded_target
+    keys_y = embedded_target
+    queries_y = embedded_target
+
+    # function to make target mask
+    ##################################
+    def make_target_mask(embedded_target):
+        N, target_len = embedded_target.shape[0], embedded_target.shape[1]
+        mask_target = torch.tril(torch.ones((target_len, target_len))).expand(
             N, 1, target_len, target_len
         )
-        return target_mask.to(self.device)
+        return mask_target.to(device)
     ##################################
-
-    target_mask = make_target_mask(embedded_target)
-    print('======> targe_mask shape', target_mask.shape)
+    mask_target = make_target_mask(embedded_target)
+    print('======> targe_mask shape', mask_target.shape)
 
     selfattention_model = SelfAttentionBlock(embed_size, heads, device).to(device)
-    selfattention_out = selfattention_model(values_x, keys_x, queries_x, mask = target_mask)
-    print('======> selfattention output shape', selfattention_out.size())
+    selfattention_out_encoder = selfattention_model(values_x, keys_x, queries_x, mask = mask_source)
+    print('======> selfattention of encoder output shape', selfattention_out_encoder.size())
+    selfattention_out_decoder = selfattention_model(values_y, keys_y, queries_y, mask = mask_target)
+    print('======> selfattention of decoder output shape', selfattention_out_decoder.size())
 
 
 
