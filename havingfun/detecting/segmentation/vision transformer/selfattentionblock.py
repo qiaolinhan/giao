@@ -35,7 +35,7 @@ class SelfAttentionBlock(nn.Module):
         self.embed_size = embed_size
         self.heads = heads
         self.heads_dim = embed_size // heads
-        assert (self.heads_dim * heads == embed_size) , "embed_size should be divisible by heads."
+        assert (self.heads_dim * heads == embed_size), "embed_size should be divisible by heads."
 
         self.get_values = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
         self.get_keys = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
