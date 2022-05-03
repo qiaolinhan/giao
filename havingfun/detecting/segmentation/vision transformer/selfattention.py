@@ -39,13 +39,11 @@ class SelfAttention(nn.Module):
                 shape: (queries_shape[0], queries_len, self.heads, self.head_dim)
             keys: torch.tensor,
                 shape: (queries_shape[0], keys_len, self.heads, self.head_dim)
-            mask: torch.tensor,
-                shape: ()
+            mask: torch.tensor
 
         returns
         ------
-            outputs: torch.tensor,
-                shape: ()
+            outputs: torch.tensor
         ''' 
         N = queries.shape[0]
         values_len, keys_len, queries_len = values.shape[1], keys.shape[1], queries.shape[1]
@@ -56,14 +54,14 @@ class SelfAttention(nn.Module):
         queries = queries.reshape(N, queries_len, self.heads, self.head_dim)
 
         values = self.values(values)
-        # print(f'======> values shape: {values.shape}')
+        print(f'======> 1 values shape: {values.shape}')
         keys = self.keys(keys)
         # print(f'=====> keys shape: {keys.shape}')
         queries = self.queries(queries)
         # print(f'======> queries shape: {queries.shape}')
 
         # 'n' for the N, 'h' for the heads, 'q' for the queries_len, 'd' for the head_dim 
-        energy = torch.einsum("nqhd, nkhd -> nhqk", [queries, keys])
+        energy = torch.einsum("nqhd, nkhd -> nhqk", queries, keys)
         '''
         queries shape: (N, queries_len, heads, head_dim);
         keys shape: (N, keys_len, heads, head_dim);
@@ -72,7 +70,7 @@ class SelfAttention(nn.Module):
         print('======> energy shape', energy.shape)
         print('======> get in mask.shape', mask.shape)
         if mask is not None:
-            energy = energy.masked_fill(mask == 0, float("-1e20")) # mask == 0: shut that off, so that it does not impact any other.
+            energy = energy.masked_fill_(mask == 0, float("-1e20")) # mask == 0: shut that off, so that it does not impact any other.
 
         # attention(V, K, Q) = softmax(Q  K^T / embed_size ** (1/ 2)) * V
 
@@ -94,6 +92,8 @@ class SelfAttention(nn.Module):
 class TransformerBlock(nn.Module):
     def __init__(self, embed_size, heads, dropout, forward_expansion):
         super(TransformerBlock, self).__init__()
+        print("heads", heads)
+        print("embed_size", embed_size)
         self.attention = SelfAttention(embed_size, heads)
         self.norm1 = nn.LayerNorm(embed_size)
         self.norm2 = nn.LayerNorm(embed_size)
@@ -270,13 +270,14 @@ if __name__ == "__main__":
 
     x = torch.tensor([[1, 5 ,6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]).to(device)
     print('======> x.shape', x.shape)
-    mask = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]).to(device)
-    print('======> target_mask input', mask[:, :-1])
+    tar = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]).to(device)
+    print('======> target_mask input', tar[:, :-1])
     src_padding_idx = 0
     trg_padding_idx = 0
     src_vocab_size = 10
     trg_vocab_size = 10
     model = Transformer(src_vocab_size, trg_vocab_size, src_padding_idx, trg_padding_idx).to(device)
     
-    out = model(x, mask[:, :-1])
+    out = model(x, tar[:, :-1])
+    # out = model(x, mask)
     print(out.shape)
