@@ -29,7 +29,7 @@ import torch.nn as nn
 from embeddingblock import EmbeddingBlock
 
 class SelfAttentionBlock(nn.Module):
-    def __init__(self, embed_size, heads, device):
+    def __init__(self, embed_size, heads):
         super(SelfAttentionBlock, self).__init__()
 
         self.embed_size = embed_size
@@ -41,8 +41,6 @@ class SelfAttentionBlock(nn.Module):
         self.get_keys = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
         self.get_queries = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
         self.fc_out = nn.Linear(heads * self.heads_dim, embed_size)
-
-        self.device = device
 
     def forward(self, values_x, keys_x, queries_x, mask):
         # split embedding into self.heads pieces
@@ -96,6 +94,7 @@ if __name__ == "__main__":
     head_dim = embed_size // heads
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    ###################################
 
     embedding_model = EmbeddingBlock(source_vocab_size, embed_size, max_length, dropout, device).to(device)
 
@@ -144,7 +143,7 @@ if __name__ == "__main__":
     mask_target = make_target_mask(embedded_target)
     print('======> targe_mask shape', mask_target.shape)
 
-    selfattention_model = SelfAttentionBlock(embed_size, heads, device).to(device)
+    selfattention_model = SelfAttentionBlock(embed_size, heads).to(device)
     selfattention_out_encoder = selfattention_model(values_x, keys_x, queries_x, mask = mask_source)
     print('======> selfattention of encoder output shape', selfattention_out_encoder.size())
     selfattention_out_decoder = selfattention_model(values_y, keys_y, queries_y, mask = mask_target)

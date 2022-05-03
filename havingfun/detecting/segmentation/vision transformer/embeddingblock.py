@@ -27,15 +27,16 @@ class EmbeddingBlock(nn.Module):
         self.word_embedding = nn.Embedding(source_vocab_size, embed_size)
         self.positional_embedding = nn.Embedding(max_length, embed_size)
         self.dropout = nn.Dropout(dropout)
-        self.device = device
 
+        # it is needed because of the positional embedding also need to be load into device ('cuda') 
+        self.device = device
     def forward(self, x):
         word_embedding_x = self.word_embedding(x)
         N, sequence_len = x.shape
         positions = torch.arange(0, sequence_len).expand(N, sequence_len).to(self.device)
         positional_embedding_x = self.positional_embedding(positions)
         embedding_x = self.dropout(word_embedding_x + positional_embedding_x)
-        return embedding_x.to(self.device)
+        return embedding_x
 
 if __name__ == '__main__':
     source_vocab_size = 10
