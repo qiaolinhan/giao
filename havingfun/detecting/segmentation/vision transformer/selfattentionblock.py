@@ -40,23 +40,9 @@ class SelfAttentionBlock(nn.Module):
         self.get_values = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
         self.get_keys = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
         self.get_queries = nn.Linear(self.heads_dim, self.heads_dim, bias = False)
+        self.fc_out = nn.Linear(heads * self.heads_dim, embed_size)
 
         self.device = device
-
-    # function to make source mask and target mask
-    ################################
-    def get_source_mask(self, source):
-        source_mask = (source != self.source_pad_idx).unsqueeze(1).unsqueeze(2)
-        # src_mask shape: (N, 1, 1, src_len) 
-        return source_mask.to(self.device)
-
-    def get_target_mask(self, target):
-        N, target_len = target.shape
-        target_mask = torch.tril(torch.ones((target_len, target_len))).expand(
-            N, 1, target_len, target_len
-        )
-        return target_mask.to(self.device)
-    ##################################
 
     def forward(self, values_x, keys_x, queries_x, mask):
         # split embedding into self.heads pieces
@@ -71,27 +57,27 @@ class SelfAttentionBlock(nn.Module):
         keys = self.get_keys(keys_x)
         queries = self.get_queries(queries_x)
 
-        # 'n' for the N, 'h' for the heads, 'q' for the queries_len, 'd' for the head_dim 
+        '''
+        Using torch.einsum to compute tensors multiplication
+            params
+            ------
+            queries (N, queries_len, heads, heads_dim) --> (nqhd)
+            keys (N, keys_len, heads, heads_dim) --> (nkhd)
+            
+            returns
+            ------
+            energy (N, heads, queries_len, keys_len) --> (nhqk)
+        '''
         energy = torch.einsum("nqhd, nkhd -> nhqk", [queries, keys])
 
-        source_mask = self.get_source_mask(x)
-        target_mask = self.get_target_mask(mask)
-
-        if source_mask is not None:
-            energy_encoder = energy.masked_fill(source_mask == 0, float("-1e20")) # mask == 0: shut that off, so that it does not impact any other.
-
-        if target_mask is not None:
-            energy_decoder = energy.masked_fill(target_mask == 0, float("-1e20"))
+        if mask is not None:
+            energy = energy.masked_fill_(mask == 0, float("-1e20")) # mask == None: shut that off, so that it does not impact any other.
             
         # attention(V, K, Q) = softmax(Q  K^T / embed_size ** (1/ 2)) * V
 
-        attention_encoder = torch.softmax(energy_encoder / (self.embed_size ** (1/2)), dim = 3)
-        attention_decoder = torch.softmax(energy_decoder / (self.embed_size ** (1/2)), dim = 3)
-        out = torch.einsum("nhql, nlhd -> nqhd", [attention_encoder, values]).reshape(
-            N, queries_len, self.heads * self.head_dim
-        )
-
-        out = self.fc_out(out)  
+        attention = torch.softmax(energy / (self.embed_size ** (1/2)), dim = 3)
+        attention_out = torch.einsum("nhqk, nvhd -> nqhd", [attention, values]).reshape(N, queries_len, self.heads * self.heads_dim)
+        out = self.fc_out(attention_out)  
         return out
 
 if __name__ == "__main__":
@@ -112,11 +98,33 @@ if __name__ == "__main__":
     keys_x = embedding_model(x)
     queries_x = embedding_model(x)
 
-    target = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]).to(device)
+    target = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]]).to(device) # bottom input of decoder
     print('======> target_mask.shape', target.shape)
     print('======> target_mask input', target[:, :-1])
+    embedded_target = embedding_model(target[:, :-1])
+    print('======> target_f shape', embedded_target.size())
 
-    selfattention_model = SelfAttentionBlock(embed_size = embed_size, heads = heads, device = device)
+    # function to make source mask and target mask
+    ################################
+    def make_source_mask(self, source):
+        source_mask = (source != self.source_pad_idx).unsqueeze(1).unsqueeze(2)
+        # src_mask shape: (N, 1, 1, src_len) 
+        return source_mask.to(self.device)
+
+    def make_target_mask(self, embedded_target):
+        N, target_len = embedded_target.shape
+        target_mask = torch.tril(torch.ones((target_len, target_len))).expand(
+            N, 1, target_len, target_len
+        )
+        return target_mask.to(self.device)
+    ##################################
+
+    target_mask = make_target_mask(embedded_target)
+    print('======> targe_mask shape', target_mask.shape)
+
+    selfattention_model = SelfAttentionBlock(embed_size, heads, device).to(device)
+    selfattention_out = selfattention_model(values_x, keys_x, queries_x, mask = target_mask)
+    print('======> selfattention output shape', selfattention_out.size())
 
 
 
