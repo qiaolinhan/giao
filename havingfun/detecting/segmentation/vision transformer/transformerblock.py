@@ -17,7 +17,6 @@ class TransformerBlock(nn.Module):
         )
         self.dropout = nn.Dropout(dropout)
 
-        self.device = device
     def forward(self, values, keys, queries, mask):
         '''
         params
@@ -30,7 +29,7 @@ class TransformerBlock(nn.Module):
 
         returns
         ------
-        out: torch.tensor, shape([N, queries, ])
+        out: torch.tensor, shape([N, queries_len, embed_size])
         '''
         attention = self.selfattention_model(values, keys, queries, mask)
 
@@ -84,9 +83,9 @@ if __name__ == "__main__":
         '''
         source_mask = (source != source_padding_idx).unsqueeze(1).unsqueeze(2)
         # src_mask shape: (N, 1, 1, src_len) 
-        return source_mask.to(device)
-    ################################
-    mask_source = make_source_mask(source)
+        return source_mask
+    ################################    
+    mask_source = make_source_mask(source).to(device)
     print('======> mask_source shape', mask_source.shape)
 
     transformerblock_model = TransformerBlock(embed_size, heads, dropout, forward_expansion).to(device)

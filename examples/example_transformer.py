@@ -165,6 +165,7 @@ class DecoderBlock(nn.Module):
         attention = self.attention(x, x, x, trg_mask)
         query = self.dropout(self.norm(attention + x))
         out = self.transformer_block(value, key, query, src_mask)
+        print('======> from encoder src_mask shape', src_mask.size())
         return out
 
 
@@ -265,7 +266,9 @@ class Transformer(nn.Module):
         return trg_mask.to(self.device)
 
     def forward(self, src, trg):
+        print('======> src shape', src.shape)
         src_mask = self.make_src_mask(src)
+        print('======> src mask shape', src_mask.size())
         trg_mask = self.make_trg_mask(trg)
         enc_src = self.encoder(src, src_mask)
         out = self.decoder(trg, enc_src, src_mask, trg_mask)
