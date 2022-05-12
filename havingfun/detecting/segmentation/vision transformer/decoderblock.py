@@ -10,4 +10,5 @@ class DecoderBlock(nn.Module):
         self.selfattention = SelfAttentionBlock(embed_size, heads)
         self.norm = nn.LayerNorm(embed_size)
         self.dropout = nn.Dropout(dropout)
-        
+         
+         
