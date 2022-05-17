@@ -1,0 +1,21 @@
+name: dev
+channels: 
+  - pytorch
+  - plotly
+  - anaconda
+  - conda-forge
+  - defaults
+
+dependencies:
+  - matplotlib
+  - pip
+  - pip:
+    - jupyter
+    - notebook
+    - ipython
+    - opencv-python
+    - tqdm
+    - scikit-image
+    - scikit-learn
+    - scipy
+    - pynvim
