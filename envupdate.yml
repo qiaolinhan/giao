@@ -19,3 +19,6 @@ dependencies:
     - scikit-learn
     - scipy
     - pynvim
+    - torch-lr-finder
+    - albumentations
+

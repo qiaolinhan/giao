@@ -1,15 +1,20 @@
-## To deply Github
+# When I Got My T430
 
+## To deply Github
 ```bash
 sudo apt install git
 ```
-
-# define global git info
-git config --global user.name='qiaolinhan'
+define global git
+```
+git config --global user.name qiaolinhan
 git config --global user.email 742954173@qq.com
+git config --list
+```
 
 # get the ssh-key
+```bash
 ssh-keygen -t rsa -C "742954173@qq.com"
+```
 
 # print the created ssh-key
 cat ~/.ssh/id_rsa.pub
