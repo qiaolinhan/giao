@@ -15,8 +15,8 @@ root = os.path.dirname(os.path.join(
 import numpy as np
 import sklearn.metrics as metrics
 
-modelname = 'Lightunet18_MSE_SGD'
-lr = '4.04e-7'
+modelname = 'Lightunet18_CE_SGD'
+lr = '2.22e-3'
 epochs = 'e20'
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
