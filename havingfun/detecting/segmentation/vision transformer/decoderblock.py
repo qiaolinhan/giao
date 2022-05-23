@@ -11,4 +11,5 @@ class DecoderBlock(nn.Module):
         self.norm = nn.LayerNorm(embed_size)
         self.dropout = nn.Dropout(dropout)
          
-         
+    def forward(self, x):
+        pass

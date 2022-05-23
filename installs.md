@@ -65,9 +65,13 @@ cd ~/dev
 conda env update -f envupdate.yml
 ```
 ## To deploy nvim (neo vim)
+* install the neo vim support of python
+`pip install pynvim` </br>
 * install neo vim
 `sudo snap install nvim --classic` </br> 
-
+or we could install a release version by:</br>
+`wget https://github.com/neovim/neovim/releases/download/v0.7.0/nvim-linux64.deb`</br>
+`sudo apt install nvim-linux64.deb` </br>
 * install curl on new pc 
 `sudo apt install curl` </br>
 
