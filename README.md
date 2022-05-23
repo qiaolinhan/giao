@@ -9,7 +9,7 @@ the steps. More detials could be find in [installs.md](https://github.com/qiaoli
 * Install other related dependencies </br>
 `conda env update -f envupdate.yml` </br>
 `pip install -U albumentations` </br>
-
+`conda install -c fastchan fastai` </br>
 ## Steps to Run
 1. Change the dataset folder in [data](https://github.com/qiaolinhan/giao/blob/master/havingfun/detecting/segmentation/lightunet18/lightdataCV.py) to load in the prepared images and masks to check.
 2. Check whether the [Network strucure](https://github.com/qiaolinhan/giao/blob/master/havingfun/detecting/segmentation/lightunet18/lightunet.py) is okay enough, this model is based on Resnet18 Encoder-Decoder, add layers for more complex segmentation missions.
