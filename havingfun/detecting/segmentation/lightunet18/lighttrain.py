@@ -70,7 +70,7 @@ parser.add_argument(
 )
 
 # classes add codes
-codes = ['Background', 'Cloud', 'Smoke', 'Flame']
+codes = ['Smoke', 'Flame', 'Background']
 name2id = {v:k for k, v in enumerate(codes)}
 void_code = name2id['Background']
 print('name2id:', name2id)
