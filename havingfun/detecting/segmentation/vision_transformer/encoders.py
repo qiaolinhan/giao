@@ -1,4 +1,3 @@
-from sqlalchemy import values
 import torch
 import torch.nn as nn
 from embeddingblock import EmbeddingBlock
@@ -49,7 +48,6 @@ class Encoders(nn.Module):
             keys_x = out
             queries_x = out
             print('======> mask_source in compute shape', mask_source.size())
-        
         return out
 
 if __name__ == "__main__":
