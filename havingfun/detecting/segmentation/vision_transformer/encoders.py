@@ -27,7 +27,6 @@ class Encoders(nn.Module):
             TransformerBlock(embed_size, heads, dropout, forward_expansion)
             for _ in range(num_layers)
             ]
-            
         )
         self.source_padding_idx = source_padding_idx
     def make_source_mask(self, source):
