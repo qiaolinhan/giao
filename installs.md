@@ -89,6 +89,7 @@ git clone https://github.com/lee-shun/pure_vim nvim
 
   * <kbd>ctrl + w</kbd> <kbd>v</kbd> to split new window right (vertically :vsplit)
   * <kbd>ctrl + w</kbd> <kbd>s</kbd> to split new window bottom (horizental :split)
+  * <kbd>space</kbd> <kbd>r</kbd><kbd>c</kbd> to set the nvim settings
 
 Translate: put the cursor on the word and type `ts`
 Terminal: <F12>
