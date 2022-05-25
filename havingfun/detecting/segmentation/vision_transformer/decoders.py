@@ -25,24 +25,42 @@ from decoderblock import DecoderBlock
 from transformerblock import TransformerBlock
 
 class TransformerEntire(nn.Module):
-    def __init__(self, source_vocab_size, target_vocab_size, max_length, embed_size, heads, num_layers, dropout, forward_expansion, source_padding_idx, tar_padding_idx, device):
+    def __init__(self, source_vocab_size, target_vocab_size,
+                max_length,
+                embed_size, heads, num_layers, dropout,
+                forward_expansion, 
+                source_padding_idx,
+                device):
+
         super(TransformerEntire, self).__init__()
         
+        self.source_vocab_size = source_vocab_size
+        self.target_vocab_sze = target_vocab_size
         self.dropout = dropout
         self.device = device
-
-        self.encoder_embedding = EmbeddingBlock(source_vocab_size, embed_size, max_length, dropout, device).to(self.device)
-        self.decoder_embedding = EmbeddingBlock(target_vocab_size, embed_size, max_length, dropout, device)
         
-        self.encoders = Encoders(embed_size, heads, dropout, forward_expansion, source_padding_idx, device)
+        # encoder_embedding and decoder_embedding
+        self.encoder_embedding = EmbeddingBlock(source_vocab_size,
+                                                embed_size,
+                                                max_length,
+                                                dropout,
+                                                device).to(self.device)
+        self.decoder_embedding = EmbeddingBlock(target_vocab_size,
+                                                embed_size,
+                                                max_length,
+                                                dropout,
+                                                device).to(self.device)
+        
+        self.encoders = Encoders(embed_size, heads, num_layers, dropout, forward_expansion, source_padding_idx, device)
         self.decoderblock = DecoderBlock(embed_size, heads, dropout)
         self.transformerblock = TransformerBlock(embed_size, heads, dropout, forward_expansion)
         
+        # transformerblock of decoder part
         self.decoder_layers = nn.ModuleList(
             TransformerBlock(embed_size, heads, dropout, forward_expansion)
             for _ in range(num_layers)
                 )
-        self.tar_padding_idx = tar_padding_idx
+        # self.tar_padding_idx = tar_padding_idx
 
     def make_source_mask(self, source):
         source_mask = (source != self.source_padding_idx).unsqueeze(1).unsqueeze(2)
@@ -105,8 +123,9 @@ if __name__ == '__main__':
     
     x = torch.tensor([[1, 5 ,6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]).to(device)
     y = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2 ]]).to(device)
-
+    print('======> input source shape', x.shape)
+    print('======> input target shape', y.shape)
     transformer_model = TransformerEntire(source_vocab_size, target_vocab_size, max_length, embed_size,
-            heads, num_layers, dropout, forward_expansion, source_padding_idx, target_padding_idx, device) 
+            heads, num_layers, dropout, forward_expansion, source_padding_idx, device) 
     output_transformer = transformer_model(x, y)
     print('======> output shape', output_transformer.shape)
