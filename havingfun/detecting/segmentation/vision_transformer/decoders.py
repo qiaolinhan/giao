@@ -55,10 +55,15 @@ class TransformerEntire(nn.Module):
         self.decoderblock = DecoderBlock(embed_size, heads, dropout)
         self.transformerblock = TransformerBlock(embed_size, heads, dropout, forward_expansion)
         
+        # transformerlock of encoder part
+        self.encoder_layers = nn.ModuleList(
+                TransformerBlock(embed_size, heads, dropout, forward_expansion)
+                for _ in range(num_layers)
+                )
         # transformerblock of decoder part
         self.decoder_layers = nn.ModuleList(
-            TransformerBlock(embed_size, heads, dropout, forward_expansion)
-            for _ in range(num_layers)
+                TransformerBlock(embed_size, heads, dropout, forward_expansion)
+                for _ in range(num_layers)
                 )
         # self.tar_padding_idx = tar_padding_idx
 
@@ -78,16 +83,22 @@ class TransformerEntire(nn.Module):
 
         # inputs to encoder block
         embedded_source = self.encoder_embedding(source) 
+        print('======> shape of embedded source to attention block of encoder',
+                    embedded_source.shape)
         source_values = embedded_source
         source_keys = embedded_source
         source_queries = embedded_source
         source_mask = self.make_source_mask(source)
+        print('======> shape of mask into encoder')
         # inputs to decoder block
         embedded_tar = self.decoder_embedding(target)
+        print('======> shape of embedded target to attention blockof decoder',
+                    embedded_tar.shape)
         tar_values = embedded_tar
         tar_keys = embedded_tar
         tar_queries = embedded_tar
         tar_mask = self.make_target_mask(target).to(self.device)
+        print('======> shape of mask into decoderblock')
         
         # outouts of encoders and decodeblock
         # output of decoderblock
@@ -97,8 +108,21 @@ class TransformerEntire(nn.Module):
         values_encoder = output_encoder
         keys_encoder = output_encoder
 
-        for layer in self.decoder_layers:
-            out = layer(values_encoder, keys_encoder, queries_decoder, tar_mask)
+        for encoder_layer in self.encoder_layers:
+            encoder_out = encoder_layer(source_values, source_keys, source_queries, source_mask)
+            source_values = encoder_out
+            source_keys = encoder_out
+            source_queries = encoder_out
+            # source_mask = self.make_source_mask(encoder_out)
+
+        for decoder_layer in self.decoder_layers:
+            decoder_out = decoder_layer(values_encoder, keys_encoder, queries_decoder, tar_mask)
+            tar_values = decoder_out
+            tar_keys = decoder_out
+            tar_queries = decoder_out
+            # tar_mask = self.make_target_mask(decoder_out)
+
+        out = decoder_out
         return out
 
 
