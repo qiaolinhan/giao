@@ -119,27 +119,72 @@ def enh_img(img):
     img_enhanced = enh_con.enhance(factor = 1.0)
     return img_enhanced
 
-def load_image_from_folder(folder_name):
-    images = []
-    for filename in os.listdir(folder_name):
-        if file_name.endwith(".jpg"):
-            img = cv2.imread(os.path.join(folder_name, file_name))
-            if img is not None:
-                images.append(img)
-    return images
+# ----------------------------------
+# process the images one by one in a folder through 'for loop'
 
-test_imgs = load_image_from_folder(test_path)
-total_number = len(test_imgs)
-print(f'======> There are {total_number} images feed.')
+# get the time to create folder for storing predictions
+now = datetime.now()
+date_time = now.strtime('%Y%m%d%H%M') # Y for year, m for month, d for day, H for hour, M for minute
+print(f'======> Current time: {date_time}')
 
-for test_img, i in list(test_img):
-    # convert cv2 imgs into PIL images
-    test_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB)
-    test_PILimg = Image.fromarray(test_img).resize((400, 400))
+# create the folder
+test_pred_path = pathlib.Path(f'/home/qiao/dev/giao/datesets/bounding/pred_{date_time}')
+test_pred_path.mkdir(parents = True, exist_ok = True)
+
+# for loop
+i = 0
+for test_fname in test_fnames:
+    # load the data
+    test_pilimgimg = Image.open(test_fname)
+    test_pilimgimg_resized = test_pilimgimg.resize((255, 255)) # straightly resized here
+    test_pilimg = PILImage(test_pilimgimg_resized)
+
+    # enhance inputs
+    test_pilimg_enh = emh_img(test_pilimg)
     
-    # predict
-    test_predimg = learn.predict(test_PILimg)
+    if enhance = True:
+        test_pilimg = test_pilimg_enh
+    else:
+        test_pilimg = test_pilimg
+
+    # predicting by feeding into U-net model
+    test_pred_torch_all = learn.predict(test_pilimg)
+    test_pred_torch = test_pred_torch_all[0]
+    # plt.imshow(test_pred_torch)
+    # plt.show()
     
-    # resize and save the predicted masks
-    test_outimg = Image.open(test_predimg).resize((960, 770))
-    out_imgs.append(test_outimg)
+    # to convert predictions: torch.int64 --> PIL.Image
+    # convert: torch.int64 --> np.int64
+    test_pred_int64 = test_pred_torch[i].numpy() * 255/ 2 # 255/(classes - 1)
+    # convert: np.int64 --> np.float64
+    test_pred_float64 = np.asarry(test_pred_int64, dtype = np.float64, order = 'C')
+    # convert: np.float64 --> PIL.Image
+    test_pred_pilimg = Image.fromarray(test_pred_float64)
+    # resize to M300 original size (960, 770)
+    test_pred_pilimg_resized = test_pred_pilimg.resize((960, 770)).convert('RGB')
+    # plt.imshow(test_pred_pilimg_resized)
+    # plt.show()
+
+    # fusion the original images and predicted masks for covinient observation
+    test_fusion = blend_two_images(test_pilimgimg, test_pred_pilimg_resized)
+    # plt.imshow(test_fusion)
+    # plt.show()
+
+    # save the results
+    # to choose which results it is needed to save
+    if fusion_require = True:
+        prediction = test_fusion
+    else:
+        prediction = test_pred_pilimg_resized
+
+    prediction.save(f'{test_pred_path}/premask_{test_fname.name}', 'PNG')
+
+    # countinf as processing
+    count = []
+    i += 1
+    count.append(i)
+    print(f'======> prediction of {test_fname.name}' saved!)
+    print(f'======> It is now counting {count}/{total_number}')
+
+
+print('\n======> All images are predicted, mission accomplished!!!')
