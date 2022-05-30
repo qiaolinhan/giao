@@ -142,7 +142,7 @@ for test_fname in test_fnames:
     # enhance inputs
     test_pilimg_enh = emh_img(test_pilimg)
     
-    if enhance = True:
+    if enhance == True:
         test_pilimg = test_pilimg_enh
     else:
         test_pilimg = test_pilimg
@@ -172,7 +172,7 @@ for test_fname in test_fnames:
 
     # save the results
     # to choose which results it is needed to save
-    if fusion_require = True:
+    if fusion_require == True:
         prediction = test_fusion
     else:
         prediction = test_pred_pilimg_resized
@@ -183,7 +183,7 @@ for test_fname in test_fnames:
     count = []
     i += 1
     count.append(i)
-    print(f'======> prediction of {test_fname.name}' saved!)
+    print(f'======> prediction of {test_fname.name} saved!')
     print(f'======> It is now counting {count}/{total_number}')
 
 
