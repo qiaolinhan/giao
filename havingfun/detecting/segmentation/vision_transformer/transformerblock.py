@@ -32,7 +32,7 @@ class TransformerBlock(nn.Module):
         ------
         out: torch.tensor, shape([N, queries_len, embed_size])
         '''
-        attention = self.selfattention_model(values, keys, queries, mask)
+        attention = self.selfattention_layer(values, keys, queries, mask)
 
         # add & norm: skip connection of [input of attention] and [output of attention]
         result_attention = self.dropout(self.norm1(attention + queries))
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     ###################################
-
+    # x --> (embedding_model) --> values_source, keys_source, queries_source
     embedding_model = EmbeddingBlock(source_vocab_size, embed_size, max_length, dropout, device).to(device)
 
     x = torch.tensor([[1, 5 ,6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]).to(device)
@@ -70,6 +70,7 @@ if __name__ == "__main__":
     keys_x = embedded_source
     queries_x = embedded_source
 
+    # x --> (make_source_mask) --> mask_source
     # function to make source mask
     ################################
     def make_source_mask(source):
@@ -88,7 +89,7 @@ if __name__ == "__main__":
     ################################    
     mask_source = make_source_mask(source).to(device)
     print('======> mask_source shape', mask_source.shape)
-
+    # x --> values_source, keys_source, queries_source, mask_source --> attention layer --> feed_forward --> out
     transformerblock_model = TransformerBlock(embed_size, heads, dropout, forward_expansion).to(device)
     out = transformerblock_model(values_x, keys_x, queries_x, mask_source)
     print('======> transformerblock output shape', out.shape)
