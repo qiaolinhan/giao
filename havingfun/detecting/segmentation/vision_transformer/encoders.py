@@ -18,28 +18,44 @@ output: input to decoder(s), shape([N, queries_len, embed_size])
 '''
 
 class Encoders(nn.Module):
-    def __init__(self, embed_size, heads, num_layers, dropout, forward_expansion, source_padding_idx, device): # params for embedding: (source_vocab_size, max_length, device) 
+    def __init__(self,
+        source_vocab_size, source_padding_idx,
+        max_length,
+        embed_size, heads, 
+        num_layers,
+        dropout,
+        forward_expansion, device): 
+        # params for embedding: (source_vocab_size, max_length, device) 
+
         super(Encoders, self).__init__()
 
+        self.embed_size = embed_size
         self.device = device
+
+        # x --> (embedding_model) --> x_embedded --> values_embedded, keys_embedded, queries_embedded
         self.embedding = EmbeddingBlock(source_vocab_size, embed_size, max_length, dropout, device).to(self.device)
+
+        # values, keys, queries, mask --> 
         self.layers = nn.ModuleList([
-            TransformerBlock(embed_size, heads, dropout, forward_expansion)
+            TransformerBlock(embed_size,
+                heads,
+                dropout,
+                forward_expansion
+            )
             for _ in range(num_layers)
             ]
         )
-        self.source_padding_idx = source_padding_idx
-    def make_source_mask(self, source):
-        source_mask = (source != self.source_padding_idx).unsqueeze(1).unsqueeze(2)
-        # src_mask shape: (N, 1, 1, src_len) 
-        return source_mask.to(self.device)
+        # self.source_padding_idx = source_padding_idx
+        def make_source_mask(self, source):
+            source_mask = (source != self.source_padding_idx).unsqueeze(1).unsqueeze(2)
+            # src_mask shape: (N, 1, 1, src_len) 
+            return source_mask.to(self.device)
 
     def forward(self, x, mask_source):
-        source_x = self.embedding(x)
-        values_x = source_x
-        keys_x = source_x
-        queries_x = source_x
-
+        x_source = self.embedding(x)
+        values_x = x_source
+        keys_x = x_source
+        queries_x = x_source
         for layer in self.layers:
             out = layer(values_x, keys_x, queries_x, mask_source)
             # print('======> encoder output shape', out.size())
