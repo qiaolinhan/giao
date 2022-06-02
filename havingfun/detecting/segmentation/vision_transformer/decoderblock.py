@@ -2,18 +2,20 @@ import torch
 import torch.nn as nn
 from embeddingblock import EmbeddingBlock
 from selfattentionblock import SelfAttentionBlock
+from transformerblock import TransformerBlock
 
 class DecoderBlock(nn.Module):
-    def __init__(self, embed_size, heads, dropout):
+    def __init__(self, embed_size, heads, 
+            forward_expansion,
+            dropout, device):
         super(DecoderBlock, self).__init__()
 
-        self.embed_size = embed_size
-
         self.selfattention = SelfAttentionBlock(embed_size, heads)
+        self.transformerblock = TransformerBlock(embed_size, heads, dropout, forward_expansion)
         self.norm = nn.LayerNorm(embed_size)
         self.dropout = nn.Dropout(dropout)
 
-    def forward(self, tar_values, tar_keys, tar_queries, tar_mask):
+    def forward(self, tar_values, tar_keys, tar_source, tar_mask):
         '''
         params
         ------
@@ -27,7 +29,9 @@ class DecoderBlock(nn.Module):
         ------
             out: torch.tensor, shape([N, queires_len, embed_size])
         '''
-        tar_attention = self.selfattention(tar_values, tar_keys, tar_queries, tar_mask)
+        # specially, tar_queries is acquired from tar_source.
+        tar_attention = self.selfattention(tar_source, tar_source, tar_source, tar_mask)
+        tar_queries = self.dropout(self.norm(tar_attention + tar_source))
         out_decoderbock = self.dropout(self.norm(tar_attention + tar_queries))
         return out_decoderbock
 
@@ -44,7 +48,7 @@ if __name__ == "__main__":
     embed_size = 256
     heads = 8
     head_dim = embed_size // heads
-    forward_wxpansion = 4
+    forward_expansion = 4
     
     num_layers = 6
     
@@ -52,6 +56,7 @@ if __name__ == "__main__":
     y = torch.tensor([[1, 7, 4, 3, 5, 9, 2, 0], [1, 5, 6, 2, 4, 7, 6, 2]])
     tar = y
     print('======> target shape', tar.shape)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     embedding_model = EmbeddingBlock(target_vocab_size, embed_size, max_length, dropout, device).to(device)
