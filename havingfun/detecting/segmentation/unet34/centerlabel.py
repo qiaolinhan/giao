@@ -22,7 +22,7 @@
 import argparse
 import imutils
 import cv2
-
+from cv2 import cv2
 # constract the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-i", "--image", required = True,
@@ -36,10 +36,11 @@ args = vars(ap.parse_args())
 image = cv2.imread(args["image"])
 grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 blurred = cv2.GaussianBlur(grayscale, (5, 5), 0)
-thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
+thresh_flame = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)[1]
+thresh_smoke = cv2.threshold(blurred, 100, 200, cv2.THRESH_BINARY)[1]
 
 # find the edge of these shapes (find contours in the thresholded image)
-cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+cnts = cv2.findContours(thresh_flame.copy(), cv2.RETR_EXTERNAL,
         cv2.CHAIN_APPROX_SIMPLE)
 cnts = imutils.grab_contours(cnts)
 
@@ -59,3 +60,6 @@ for c in cnts:
     # show the image
     cv2.imshow("Image", image)
     cv2.waitKey(0)
+
+
+
