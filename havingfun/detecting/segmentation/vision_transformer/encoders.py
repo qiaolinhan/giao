@@ -32,10 +32,10 @@ class Encoders(nn.Module):
         self.embed_size = embed_size
         self.device = device
 
-        # x --> (embedding_model) --> x_embedded --> values_embedded, keys_embedded, queries_embedded
+        # x --> (embedding_model) --> x_embedded   values, keys, queries = x_embedded
         self.embedding = EmbeddingBlock(source_vocab_size, embed_size, max_length, dropout, device).to(self.device)
 
-        # values, keys, queries, mask --> 
+        # values, keys, queries, mask --> (selfattention_model) --> (feedforward) --> out_encoders 
         self.layers = nn.ModuleList([
             TransformerBlock(embed_size,
                 heads,
