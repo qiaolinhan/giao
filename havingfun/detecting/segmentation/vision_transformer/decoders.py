@@ -25,19 +25,17 @@ from decoderblock import DecoderBlock
 from transformerblock import TransformerBlock
 
 class TransformerEntire(nn.Module):
-    def __init__(self, source_vocab_size, target_vocab_size,
-                max_length,
-                embed_size, heads, num_layers, dropout,
-                forward_expansion, 
-                source_padding_idx,
-                device):
+    def __init__(self, 
+            source_vocab_size, target_vocab_size,
+            source_padding_idx, target_padding_idx,
+            embed_size, heads,
+            forward_expansion,
+            dropout,
+            device = device,
+            max_length = 100,
+            ):
 
         super(TransformerEntire, self).__init__()
-        
-        self.source_vocab_size = source_vocab_size
-        self.target_vocab_sze = target_vocab_size
-        self.dropout = dropout
-        self.device = device
         
         # encoder_embedding and decoder_embedding
         self.encoder_embedding = EmbeddingBlock(source_vocab_size,
