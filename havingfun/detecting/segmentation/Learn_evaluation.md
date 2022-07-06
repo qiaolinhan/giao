@@ -46,3 +46,23 @@ def iou_coef(y_true, y_pred, smooth = 1):
   return iou
 ```
 
+### 1.3. Dice Coefficient (F1 Score)
+__Define:__ the dice coefficient is 2* the area of overlap divided by the total number of pixels in both images.  
+
+<img src="https://miro.medium.com/max/429/1*yUd5ckecHjWZf6hGrdlwzA.png" alt="2xOverlap/Total number of pixels">
+
+Dice = (Ships + Background)/2
+
+(The dice coefficient is very similar to IOU)
+
+Implementation of Dice Score
+```python
+def dice_coef(y_true, y_pred, smooth = 1):
+  intersection = K.sum(y_true * y_pred, axis = 1)
+  union = K.sum(y_true, [1, 2, 3]) + K.sum(y_pred, axis = [1, 2, 3])
+  # the difference is there is a '2*' in dice cofficient
+  dice = K.mean((2. * intersection + smooth) / (union + smooth), axis = 0) 
+  return dice
+```
+
+## Cited from [Kiprono Elijah Koech](https://towardsdatascience.com/on-object-detection-metrics-with-worked-example-216f173ed31e#:~:text=At%20a%20low-level%2C%20evaluating%20performance%20of%20an%20object,%28FP%29%20%E2%80%94%20Incorrect%20detection%20made%20by%20the%20detector.)
