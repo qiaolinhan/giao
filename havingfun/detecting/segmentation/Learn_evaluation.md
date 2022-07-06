@@ -20,7 +20,29 @@ __Disadvantage: class imbalance__
 ### 1.2. Intersection-Over-Union (IOU, Jaccard Index)
 __Define:__ It is the area of overlap between the predicted segmentation and the ground truth.  
 
+<img src="https://miro.medium.com/max/300/0*kraYHnYpoJOhaMzq.png" alt="Visualized IOU calculation"/>
 
+The mean IOU of image is calculated by taking the IOU of each class and average them.  
 
+__What is overlap and Union in our context?__  
+* Overlap: move the predicted segmentation directly above the ground truth to see how many foreground pixels and
+  background pixels are classified.  
+* Union: (predicted foreground + ground truth) - overlap pixels  
 
+Keras implementation
+```python
+from keras import backend as K
+
+# y_true, y_pred: [m, r, c, n]
+# ------
+# m: number of images
+# r: number of rows
+# c: number of colums
+# n: number of calsses 
+def iou_coef(y_true, y_pred, smooth = 1):
+  intersection = K.sum(K.abs(y_true * y_pred), axis = [1, 2, 3])
+  union = K.sum(y_true, [1, 2, 3]) + K.sum(y_pred, [1, 2, 3]) - intersection
+  iou = K.mean((intersection + smooth) / (union + smooth), axis = 0)
+  return iou
+```
 
