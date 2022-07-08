@@ -66,3 +66,39 @@ def dice_coef(y_true, y_pred, smooth = 1):
 ```
 
 ## Cited from [Kiprono Elijah Koech](https://towardsdatascience.com/on-object-detection-metrics-with-worked-example-216f173ed31e#:~:text=At%20a%20low-level%2C%20evaluating%20performance%20of%20an%20object,%28FP%29%20%E2%80%94%20Incorrect%20detection%20made%20by%20the%20detector.)
+The most popular metrics:  
+* Average precision (AP)
+* mean Average precision (mAP)
+
+At a low level, evaluating performance of an object detector down to determining if detection is correct or net.  
+
+| Definition          | Explain                                                        |
+| ----                | ----                                                           |
+| True Positive (TP)  | Correct detection made by the model.                           |
+| False Positve (FP)  | Incorrect detection made by the detector.                      |
+| False Negative (FN) | A ground-truth misser (not detected) by the object detector.   |
+| True Negative (TN)  | This is background region correctly not detected by the model. |
+
+### Precision and Recall
+* Precision: The degree of exactness of the model in identifying only relevant objects. It is the ration of TPs over all
+  detections made by the model.
+* Recall: It measures the ability of the model to detect all ground truths -- proposition of TPs among all ground
+  truths.
+
+$$
+P = \frac{TP}{TP + FP} = \frac{TP}{ all detections }\\
+R = \frac{TP}{TP + FN} = \frac{TP}{ all ground-truth}\\
+$$
+Higher precision and higher recall means better model. A perfect model has zero FNs and zero FPs.  
+
+### Precision x Recall Curve (PR Curve)
+<img src="https://miro.medium.com/max/312/1*WL8PnVSPE_0Pem9bnSeseQ.png">
+Confidence score also rely on threshold.  
+Raising confidence score threshold means that more objects will be missed by the model.  
+(More FNs and therefore low recall and high precision)  
+Lower confidence score will mean that hte model gets more FPs (low precision adn high recall).  
+The recision-recall (PR) curve is a plot of precision adn re call at varying values of confidence. For a good model,
+precision and recall stays high even when confidence sore is varied.
+
+### Average Precision
+
