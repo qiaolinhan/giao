@@ -93,6 +93,7 @@ Higher precision and higher recall means better model. A perfect model has zero 
 
 ### Precision x Recall Curve (PR Curve)
 <img src="https://miro.medium.com/max/312/1*WL8PnVSPE_0Pem9bnSeseQ.png">
+
 Confidence score also rely on threshold.  
 Raising confidence score threshold means that more objects will be missed by the model.  
 (More FNs and therefore low recall and high precision)  
