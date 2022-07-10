@@ -102,4 +102,45 @@ The recision-recall (PR) curve is a plot of precision adn re call at varying val
 precision and recall stays high even when confidence sore is varied.
 
 ### Average Precision
+* $AP@\alpha$: Area under the Precision-Recall Curve (AUC-PR)
+* __11-point interpolation method__
+* __All-point interpolation method__
 
+```python
+import numpy as np
+from sklearn.metrics import average_precision_score
+y_true = np.array([0, 0, 1, 1])
+y_score = np.array([0.1, 0.4, 0.35, 0.8])
+average_precision_score(y_true, y_scores)
+```
+#### $AP@\alpha$ 
+It is evaluated at $\alpha$ IoU threshold. Formally, it is defined as follows
+$$
+AP@\alpha = \int_{0}^{1} p(r) dr
+$$
+(AP50 and AP 75 mean AP calculated at IoU = 0.5 and IoU = 0.75)  
+A high area under PR curve means high recall and high precision. PR curve is a zig-zag like plot.
+
+#### 11-point interpolation method
+A 11-point AP is a plot of interpolated precision scores for a model results at 11 equally spaced standard recall level,
+nemely, 0.0, 0.1, 0.2, ..., 1.0. It is defined as:
+$$
+AP@\alpha_{11} = \frac{1}{11}\sum_{r \in R} p_{interp}(r)
+$$
+where $R = {0.0, 0.1, 0.2, ..., 1.0}$ and interpolated precision at recall value, r. It is the highest precision for any
+recall value $r' \leq r$.  
+
+#### All-point interpolation method
+$$
+AP@\alpha = \sum_i (r_{i + 1} - r_i)p_{interp}(r_{i + 1})
+$$
+
+### Mean Average Precision (mAP)
+__Remark (AP and the number of classes):__ AP is calculated individually for each class. This means that there are as
+many AP values as the number of calsses (loosely). These AP values are averaged to obtain the metric: mean Average
+Precision (mAP). Precisely, mean Average Precision (mAP) is the average of AP values over all classes.
+$$
+mAP@\alpha = {1\over n} \sum_{i = 1}^{n} AP_i \text{for n classes}
+$$
+<br>
+__Remark (AP and IoU):__ AP is calculated at a given IoU threshold $\alpha$.
