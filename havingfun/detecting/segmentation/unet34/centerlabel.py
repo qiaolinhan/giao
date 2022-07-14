@@ -45,10 +45,25 @@ def cv_load_folder(folder = args["image"]):
             images.append(img)
     return images
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+image = cv2.imread(args["image"])
+grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+blurred = cv2.GaussianBlur(grayscale, (5, 5), 0)
+
+thresh_flame = cv2.threshold(blurred, 200, 255, cv2.THRESH_BINARY)[1]
+thresh_smoke = cv2.threshold(blurred, 100, 200, cv2.THRESH_BINARY)[1]
+=======
+>>>>>>> d5db0529d6a3b40e563e15b9e9df5b63bc62fbed
 # function: findng the contours in image
 def img_contours(image):
     # convert image into grayscale
     grayscale = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+<<<<<<< HEAD
+=======
+>>>>>>> 46c2817fa7f5b56f3bae574dc3f4093af1cc8687
+>>>>>>> d5db0529d6a3b40e563e15b9e9df5b63bc62fbed
 
     # blur slightly
     blurred = cv2.GaussianBlur(grayscale, (5, 5), 0)
