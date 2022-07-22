@@ -12,7 +12,7 @@ Includes:
 ### 1.1. Pixel Accuracy
 __Define:__ It is the present of pixels in your image that are classified correctly.  
 
-:x:__However, it is in no way the mest metric__ :fearful:  
+:x:__However, it is in no way the best metric__ :fearful:  
 __Disadvantage: class imbalance__
   * When our class are extremely imbalanced , it means that a class or some classes dominate the image, while some of
     other classes make up only a small portion of the image.  
