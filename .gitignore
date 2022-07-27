@@ -10,3 +10,5 @@ trainedparams/
 *.pth
 *.avi
 *.mp4
+
+Unet34 Experiment data process.ipynb

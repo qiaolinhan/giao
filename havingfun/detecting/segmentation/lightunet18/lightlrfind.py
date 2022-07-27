@@ -56,3 +56,4 @@ lr_finder.range_test(train_loader=data_loader, end_lr = 1e-1, num_iter=50)
 lr_finder.plot()
 lr_finder.reset()
 # 4.04e-7
+# 20220520: 2.22e-3
