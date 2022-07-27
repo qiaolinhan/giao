@@ -12,6 +12,9 @@ from lightutils import (
     save_predictions_as_imgs,
     plot_img_and_mask,
     save_training_plots,
+    pixelaccuracy,
+    f1score,
+    rocaucscore,
 )
 
 import argparse
@@ -27,7 +30,7 @@ sys.path.insert(0, 'havingfun/deving/blocks')
 from  evaluateratios import Segratio
 
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
-Batch_size = 2
+Batch_size = 4
 Num_workers = 0
 Image_hight = 400
 Image_weight = 400
@@ -82,6 +85,7 @@ print('num_classes:', num_classes)
 #     mask = target != void_code
 #     return (input.argmax(dim = 1)[mask] == target[mask]).float().mean()
 # metric = acc_smoke
+# metric = [pixelaccuracy, rocaucscore, apscore, f1sore]
 metric = Segratio(num_classes)
 
 args = vars(parser.parse_args())

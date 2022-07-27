@@ -12,13 +12,15 @@ import torchvision.transforms as T
 
 import os
 import sys
+sys.path.append('havingfun/deving/blocks')
+sys.path.append('havingfun/deving/tools')
 # module_path = os.path.abspath(os.path.join('..'))
 # if module_path not in sys.path:
 #     sys.path.append(module_path + "\\deving\blocks")
 #     sys.path.append(module_path + "\\deving\tools")
 # insert at 1, 0 is the script path (or '' in REPL)
-sys.path.insert(0, 'havingfun/deving/blocks')
-sys.path.insert(0, 'havingfun/deving/tools')
+sys.path.insert(1, 'havingfun/deving/blocks')
+sys.path.insert(1, 'havingfun/deving/tools')
 
 from inoutblock import Inputlayer, Outlayer
 from attentiongateblock import Attentiongate_block
