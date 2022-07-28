@@ -1,32 +1,43 @@
 # 2022-04-08
 # some functions for training results analysis and saving
 import sklearn
+import sklearn.metrics as metrics
+import numpy as np
 import torch
 import torchvision
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.style.use('ggplot')
+
+# -----------------------------
 # load the dataset path
 import os
 root = os.path.dirname(os.path.join(
     'havingfun/detection/segmentation/saved_imgs/'
     ))
+# -----------------------------
 
-# load sklearn metrics for the model evaluation
-import numpy as np
-import sklearn.metrics as metrics
-
+# -----------------------------
 # the model name
-modelname = 'Lightunet18_CE_SGD'
+modelname = 'Lightunet18'
 # learning rate
-lr = '2.22e-3'
+lr = '2.22e3'
 # traning epochs
-epochs = 'e20'
+epochs = '20'
+
+# strings: the name of files to save, which includes:
+#   process_model_param
+#   entire_model_param
+#   loss statisctics
+#   pixel level accuracy statistics
+#   (other metrics statistics) 
+#   prediction example image
 process_model_param = 'process_' + modelname + '_' + lr + '_' + epochs + '.pth'
 model_param = modelname + '_' + lr + '_' + epochs + '.pth'
 loss_imgs = 'Loss_'+ modelname + '_' + lr + '_' + epochs +'.png'
 acc_imgs = 'Acc_' + modelname + '_' + lr + '_' + epochs +'.png'
 show_imgs = 'Show_' + modelname + '_' + lr + '_' + epochs +'.png'
+# -----------------------------
 
 # -----------------------------
 # evaluation raios from sklearn

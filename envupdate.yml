@@ -20,5 +20,5 @@ dependencies:
     - scipy
     - pynvim
     - torch-lr-finder
-    - albumentations
+    - U albumentations
 

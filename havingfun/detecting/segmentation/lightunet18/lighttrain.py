@@ -1,10 +1,32 @@
-from turtle import clear
-from tqdm import tqdm
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*- #
 
+# ------------------------------------------------------------------------------
+#
+#   Copyright (C) 2022 Concordia NAVlab. All rights reserved.
+#
+#   @Filename: lighttraining.py
+#
+#   @Author: Linhan Qiao
+#
+#   @Date: 2022-07-27
+#
+#   @Email: q_linhan@live.concordia.ca
+#
+#   @Description: this .py file is for training the light-weight Unet model, which
+#               is build based on ResNet-18 and Attention gate model.
+#
+# ------------------------------------------------------------------------------
+
+# -----------------------------------------
+# import necessary packages
+# from turtle import clear
+# from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from lightunet import LightUnet
+# from utils import necessary functions
 from lightutils import (
     save_processing_model,
     save_entire_model,
@@ -16,18 +38,19 @@ from lightutils import (
     f1score,
     rocaucscore,
 )
+# to evaluate the segmentation performance, the evaluation block is in another folder
+import sys
+sys.path.insert(1, 'havingfun/deving/blocks')
+from  evaluations import (
+        pixelaccuracy) 
 
-import argparse
 
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
 from lightdataPIL import JinglingDataset, Atransform
+from lightdataCV import 
 from torch.utils.data import DataLoader, Subset
 # from sklearn.model_selection import train_test_split
-
-import sys
-sys.path.insert(0, 'havingfun/deving/blocks')
-from  evaluateratios import Segratio
 
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
 Batch_size = 4
@@ -37,6 +60,9 @@ Image_weight = 400
 Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
+
+# ------------------------------------------
+import argparse
 
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
@@ -311,8 +337,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
 
 
 
