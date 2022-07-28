@@ -20,53 +20,40 @@
 
 # -----------------------------------------
 # import necessary packages
-# from turtle import clear
-# from tqdm import tqdm
+from turtle import clear
+from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from lightunet import LightUnet
-# from utils import necessary functions
-from lightutils import (
-    save_processing_model,
-    save_entire_model,
-    load_model,
-    save_predictions_as_imgs,
-    plot_img_and_mask,
-    save_training_plots,
-    pixelaccuracy,
-    f1score,
-    rocaucscore,
-)
-# to evaluate the segmentation performance, the evaluation block is in another folder
-import sys
-sys.path.insert(1, 'havingfun/deving/blocks')
-from  evaluations import (
-        pixelaccuracy) 
-
-
+import sklearn.metrics as metrics
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
-from lightdataPIL import JinglingDataset, Atransform
-from lightdataCV import 
 from torch.utils.data import DataLoader, Subset
 # from sklearn.model_selection import train_test_split
 
+from lightdataPIL import JinglingDataset, Atransform
+from lightdataCV import CVdataset, atransform 
+from lightunet import LightUnet
+# from utils import necessary functions
+from lightutils import *
+# to evaluate the segmentation performance, the evaluation block is in another folder
+import sys
+sys.path.insert(1, 'havingfun/deving/blocks')
+import evaluations
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
 Batch_size = 4
 Num_workers = 0
-Image_hight = 400
-Image_weight = 400
+Image_hight = 385
+Image_weight = 480
 Pin_memory = True
 Valid_split = 0.2
 Modeluse = LightUnet
 
 # ------------------------------------------
 import argparse
-
 # flexible hyper params: epochs, dataset, learning rate, load_model
 parser = argparse.ArgumentParser()
-
+# input training epochs
 parser.add_argument(
     '-e',
     '--epochs',
@@ -74,7 +61,7 @@ parser.add_argument(
     default = 20,
     help = 'Numbers of epochs to train the network'
 )
-
+# input learning rate
 parser.add_argument(
     '-l',
     '--lr',
@@ -82,7 +69,7 @@ parser.add_argument(
     default = 4.04e-7,
     help = 'Learning rate for training'
 )
-
+# input the image folder path
 parser.add_argument(
     '-t',
     '--troot',
@@ -90,6 +77,7 @@ parser.add_argument(
     default = 'datasets/S_kaggle_wildfire',
     help = 'Input the image dataset path'
 )
+# inputt the label folder path
 parser.add_argument(
     '-m',
     '--mroot',
@@ -98,60 +86,41 @@ parser.add_argument(
     help = 'Input the mask dataset path'
 )
 
-# classes add codes
-codes = ['Smoke', 'Flame', 'Background']
-name2id = {v:k for k, v in enumerate(codes)}
-void_code = name2id['Background']
-print('name2id:', name2id)
-num_classes = len(name2id)
-print('num_classes:', num_classes)
-
-# def acc_smoke(input, target):
-#     target = target.squeeze(1)
-#     mask = target != void_code
-#     return (input.argmax(dim = 1)[mask] == target[mask]).float().mean()
-# metric = acc_smoke
-# metric = [pixelaccuracy, rocaucscore, apscore, f1sore]
-metric = Segratio(num_classes)
-
 args = vars(parser.parse_args())
 Num_epochs = args['epochs']
+Learning_rate = args['lr']
 Img_dir = args['troot']
 Mask_dir = args['mroot']
-Learning_rate = args['lr']
+# ----------------------------------
 
-# the device used fir training
+# ----------------------------------
+# the metric to evaluate the model performance of its training
+# the device used for training
 train_on_gpu = torch.cuda.is_available()
 if train_on_gpu:
-    print("=====>CUDA is available! Training on GPU...")
+    print("=====> CUDA is available! Training on GPU...")
 else:
-    print("=====>CUDA is not available. Training on CPU...")
+    print("=====> CUDA is not available. Training on CPU...")
 
 Device = 'cuda' if torch.cuda.is_available() else 'cpu'
 # Device = 'cpu'
 # print(f'\nComputation device: {Device}\n')
+# ----------------------------------
 
+# ----------------------------------
 # load the model
 model = Modeluse(in_channels=3, out_channels=1)
-model = model.to(device = Device)
-
+model = model.to(Device)
+# --------------------------------
 # print the parameter numbers of the model
 total_params = sum(p.numel() for p in model.parameters())
 # print(model.eval())
 print('#############################################################')
-print(f'There are {total_params:,} total parameters in the model.\n')
+print(f'======> There are {total_params:,} total parameters in the model.\n')
 
-# optimizer used for training
-# optimizer = optim.Adam(model.parameters(), lr = Learning_rate)
-optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
-
-# loss function for training
-loss_fn = nn.MSELoss()
-# loss_fn = nn.CrossEntropyLoss()
-loss_fn = loss_fn.to(device = Device)
-
+# ----------------------------------
 # load dataset
-data = JinglingDataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = Atransform)
+data = CVdataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = atransform)
 dataset_size = len(data)
 print(f"Total number of images: {dataset_size}")
 valid_split = 0.2
@@ -159,8 +128,24 @@ valid_size = int(valid_split*dataset_size)
 indices = torch.randperm(len(data)).tolist()
 train_data = Subset(data, indices[:-valid_size])
 val_data = Subset(data, indices[-valid_size:])
-print(f"Total training images: {len(train_data)}")
-print(f"Total valid_images: {len(val_data)}")
+print(f"======> Total training images: {len(train_data)}")
+print(f"======> Total valid_images: {len(val_data)}")
+
+
+# classes add codes
+codes = ['Smoke', 'Flame', 'Background']
+name2id = {v:k for k, v in enumerate(codes)}
+void_code = name2id['Background']
+print('name2id:', name2id)
+num_classes = len(name2id)
+print('======> num_classes:', num_classes)
+# ----------------------------------
+
+# ----------------------------------
+# optimizer used for training
+optimizer = optim.SGD(model.parameters(), lr=1e-4, momentum=0.9)
+# loss function for training
+loss_fn = nn.CrossEntropyLoss().to(Device)
 
 train_loader = DataLoader(train_data, batch_size = Batch_size, 
                           num_workers = Num_workers, 
@@ -171,19 +156,24 @@ val_loader = DataLoader(val_data, batch_size = Batch_size,
                         pin_memory = Pin_memory,
                         shuffle = True)
 
+# ----------------------------------
+# functions used in upsampling part
 # resize tensor in up-sampling process                        
 def sizechange(input_tensor, gate_tensor):
     sizechange = nn.UpsamplingBilinear2d(size = gate_tensor.shape[2:])
     out_tensor = sizechange(input_tensor)
     return out_tensor
 
+# ----------------------------------
 # training process
 def fit(train_loader, model, optimizer, loss_fn, scaler):
-    print('====> Fitting process')
-
-    train_running_loss = 0.0
-    train_running_acc = 0.0
-    train_running_mpa = 0.0
+    print('=====> Fitting process')
+    loss_p = 0.0
+    pacc_p = 0.0
+    aucscore_p = 0.0
+    f1score_p = 0.0
+    precisonscore_p = 0.0
+    
     counter = 0
     for i, data in tqdm(enumerate(train_loader), total = len(train_data) // Batch_size):
         counter += 1
@@ -206,15 +196,10 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
             # therefore, the tensor need to be resized
-            # if preds.shape != mask.shape:
-            #     preds = sizechange(preds, mask)
-                # print('preds size after resize:', preds.size())
-
-            # print(mask)
-            # mask = mask.squeeze(1)
+            
+            # statistics of the loss
             loss = loss_fn(preds, mask)
-            train_running_loss += loss.item()
-
+            loss_p += loss.item()
 
             preds = preds.squeeze(1).permute(1, 2, 0)
             mask = mask.squeeze(1).permute(1, 2, 0)
@@ -224,9 +209,9 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             # print('preds size:', preds.shape)
             # print('masks size:', mask.shape)
 
-            hist = metric.addbatch(preds, mask)
-            acc = metric.get_acc()
-            train_running_acc += acc.item()
+            # hist = metrics.addbatch(preds, mask)
+            acc = evaluations.pixelaccuracy()
+            pacc_p += acc.item()
 
             mpa = metric.get_MPA()
             train_running_mpa += mpa.item()
