@@ -25,6 +25,8 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
+# for mixed precision training
+import torch.cuda.amp as amp 
 import sklearn.metrics as metrics
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
@@ -123,6 +125,7 @@ print(f'======> There are {total_params:,} total parameters in the model.\n')
 data = CVdataset(img_dir = Img_dir,mask_dir = Mask_dir, transform = atransform)
 dataset_size = len(data)
 print(f"Total number of images: {dataset_size}")
+# split dataset into training set and validation set
 valid_split = 0.2
 valid_size = int(valid_split*dataset_size)
 indices = torch.randperm(len(data)).tolist()
@@ -172,9 +175,9 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
     pacc_p = 0.0
     aucscore_p = 0.0
     f1score_p = 0.0
-    precisonscore_p = 0.0
-    
+    apscore_p = 0.0
     counter = 0
+
     for i, data in tqdm(enumerate(train_loader), total = len(train_data) // Batch_size):
         counter += 1
         img, mask = data
@@ -182,16 +185,14 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         mask = mask.to(device = Device)
 
         # forward
-        with torch.cuda.amp.autocast():
+        with amp.autocast(dtype = torch.float16):
             preds = model(img)
             # print('preds size before resize:', preds.size())
             # print('mask size:', mask.size())
 
-
             # for multiple class segmentation, the result should be 0, 1, 2, ...
             preds = torch.sigmoid(preds)
             # print('preds size after sigmoid:', preds.size())
-            # preds = (preds > 0.5).float()
 
             # for now, the predictions are tensors
             # becaus of the U-net characteristic, the output is croped at edges
@@ -210,31 +211,31 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             # print('masks size:', mask.shape)
 
             # hist = metrics.addbatch(preds, mask)
-            acc = evaluations.pixelaccuracy()
+            acc = evaluations.pixelaccuracy(preds, mask)
             pacc_p += acc.item()
 
-            mpa = metric.get_MPA()
-            train_running_mpa += mpa.item()
+            ap = evaluations.preciisonscore(preds, mask)
+            ap_p = ap.item()
 
         # backward
-        optimizer.zero_grad()
-        # loss.backward()
-        # optimizer.step()
-        scaler.scale(loss).backward()
-        scaler.step(optimizer)
-        scaler.update() 
+        loss.backward()
+        optimizer.step()
 
-        tqdm(enumerate(train_loader)).set_postfix(loss = loss.item(), acc = acc.item(), MPA = mpa.item())
+        # scaler.scale(loss).backward()
+        # scaler.step(optimizer)
+        # scaler.update() 
 
-    epoch_loss = train_running_loss / counter
-    epoch_acc = 100. * train_running_acc / counter
-    epoch_mpa = 100. * train_running_mpa / counter
+        tqdm(enumerate(train_loader)).set_postfix(loss = loss.item(), acc = acc.item(), ap = ap.item())
+
+    epoch_loss = loss_p / counter
+    epoch_acc = 100. * pacc_p / counter
+    epoch_ap = 100. * ap_p / counter
 
     # f, ax = plt.subplots(1, 2)
     # ax[0].imshow(preds)
     # ax[1].imshow(mask)
     # plt.show()
-    return epoch_loss, epoch_acc, epoch_mpa
+    return epoch_loss, epoch_acc, epoch_ap
 
 def valid(val_loader, model, loss_fn):
     print('====> Validation process')

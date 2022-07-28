@@ -102,3 +102,12 @@ wget https://github.com/jesseduffield/lazygit/releases/download/v0.34/lazygit_0.
 ```
 extract lazygit `tar xvf lazygit.tgz` </br>
 move it into the default position `sudo mv lazygit /usr/local/bin`
+
+20220728<br>
+To easily evaluate the model performance, [`torchmetrics`](https://torchmetrics.readthedocs.io/en/stable/pages/quickstart.html) is installed <br>
+```
+# python package index
+pip install torchmetrics
+# conda
+conda install -c conda-forge torchmetrics
+```
