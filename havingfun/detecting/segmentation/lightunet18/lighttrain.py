@@ -38,7 +38,8 @@ from lightdataCV import CVdataset, atransform
 from lightunet import LightUnet
 # from utils import necessary functions
 from lightutils import *
-# to evaluate the segmentation performance, the evaluation block is in another folder
+# for training performance evaluation
+from torchmetrics.detection.mean_ap import MeanAveragePrecision 
 import sys
 sys.path.insert(1, 'havingfun/deving/blocks')
 import evaluations
