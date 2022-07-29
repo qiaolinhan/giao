@@ -78,7 +78,6 @@ class CVdataset(Dataset):
 
         # convert to original image channels, because cv2.imread may change it
         img_np = img_np[..., ::-1]
-
         # mask_np = cv2.imread(mask_path, cv2.COLOR_BGR2GRAY)
         mask_np = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
         # mask_np = mask_np[..., ::-1]
@@ -95,8 +94,8 @@ class CVdataset(Dataset):
 if __name__ == '__main__':
     # ----------------------------------
     # image folder and label folder
-    Img_dir = ('datasets/kaggleWildfire20220729/imgs')
-    Mask_dir = ('datasets/kaggleWildfire20220729/masks')
+    Img_dir = ('datasets/KaggleWildfire20220729/imgs')
+    Mask_dir = ('datasets/KaggleWildfire20220729/labels')
     # Using cv2 get image items from these two folders 
     data = CVdataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = atransform)
     # The data augmentaion is True, based on the func of atransform
@@ -115,7 +114,7 @@ if __name__ == '__main__':
     print(f"======> Total valid_images: {len(valid_data)}")
     # ----------------------------------
     counter = 0
-    batch_size = 4
+    batch_size = 1
     # ----------------------------------
     # prepare data for training with DataLoaders
     # data_loader = DataLoader(data, batch_size = batch_size, 
@@ -123,10 +122,10 @@ if __name__ == '__main__':
                           # pin_memory = 1,
                           # shuffle = True)
     train_dataloader = DataLoader(train_data,
-            batch_size = 4,
+            batch_size = 1,
             shuffle = True,)
     valid_dataloader = DataLoader(train_data,
-            batch_size = 4,
+            batch_size = 1,
             shuffle = True,)
     # ---------------------------------- 
 
@@ -135,11 +134,13 @@ if __name__ == '__main__':
     for j, data in tqdm(enumerate(train_dataloader), total = len(data) // batch_size):
         counter += 1
         img_tensor, mask_tensor = data
-    print('======> img_tensor size:', img_tensor.permute(0, 2, 3, 1).size())
+    print('======> img_tensor size:', img_tensor.size())
     print('======> mask_tensor size:', mask_tensor.size())
     f, ax = plt.subplots(1, 2)
-    ax[0].imshow(img_tensor.permute(0, 2, 3, 1).squeeze(0))
-    ax[1].imshow(mask_tensor.squeeze(0))
+    # ax[0].imshow(img_tensor.permute(0, 2, 3, 1).squeeze(0))
+    ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
+
+    ax[1].imshow(mask_tensor.permute(1, 2, 0))
     plt.show()
     # ----------------------------------
 
