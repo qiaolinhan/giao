@@ -95,8 +95,8 @@ class CVdataset(Dataset):
 if __name__ == '__main__':
     # ----------------------------------
     # image folder and label folder
-    Img_dir = ('datasets/S_kaggle_wildfire/')
-    Mask_dir = ('datasets/S_kaggle_wildfire_label/')
+    Img_dir = ('datasets/kaggleWildfire20220729/imgs')
+    Mask_dir = ('datasets/kaggleWildfire20220729/masks')
     # Using cv2 get image items from these two folders 
     data = CVdataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = atransform)
     # The data augmentaion is True, based on the func of atransform
