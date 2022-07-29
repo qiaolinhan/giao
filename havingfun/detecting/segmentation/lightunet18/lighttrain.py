@@ -40,6 +40,7 @@ from lightunet import LightUnet
 from lightutils import *
 # for training performance evaluation
 from torchmetrics.detection.mean_ap import MeanAveragePrecision 
+from pprint import pprint
 import sys
 sys.path.insert(1, 'havingfun/deving/blocks')
 import evaluations
@@ -207,11 +208,10 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
             mask = mask.squeeze(1).permute(1, 2, 0)
             preds = (preds/255).cpu().detach().numpy().astype(np.uint8)
             mask = mask.cpu().detach().numpy().astype(np.uint8)
+            print('======> preds size:', preds.shape)
+            print('======> masks size:', mask.shape)
 
-            # print('preds size:', preds.shape)
-            # print('masks size:', mask.shape)
-
-            # hist = metrics.addbatch(preds, mask)
+            # hist = evaluations.addbatch(preds, mask)
             acc = evaluations.pixelaccuracy(preds, mask)
             pacc_p += acc.item()
 
@@ -222,9 +222,9 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
         loss.backward()
         optimizer.step()
 
-        # scaler.scale(loss).backward()
-        # scaler.step(optimizer)
-        # scaler.update() 
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update() 
 
         tqdm(enumerate(train_loader)).set_postfix(loss = loss.item(), acc = acc.item(), ap = ap.item())
 
@@ -238,57 +238,57 @@ def fit(train_loader, model, optimizer, loss_fn, scaler):
     # plt.show()
     return epoch_loss, epoch_acc, epoch_ap
 
-def valid(val_loader, model, loss_fn):
-    print('====> Validation process')
+# def valid(val_loader, model, loss_fn):
+#     print('====> Validation process')
 
-    val_running_loss = 0.0
-    val_running_acc = 0.0
-    val_running_mpa = 0.0
-    counter = 0
-    for i, data in tqdm(enumerate(val_loader), total = len(val_data) // Batch_size):
-        counter += 1
+#     val_running_loss = 0.0
+#     val_running_acc = 0.0
+#     val_running_mpa = 0.0
+#     counter = 0
+#     for i, data in tqdm(enumerate(val_loader), total = len(val_data) // Batch_size):
+#         counter += 1
 
-        img, mask = data
-        img = img.to(device = Device)
+#         img, mask = data
+#         img = img.to(device = Device)
 
-        # mask = mask.unsqueeze(1)
-        # mask = mask.float()
-        mask = mask.to(device = Device)
+#         # mask = mask.unsqueeze(1)
+#         # mask = mask.float()
+#         mask = mask.to(device = Device)
 
-        # forward
-        with torch.cuda.amp.autocast():
-            preds = model(img)
+#         # forward
+#         with torch.cuda.amp.autocast():
+#             preds = model(img)
 
-            sig = nn.Sigmoid()
-            preds = sig(preds)
+#             sig = nn.Sigmoid()
+#             preds = sig(preds)
             
-            # if preds.shape != mask.shape:
-            #     # preds = TF.resize(preds, size = mask.shape[2:])
-            #     preds = sizechange(preds, mask)
+#             # if preds.shape != mask.shape:
+#             #     # preds = TF.resize(preds, size = mask.shape[2:])
+#             #     preds = sizechange(preds, mask)
 
-            val_loss = loss_fn(preds, mask)
-            val_running_loss += val_loss.item()
+#             val_loss = loss_fn(preds, mask)
+#             val_running_loss += val_loss.item()
 
-            preds = preds.squeeze(1).permute(1, 2, 0)
-            mask = mask.squeeze(1).permute(1, 2, 0)
-            preds = (preds/255).cpu().detach().numpy().astype(np.uint8)
-            mask = mask.cpu().detach().numpy().astype(np.uint8)
+#             preds = preds.squeeze(1).permute(1, 2, 0)
+#             mask = mask.squeeze(1).permute(1, 2, 0)
+#             preds = (preds/255).cpu().detach().numpy().astype(np.uint8)
+#             mask = mask.cpu().detach().numpy().astype(np.uint8)
 
-            # print('preds size:', preds.shape)
-            # print('masks size:', mask.shape)
+#             # print('preds size:', preds.shape)
+#             # print('masks size:', mask.shape)
 
-            hist = metric.addbatch(preds, mask)
-            val_acc = metric.get_acc()
-            val_running_acc += val_acc.item()
-            val_mpa = metric.get_MPA()
-            val_running_mpa += val_mpa.item()
+#             hist = metric.addbatch(preds, mask)
+#             val_acc = metric.get_acc()
+#             val_running_acc += val_acc.item()
+#             val_mpa = metric.get_MPA()
+#             val_running_mpa += val_mpa.item()
 
-        tqdm(enumerate(val_loader)).set_postfix(loss = val_loss.item(), acc = val_acc.item(), mpa = val_mpa.item())
+#         tqdm(enumerate(val_loader)).set_postfix(loss = val_loss.item(), acc = val_acc.item(), mpa = val_mpa.item())
 
-    val_epoch_loss = val_running_loss / counter
-    val_epoch_acc = 100. * val_running_acc / counter
-    val_epoch_mpa = 100. * val_running_mpa / counter
-    return val_epoch_loss, val_epoch_acc, val_epoch_mpa
+#     val_epoch_loss = val_running_loss / counter
+#     val_epoch_acc = 100. * val_running_acc / counter
+#     val_epoch_mpa = 100. * val_running_mpa / counter
+#     return val_epoch_loss, val_epoch_acc, val_epoch_mpa
 
 def main():
 

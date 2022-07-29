@@ -111,3 +111,13 @@ pip install torchmetrics
 # conda
 conda install -c conda-forge torchmetrics
 ```
+When using `torchmetrics` for evaluate the segmentation model performance:
+```
+from torchmetrics.detection.mean_ap import MeanAveragePrecision
+metric = MeanAveragePrecision()
+```
+A note stated on its doc that `iou_type = 'segm'`, and mask should be provided. <br>
+An error accured saying that when using 'segm', `pycocotools` must be installed. Therefore,
+```
+conda install -c conda-forge pycocotools
+```
