@@ -82,7 +82,7 @@ images, labels = dataiter.next()
 # create a grid from the images and show them
 img_grid = torchvision.utils.make_grid(images)
 matplotlib_imshow(img_grid, one_channel = True)
-print('======> This is a anity check '.join(classes[labels[j]] for j in range(4)))
+print('\n ======> This is a anity check '.join(classes[labels[j]] for j in range(4)))
 
 # ----------------------------------
 '''
@@ -113,3 +113,36 @@ class GarmentClassifier(nn.Module):
         return x
 
 model = GarmentClassifier()
+
+# ----------------------------------
+'''
+Loss Function
+Cross-Entropy loss is used. For demonstration purposes, we will create batches of dummy outputs and label values, run
+them through the loss function, and examine the result.
+'''
+loss_fn = torch.nn.CrossEntropyLoss()
+# NB: los functions expect data in batches, so we are creating batches of 4
+# Represents the model's confidence in each of the 10 classes for a given input
+dummy_outputs = torch.rand(4, 10)
+# Represents the correct class amon the 10 being tested
+dummy_labels = torch.tensor([1, 5, 3, 7])
+
+print('[INFO] dummy_outputs:',dummy_outputs)
+print('[INFO] dummy_labels:', dummy_labels)
+
+loss = loss_fn(dummy_outputs, dummy_labels)
+print('Total loss for this batch: {}'.format(loss.item()))
+
+# ----------------------------------
+'''
+Optimizer
+`Simple stochastic gradient descent with momentum` is used
+It can be istructive to try some variations on this optimization scheme:
+    * Learning rate determines the size of the steps the optimizer takes, it may impact the accuracy and convergence
+    time.
+    * Momentum nudges the optimizer in the direction of strongest gradient over multiple steps.
+    * Different optimization algorithms, such as average SGD, Adgrad, or Adam have different performance.
+'''
+# OPtimizer specified in the torch.optim package
+optimizer = torch.optim.SGD(model.parameters(), lr = 0.0001, momentum = 0.9) # don't forget brankets `model.parameters()`
+
