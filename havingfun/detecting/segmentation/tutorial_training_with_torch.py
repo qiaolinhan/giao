@@ -146,3 +146,110 @@ It can be istructive to try some variations on this optimization scheme:
 # OPtimizer specified in the torch.optim package
 optimizer = torch.optim.SGD(model.parameters(), lr = 0.0001, momentum = 0.9) # don't forget brankets `model.parameters()`
 
+# ---------------------------------
+'''
+The Training Loop
+Below, we have function that performs one training  epoch, it enumerate data from the DataLoader, and on epoch pass of
+the loop does the following:
+    * Gets a batch of training data from DataLoader
+    * Zeros the optimizer's gradients
+    * Performs an inference-that is, gets predictions from the model for an input batch
+    * Calculates the loss for that set of predictions vs. the label on the dataset
+    * Calculates the backward gradients over the learning weights
+    * Tells the optimizer to perform one learning step - that is, adjust the model's learning weights based on the
+    observed gradients for this batch, according to the optimization algorithm we chose
+    * It reports on the loss for every 1000 batches.
+    * Finally, it reports the average per-batch loss for the last 1000 batches, for comparison with a validation run
+'''
+
+def train_one_epoch(epoch_index, tb_writer):
+    running_loss = 0.
+    last_loss = 0.
+    
+    # Here, we use enumerate(train_loader) instead of iter(train_loader)
+    # so that we can track the batch index and do some intra-epoch reporting
+    for i, data in enumerate(training_loader):
+        # Every data instance is an input + label pair
+        inputs, labels = data
+
+        # zero your gradients for every batch
+        optimizer.zero_grad()
+
+        # Make predictions for this batch
+        outputs = model(inputs)
+
+        # Compute the loss and its gradients
+        loss = loss_fn(outputs, labels)
+        loss.backward()
+        
+        # Adjust learning weights
+        optimizer.step()
+
+        # Gather data and report
+        running_loss += loss.item()
+        if i % 1000 == 999:
+            last_loss = running_loss / 1000 # loss per batch
+            print('======> batch {} loss {}'.format(i + 1, last_loss))
+            tb_x = epoch_index * len(training_loader) + i + 1
+            tb_writer.add_scalar('Loss/train', last_loss, tb_x)
+            running_loss = 0.
+
+    return last_loss
+
+# -----------------------------
+'''
+Per-Epoch Activity
+There are a couple of things we will want to do once per epoch:
+    * Perform validation by checking our relative loss on a set of data that was not used for training, and report this
+    * Save a copy of the model
+Here, we will do our reporting in Tensorboard. This will require going to the comman line to start TensorBoard, and
+opening it in another browser tab.
+'''
+# Initializing in a separate cell so we can easily add more epochs to the same run
+timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+writer = SummaryWriter('runs/fasion_trainer_{}'.format(timestamp))
+epoch_number = 0
+
+EPOCHS = 5
+
+best_vloss = 1_000_000
+
+for epoch in range(EPOCHS):
+    print('======> EPOCH {}:'.format(epoch_number + 1))
+
+    # Make sure gradient tracking is on, and do a pass over the data
+    model.train(True)
+    avg_loss = train_one_epoch(epoch_number, writer)
+
+    # We do not need gradients on to do reporting
+    model.train(False)
+
+    running_vloss = 0.0
+    for i,vdata in enumerate(validation_loader):
+        vinputs, vlabels = vdata
+        voutputs = model(vinputs)
+        vloss = loss_fn(voutputs, vlabels)
+        running_vloss += vloss
+
+    avg_vloss = running_vloss / (i + 1)
+    print('======> Loss train {} valid {}'.format(avg_loss, avg_vloss))
+
+    # Log the running loss averaged per batch
+    # for both training and validation
+    writer.add_scalars('Training vs. Validation Loss',
+            {'Training' : avg_loss, 'Validation' : avg_vloss},
+            epoch_number + 1)
+    writer.flush()
+
+    # track best performance, and save the model's state
+    if avg_vloss < best_vloss:
+        best_vloss = avg_vloss
+        model_path = 'model_{}_{}'.format(timestamp, epoch_number)
+        torch.save(model.state_dict(), model_path)
+
+    epoch_number += 1
+
+# -----------------------------
+# To load a saved version of the model
+saved_model = GarmentClassifier()
+saved_model.load_state_dict(torch.load(PATH))
