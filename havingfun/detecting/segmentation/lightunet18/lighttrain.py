@@ -25,25 +25,25 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
-# for mixed precision training
+# cuda.amp is imported for mixed precision training
 import torch.cuda.amp as amp 
 import sklearn.metrics as metrics
 # from albumentations.pytorch import ToTensorV2
 import numpy as np
 from torch.utils.data import DataLoader, Subset
-# from sklearn.model_selection import train_test_split
-
-from lightdataPIL import JinglingDataset, Atransform
+from sklearn.model_selection import train_test_split
+import time
+# from lightdataPIL import JinglingDataset, Atransform
 from lightdataCV import CVdataset, atransform 
 from lightunet import LightUnet
 # from utils import necessary functions
 from lightutils import *
 # for training performance evaluation
-from torchmetrics.detection.mean_ap import MeanAveragePrecision 
-from pprint import pprint
-import sys
-sys.path.insert(1, 'havingfun/deving/blocks')
-import evaluations
+# from torchmetrics.detection.mean_ap import MeanAveragePrecision 
+# from pprint import pprint
+# import sys
+# sys.path.insert(1, 'havingfun/deving/blocks')
+# import evaluations
 # Hyperparameters: batch size, number of workers, image size, train_val_split, model
 Batch_size = 4
 Num_workers = 0
@@ -78,7 +78,7 @@ parser.add_argument(
     '-t',
     '--troot',
     type = str,
-    default = 'datasets/S_kaggle_wildfire',
+    default = 'datasets/KaggleWildfire20220729/imgs',
     help = 'Input the image dataset path'
 )
 # inputt the label folder path
@@ -86,7 +86,7 @@ parser.add_argument(
     '-m',
     '--mroot',
     type = str,
-    default = 'datasets/S_kaggle_wildfire_label',
+    default = 'datasets/KaggleWildfire20220729/labels',
     help = 'Input the mask dataset path'
 )
 
@@ -136,7 +136,6 @@ val_data = Subset(data, indices[-valid_size:])
 print(f"======> Total training images: {len(train_data)}")
 print(f"======> Total valid_images: {len(val_data)}")
 
-
 # classes add codes
 codes = ['Smoke', 'Flame', 'Background']
 name2id = {v:k for k, v in enumerate(codes)}
@@ -147,8 +146,9 @@ print('======> num_classes:', num_classes)
 # ----------------------------------
 
 # ----------------------------------
+# parameters needed for training
 # optimizer used for training
-optimizer = optim.SGD(model.parameters(), lr=1e-4, momentum=0.9)
+optimizer = optim.SGD(model.parameters(), lr=Learning_rate, momentum=0.9)
 # loss function for training
 loss_fn = nn.CrossEntropyLoss().to(Device)
 
@@ -171,9 +171,43 @@ def sizechange(input_tensor, gate_tensor):
 
 # ----------------------------------
 # training process
-def fit(train_loader, model, optimizer, loss_fn, scaler):
-    print('=====> Fitting process')
-    loss_p = 0.0
+print('=====> Training process begin')
+startTime = time.time()
+
+for e in tqdm(Num_epochs):
+    # set the model into training mode
+    model.train()
+
+    # initialize the total training and validation loss
+    totalTrainLoss = 0
+    totalTestLoss = 0
+
+    # loop over the training dataset
+    for (i, (x, y)) in enumerate(train_loader):
+        (x, y) = (x.to(Device), y.to(Device))
+
+        pred = model(x)
+        loss = loss_fn(pred, y)
+        optimizer.step()
+        totaltrainLoss += loss
+
+    # switch off autograd
+    with torch.no_grad():
+        # set the model in evaluation model
+        model.eval()
+
+        # loop over the validation set
+        for (x, y) in val_loader:
+            # send the input to the device
+            (x, y) = (x.to(Device), y.to(Device))
+
+            pred = model(x)
+            totalValLoss += loss_fn(pred, y)
+
+    avgTrainLoss = totalTrainLoss / trainSteps
+    avgValLoss = totalValLoss / valSteps
+def training_fit(train_loader, model, optimizer, loss_fn, scaler):
+        loss_p = 0.0
     pacc_p = 0.0
     aucscore_p = 0.0
     f1score_p = 0.0
@@ -297,7 +331,7 @@ def main():
     # check_accuracy(val_loader, model, device = Device)
     scaler = torch.cuda.amp.GradScaler()
     for epoch in range(Num_epochs):
-        train_epoch_loss, train_epoch_acc, _ = fit(train_loader, model,
+        train_epoch_loss, train_epoch_acc, _ = training_fit(train_loader, model,
                                                     optimizer, loss_fn, scaler)
         # tqdm(enumerate(train_loader)).set_postfix(loss = train_epoch_loss(), acc = train_epoch_loss())
         val_epoch_loss, val_epoch_acc, _ = valid(val_loader, model,loss_fn)
