@@ -71,8 +71,10 @@ def matplotlib_imshow(img, one_channel = False):
     npimg = img.numpy() # fogot the '()' first time
     if one_channel:
         plt.imshow(npimg, cmap = "Greys")
+        plt.show() # added this for avoiding the warning
     else:
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        plt.show() # added this for avoiding the warning
 
 dataiter = iter(training_loader)
 images, labels = dataiter.next()
@@ -80,4 +82,4 @@ images, labels = dataiter.next()
 # create a grid from the images and show them
 img_grid = torchvision.utils.make_grid(images)
 matplotlib_imshow(img_grid, one_channel = True)
-print(' '.join(classes[labels[j]] for j in range(4)))
+print('======> This is a anity check '.join(classes[labels[j]] for j in range(4)))
