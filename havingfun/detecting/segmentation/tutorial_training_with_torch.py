@@ -161,6 +161,8 @@ the loop does the following:
     * It reports on the loss for every 1000 batches.
     * Finally, it reports the average per-batch loss for the last 1000 batches, for comparison with a validation run
 '''
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
 
 def train_one_epoch(epoch_index, tb_writer):
     running_loss = 0.
