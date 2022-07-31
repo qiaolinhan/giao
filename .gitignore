@@ -7,7 +7,7 @@ papers/
 classifierresult/
 trainedparams/
 .ipynb_checkpoints/
-
+model_2022*
 *.zip
 *.pth
 *.avi

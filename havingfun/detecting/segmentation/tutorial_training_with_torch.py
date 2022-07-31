@@ -161,8 +161,10 @@ the loop does the following:
     * It reports on the loss for every 1000 batches.
     * Finally, it reports the average per-batch loss for the last 1000 batches, for comparison with a validation run
 '''
+# Adding such package for solving the problem of 'too many open files'.
 import torch.multiprocessing
 torch.multiprocessing.set_sharing_strategy('file_system')
+# This problem is caused by the number of batches over 10000 'the change of i'
 
 def train_one_epoch(epoch_index, tb_writer):
     running_loss = 0.
@@ -191,7 +193,7 @@ def train_one_epoch(epoch_index, tb_writer):
         running_loss += loss.item()
         if i % 1000 == 999:
             last_loss = running_loss / 1000 # loss per batch
-            print('======> batch {} loss {}'.format(i + 1, last_loss))
+            print('======> batch {} loss {}'.format(int((i + 1)/1000), last_loss))
             tb_x = epoch_index * len(training_loader) + i + 1
             tb_writer.add_scalar('Loss/train', last_loss, tb_x)
             running_loss = 0.
@@ -254,4 +256,4 @@ for epoch in range(EPOCHS):
 # -----------------------------
 # To load a saved version of the model
 saved_model = GarmentClassifier()
-saved_model.load_state_dict(torch.load(PATH))
+# saved_model.load_state_dict(torch.load(PATH))
