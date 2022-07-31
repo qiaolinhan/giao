@@ -174,9 +174,23 @@ def sizechange(input_tensor, gate_tensor):
 print('=====> Training process begin')
 startTime = time.time()
 
+# for one epoch
+def fit_one_epoch(epoch_index, tbwriter):
+    running_loss = 0.
+    last_loss = 0.
+
+    for i, data in enumerate(train_loader):
+        inputs, labels = data
+        optimizer.zero_grad()
+        outputs = model(inputs)
+        loss = loss_fn(outputs, labels)
+        loss.backward()
+
+
+
 for e in tqdm(Num_epochs):
     # set the model into training mode
-    model.train()
+    model.train(True)
 
     # initialize the total training and validation loss
     totalTrainLoss = 0
@@ -354,7 +368,6 @@ def main():
     save_entire_model(Num_epochs, model, optimizer, loss_fn)
 
     print('\n============> TEST PASS!!!\n')
-
 
 if __name__ == "__main__":
     main()
