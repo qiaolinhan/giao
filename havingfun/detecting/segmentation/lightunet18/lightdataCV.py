@@ -59,18 +59,19 @@ atransform = A.Compose([
 class CVdataset(Dataset):
     def __init__(self,  data_dir= 'data_dir', transform = None):
         self.data_dir = data_dir
-        self.img_dir = data_dir + '/imgs'
-        self.mask_dir = data_dir + '/labels'
+        img_dir = data_dir + '/imgs'
+        mask_dir = data_dir + '/labels'
+        self.img_dir = img_dir
+        self.mask_dir = mask_dir
         self.transform = transform
         # read images in the image folder
-        self.imgs = os.listdir(self.img_dir)
+        self.imgs = os.listdir(img_dir)
         # read labels in the label folder
-        self.masks = os.listdir(self.mask_dir)
+        self.masks = os.listdir(mask_dir)
   
     def __len__(self):     
         return len(self.imgs)
         
-
     def __getitem__(self, index):
         img_path = os.path.join(self.img_dir, self.imgs[index])
         mask_path = os.path.join(self.mask_dir, 'label_' + self.imgs[index])
@@ -85,63 +86,74 @@ class CVdataset(Dataset):
         
         # there are multiple classes for segmentation, then no need 
         # mask_np[mask_np > 0.0] = 1.0
-
+        # img_tensor = torch.tensor(img_np)
+        # mask_tensor = torch.tensor(img_np)
         if self.transform:           
             augmentations = self.transform(image = img_np, mask = mask_np)
             img_tensor = augmentations['image']
             mask_tensor = augmentations['mask'].float()
+        else: 
+            print('======> Warning, image transformation missed')
+            img_tensor = torch.tensor(img_np)
+            mask_tensor = torch.tensor(mask_np)
         return img_tensor, mask_tensor
 
+# build a dataloader based on the CVdataset
+def build_loader(data_dir, batch_size):
+    # load the dataset
+    data_loaded = CVdataset(data_dir, transform = atransform) 
+    data_tensor = data_loaded
+    # split into train dataset and validation dataset
+    dataset_size = len(data_tensor)
+    print(f"======> Total number of images: {dataset_size}")
+    valid_split = 0.2
+    valid_size = int(valid_split*dataset_size)
+    indices = torch.randperm(len(data_tensor)).tolist()
+    train_data = Subset(data_tensor, indices[:-valid_size])
+    valid_data = Subset(data_tensor, indices[-valid_size:])
+    print(f"======> Total training images: {len(train_data)}")
+    print(f"======> Total valid_images: {len(valid_data)}")
+    
+    # split into train_data and val_data
+    train_dataloader = DataLoader(train_data,
+            batch_size = batch_size,
+            shuffle = True,)
+    valid_dataloader = DataLoader(train_data,
+            batch_size = batch_size,
+            shuffle = True,)
+    return train_dataloader, valid_dataloader 
 if __name__ == '__main__':
+    counter = 0
+    batch_size = 1
     # ----------------------------------
     # image folder and label folder
     data_dir = ('datasets/KaggleWildfire20220729')
     # Using cv2 get image items from these two folders 
-    data = CVdataset(data_dir, transform = atransform)
+    # data = CVdataset(data_dir, transform = atransform)
     # The data augmentaion is True, based on the func of atransform
     # ----------------------------------
+    # build dataloader 
+    train_dataloader, valid_dataloader = build_loader(data_dir, batch_size)
     
-    # ----------------------------------
-    # split into train dataset and validation dataset
-    dataset_size = len(data)
-    print(f"======> Total number of images: {dataset_size}")
-    valid_split = 0.2
-    valid_size = int(valid_split*dataset_size)
-    indices = torch.randperm(len(data)).tolist()
-    train_data = Subset(data, indices[:-valid_size])
-    valid_data = Subset(data, indices[-valid_size:])
-    print(f"======> Total training images: {len(train_data)}")
-    print(f"======> Total valid_images: {len(valid_data)}")
-    # ----------------------------------
-    counter = 0
-    batch_size = 1
     # ----------------------------------
     # prepare data for training with DataLoaders
     # data_loader = DataLoader(data, batch_size = batch_size, 
                           # num_workers = 0, 
                           # pin_memory = 1,
                           # shuffle = True)
-    train_dataloader = DataLoader(train_data,
-            batch_size = 1,
-            shuffle = True,)
-    valid_dataloader = DataLoader(train_data,
-            batch_size = 1,
-            shuffle = True,)
-    # ---------------------------------- 
-
+   # ---------------------------------- 
     # ----------------------------------
     # check whether created dataloader correctly
-    for j, data in tqdm(enumerate(train_dataloader), total = len(data) // batch_size):
+    for j, data in tqdm(enumerate(train_dataloader), total = len(train_dataloader) / batch_size):
         counter += 1
-        img_tensor, mask_tensor = data
-    print('======> img_tensor size:', img_tensor.size())
-    print('======> mask_tensor size:', mask_tensor.size())
+        img, mask = data
+    print('======> img_tensor size:', img.size())
+    print('======> mask_tensor size:', mask.size())
     f, ax = plt.subplots(1, 2)
-    ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
+    ax[0].imshow(img.squeeze(0).permute(1, 2, 0))
     ax[0].axis('off')
 
-    ax[1].imshow(mask_tensor.permute(1, 2, 0))
+    ax[1].imshow(mask.permute(1, 2, 0))
     ax[1].axis('off')
 
     plt.show()
-    # ----------------------------------
