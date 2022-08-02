@@ -57,14 +57,15 @@ atransform = A.Compose([
         # mask_dir, string: the label dataset path
         # transform, None: empty transform
 class CVdataset(Dataset):
-    def __init__(self,  img_dir= 'img_dir', mask_dir = 'mask_dir', transform = None):
-        self.img_dir = img_dir
-        self.mask_dir = mask_dir
+    def __init__(self,  data_dir= 'data_dir', transform = None):
+        self.data_dir = data_dir
+        self.img_dir = data_dir + '/imgs'
+        self.mask_dir = data_dir + '/labels'
         self.transform = transform
         # read images in the image folder
-        self.imgs = os.listdir(img_dir)
+        self.imgs = os.listdir(self.img_dir)
         # read labels in the label folder
-        self.masks = os.listdir(mask_dir)
+        self.masks = os.listdir(self.mask_dir)
   
     def __len__(self):     
         return len(self.imgs)
@@ -94,10 +95,9 @@ class CVdataset(Dataset):
 if __name__ == '__main__':
     # ----------------------------------
     # image folder and label folder
-    Img_dir = ('datasets/KaggleWildfire20220729/imgs')
-    Mask_dir = ('datasets/KaggleWildfire20220729/labels')
+    data_dir = ('datasets/KaggleWildfire20220729')
     # Using cv2 get image items from these two folders 
-    data = CVdataset(img_dir=Img_dir, mask_dir = Mask_dir, transform = atransform)
+    data = CVdataset(data_dir, transform = atransform)
     # The data augmentaion is True, based on the func of atransform
     # ----------------------------------
     
@@ -137,10 +137,11 @@ if __name__ == '__main__':
     print('======> img_tensor size:', img_tensor.size())
     print('======> mask_tensor size:', mask_tensor.size())
     f, ax = plt.subplots(1, 2)
-    # ax[0].imshow(img_tensor.permute(0, 2, 3, 1).squeeze(0))
     ax[0].imshow(img_tensor.squeeze(0).permute(1, 2, 0))
+    ax[0].axis('off')
 
     ax[1].imshow(mask_tensor.permute(1, 2, 0))
+    ax[1].axis('off')
+
     plt.show()
     # ----------------------------------
-

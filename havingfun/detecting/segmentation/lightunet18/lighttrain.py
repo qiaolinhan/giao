@@ -172,10 +172,12 @@ def sizechange(input_tensor, gate_tensor):
 # ----------------------------------
 # training process
 print('=====> Training process begin')
+import torch.multiprocessing
+torch.multiprocessing.set_sharing_strategy('file_system')
+
 startTime = time.time()
 
-# for one epoch
-def fit_one_epoch(epoch_index, tbwriter):
+def train_one_epoch(epoch_index, tb_writer):
     running_loss = 0.
     last_loss = 0.
 
@@ -185,10 +187,21 @@ def fit_one_epoch(epoch_index, tbwriter):
         outputs = model(inputs)
         loss = loss_fn(outputs, labels)
         loss.backward()
+        optimizer.step()
+        running_loss += loss.item()
+        
+        if i % 1000 == 999:
+            last_loss = running_loss / 1000 # loss par batch
+            print('======> batch {} loss {}'.format(int(i + 1) / 1000), last_loss)
+            tb_x = epoch_index * len(train_loader) + i + 1
+            tb_writer.add_scalr('Loss/ train', last_loss, tb_x)
+            running_loss = 0.
+    return last_loss
 
+# per epoch activity
 
+for e in tqdm(range(Num_epochs)):
 
-for e in tqdm(Num_epochs):
     # set the model into training mode
     model.train(True)
 
@@ -221,7 +234,7 @@ for e in tqdm(Num_epochs):
     avgTrainLoss = totalTrainLoss / trainSteps
     avgValLoss = totalValLoss / valSteps
 def training_fit(train_loader, model, optimizer, loss_fn, scaler):
-        loss_p = 0.0
+    loss_p = 0.0
     pacc_p = 0.0
     aucscore_p = 0.0
     f1score_p = 0.0
