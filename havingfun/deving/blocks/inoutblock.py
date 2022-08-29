@@ -32,7 +32,7 @@ class Outlayer(nn.Module):
     def forward(self, x):
         y = self.convu(x)
         y = self.outscale(y)
-        y = F.sigmoid(y)
+        y = torch.sigmoid(y)
 
         # # change the y values
         # one = torch.ones_like(y)
