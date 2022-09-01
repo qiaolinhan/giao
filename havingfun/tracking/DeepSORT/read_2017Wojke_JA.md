@@ -10,7 +10,7 @@ Simple online and realtime tracking (SORT)
 2) Online: Establish measurement-to-track associations using nearest neighbor queries in visual apperance space.  
 3) Experimental evaluation shows: the extensions reduce the number of identity switches by 45%, high frame rate.  
 
-## Introduction  
+## 1. Introduction  
 Tracking-by-detection $\Rightarrow$ leading paradigm in multiple object tracking.  
 Object trajectories $\Rightarrow$ global optimization problem $\Rightarrow$ processes entire video batches at once.  
 
@@ -40,5 +40,30 @@ while achieving overall good performance in terms of tracking precision and accu
   number of identity switches.  
 **Reason:** The employed association metric is only accurate when state estimation uncertainty is low.  
 :x: A deficiency in traking through occlusions as they typically appear in frontal-view  camera scenes.  
+
+#### SORT $\Rightarrow$ DeepSORT
 :cat: Overcome this issue by replacing the association metric with a more informed metric that combines motion and
-appearance information 
+appearance information.  
+* Apply a convolutional neural network (CNN) that has been trained to discriminate pedestrains on a large-scale person
+   re-identification dataset.  
+* Through integration of this network, increase robustness against misses and occlusions
+   while keeping the system easy to implement, efficient, and applicable to online scenarios.
+
+## 2. DeepSORT
+Adopt a conventional single hypothesis tracking methodology with recursive Kalman Filtering and frame-to-frame data
+association.
+### 2.1 Track handling and state estimation  
+track handling and Kalman filtering framework is mostly identical to the original formulation in [12].  
+`Assume: a camera is uncalibrated and have no ego-motion information available`  
+These circumstances pose a challenge to the filtering framework, it is the most common setup considered in recent
+multiple object tracking benchmark.  
+Therefore, our tracking scenario is defined on the eight dimensional state space $(u, v, \gamma, h, \dot{x}, \dot{y},
+\dot{\gamma}, \dot{h})$.  
+* bounding box center position $(u, v)$
+* aspect ratio $\gamma$
+* height $h$  
+
+Use a standard Kalman filter with constant velocity motion and linear observation model. Take the bounding coordinates
+$(u, v, \gamma, h)$ as direct observations of the object state.  
+For each track $k$, count the number of frames since the last successful measurement association $a_k$.  
+Tracks that exceed a predefined maximum age $A_{max}$ are considered to have left the scene and are deleted from the trackset.
