@@ -67,3 +67,7 @@ Use a standard Kalman filter with constant velocity motion and linear observatio
 $(u, v, \gamma, h)$ as direct observations of the object state.  
 For each track $k$, count the number of frames since the last successful measurement association $a_k$.  
 Tracks that exceed a predefined maximum age $A_{max}$ are considered to have left the scene and are deleted from the trackset.
+#### 2.2 Assignment Problem
+Use the (squared) Mahalanobis distance between predicted Kalman states and newly arrived measurements:
+$$d^{(1)}(i , j) = (d_j - y_i)^TS_i^{-1}(d_j-y_i)$$  
+Denote the projection of the $i$-th track distribution into 
