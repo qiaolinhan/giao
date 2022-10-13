@@ -86,3 +86,113 @@ B --> C
 B --> D  
 B --> E
 ```
+
+:o: The high performance of DeepSORT is because its **Feature extracturion net**.
+DeepSORT avoid much ID-switch because:
+* The Feature extraction net extracted and saved the features inside the object detection box  
+* Compare the features of the new came out object and the covered object which in previous frames $\rightarrow$ to find
+  the previous object. obviously decreased the missing rate.
+
+#### 2.2.3 DeepSORT steps 
+
+程度, 级联， 匈牙利算法， 分配
+Degree, Cascade, Hungarian Algorithm, Assignment
+
+1. Capture original video frame  
+2. USing object detector to detect objects in the original video frame  
+3. Extract the features in the box of the detected objects. Where the features include: appearance features and motion
+   feature (The motion features are for the convenience of Kalman filter prediction)  
+4. Compute the matching level or range, and assign the IDs for each tracked object.
+
+#### 2.2.4 SORT process 
+The kernel concept of SORT (which is before DeepSORT) are Kalman Filter and Hungarian Algorithm  
+:o: The function of Kalman Filter: To predict the motion in next frame based on this frame and previous frames. The first
+detection result to initialize the motion of kalman filter.  
+:o: The function of Hungarian Algorithm: To be brief, it is to solve th eproblem of assignment. Which is to assign some
+detection boxes and kalman filter prediction boxes.  
+
+```mermaid
+graph LR
+A(Detections)
+B(IoU match)
+C(Unmatched tracks)
+D(Delet)
+E(Unmatched Detections)
+F(Matched Tracks)
+G(New Tracks)
+H(Tracks)
+I(KF Predict)
+J(KF Update)
+A --> B  
+B --> C  
+B --> E
+B --> F
+C --> D
+E --> G 
+G --> H 
+H --> I 
+F --> J
+J --> H
+I --> B
+```
+
+#### 2.2.5 DeepSORT process 
+SORT is relatively a shallow tracking algorithm. If the object is covered, the ID may miss. DeepSORT is an algorithm
+which added **Matching Cascade**  and **Confirming New Trajectories** based on SORT.The tracks could be separated into states:  
+* Confirmed  
+* Unconformed  
+The new tracks are in the sate of **Unconfirmed**  
+The tracks in the sate of unconfirmed must match the detections continuously for times (Commonly, it is defult 3 times)
+to transfer into the state of confirmed.  
+The tracks in the state of confirmed must miss the matching for times (Commonly, it is defult 30 times) to be deleted.  
+The process of DeepSORT could be stated as:  
+```mermaid
+graph LR
+A(Detections)
+B(Matching Cascade)
+C(Unmatched tracks)
+D(Unmatched Detections)
+E(Matched Tracks)
+F(IoU Match)
+G(Unmatched Tracks)  
+H(Unmatched Detections) 
+I(Matched Tracks)
+J(Unconformed) 
+K(Confirmed)
+L(New Tracks)
+M(KF Update)
+N(Delete)
+O(> Max age)
+P(< Max age)
+Q(Tracks)
+R(KF Predict)
+S(Confirmed)
+T(Unconfirmed)
+U(KF updates)
+A --> B  
+B --> C  
+B --> D
+B --> E
+D --> F 
+F --> G  
+F --> H  
+F --> I  
+G --> J  
+G --> K  
+H --> L
+I --> M
+E --> M
+J --> N  
+K --> O  
+K --> P  
+O --> N  
+P --> Q  
+L --> Q  
+M --> Q
+Q --> R  
+R --> S  
+R --> T  
+S --> B  
+T --> F
+```
+
