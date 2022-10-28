@@ -168,7 +168,6 @@ Q(Tracks)
 R(KF Predict)
 S(Confirmed)
 T(Unconfirmed)
-U(KF updates)
 A --> B  
 B --> C  
 B --> D
@@ -195,4 +194,3 @@ R --> T
 S --> B  
 T --> F
 ```
-
