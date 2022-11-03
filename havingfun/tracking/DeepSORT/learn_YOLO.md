@@ -3,7 +3,8 @@
 https://youtu.be/h56M5iUVgGs
 
 YOLO came out in 2016.  
-It is a deep learning algorithm and the algorithm to work needs a framework (Darknet...).  
+It is a deep learning algorithm and the algorithm to work needs a
+framework (Darknet...).  
 There are three most used and known frameworks compatible with YOLO:  
 
 | Names| Discriptions| Advantages| Disadvantages|
@@ -12,4 +13,155 @@ There are three most used and known frameworks compatible with YOLO:
 | Darkflow| The adaptation of darknet to Tensorflow| Fast, Work-able on CPU and GPU, Compatible with Linux, Windows, MacOS| Complex installation, especially on Windows|
 | OpenCV| A framework works with YOLO| works without needing to install anything except opencv| Only works with CPU, so can not get really high speed to process videos.|
 
+## 1. 20221101 YOLOv7  
+* Extended efficient layer aggregation networks
+* Model scaling for concatenation-based models: Cross Stage Merge 
+* Trainable bag-of-freebies
+  * Planned re-paramiterized convolution
+  * Coarse-to-fine kead head guided label assigner  
+  * Other train-able bag-of-freebies  
+    * Batch normalization
+    * Hidden knowledge and convolutional feaure, multiplication  
+    * Enhanced EMA Model
 
+Advantages: Fast, higher precision_score, Optimized the training
+process to impprove the accuracy of detection.  RepConv performs fancy
+on VGG, but the precision score decrease on resnet and densenet
+framework. In the paper, the author find that the identity in RepConv
+destroyed the residual structure of ResNet and DenseNet.
+
+### Auxiliary training modules Deep supervising is a commonly applied
+tech for training deep Networks, the main concept is to add extra
+auxiliary heads between middle layers of the Net, also, the weights to
+support loss as guidance. They could be considered as 'ensemble' of
+deep local network. Fuse the weights of aux head and lead head
+(detection head).
+ 
+<p align = "center">
+<img src = "../figs/MultiAuxHeads.png" 
+style = "width:400px"/>
+</p>
+
+EMA model is a tech used in mean teacher, it is used as the final
+inference model.  
+
+## 2. 20221102 YOLO v1  
+* Two-stage: Faster-RCNN(later 2015), Mask-RCNN   
+RPN: suggested area (proposal)
+
+* One-stage: YOLO  
+Considering as a normal regression mission: images --> (x1, y1), (x2,
+y2)
+
+| Models    | Advantages                           | Disadvantages                |
+| -------   | ---------                            | ---------                    |
+| One-stage | Fast, online detection, tracking ... | precision_score $\downarrow$ |
+| Two-stage | higher precision score               | slow (5FPS)
+
+### 2.1 Ratios
+| --            | Relevant            | Nonrelevant         |
+| --            | ---                 | ---                 |
+| Retrieved     | True Positive (TP)  | False positive (FP) |
+| Not Retrieved | False Negative (FN) | True Negative (TN)  |
+
+* mAP: Computed based on pricision and recall
+* IOU: area of overlap / area of union
+$$Precision = \frac{TP}{TP + FP}$$
+$$Recall = \frac{TP}{TP + FN}$$
+* Confidence 置信度, based on confidence threshold  
+
+YOLO: turning the detection problem into regression problem with one
+CNN.
+
+<p align = "center">
+<img src = "../figs/Comparing.png"/>
+</p>
+
+Main Idea: To predict objects in an image;   
+Pixel by pixel to predict which object is on this pixel.  
+Some experience of the width height propostion. 
+
+To compute 4 params x, y, w, h for bounding box and 1 confidence for
+judging the possibility of whether it belongs to an object.
+
+<p align = "center">
+<img src = "../figs/YOLOv1structure.png"/>
+</p>
+
+* 10 = (x, y, h, w, confidence) * B(two)  
+* There are 20 classes  
+* The net size is finally 7 * 7  
+* (s * s) * (B * 5 + confidence)
+
+### 2.2 The loss function  
+<p align = "center">
+<img src = "../figs/YOLOv1lossfunc.png" />
+</p>
+
+Adding the `sqrt` for weights is to solve the problem of where there 
+is a smaller offset, as shown in the 
+$$\lambda_{coord} \sum_{i=0}^{S^2} \sum_{j = 0}^B \mathbf{1}_{ij}^{obj}(\sqrt{w_i} -\sqrt{\hat{w_i}})^2$$
+
+The confidence could be considered in the situation of foreground and
+background. 
+
+* When dealing with the detection objectives, there might be many bounding
+ boxes which are overlaped. NMS (非极大值抑制) is for solving this problem.
+
+### 2.3 The problem of YOLO v1  
+Once if the objects are overlaped together, for example, if the dog is
+staying nearby a cat.
+So the problem of YOLO v1 could be inducted that:  
+* Every cell could only predict one class, the problem of overlaped objects
+  could nit be solved.  
+* The performance of small object detection is unmarkable, the w/h is
+  selectable but monotonous (单调的)
+
+## 3. 20221102 YOLO v2
+Comparing with YOLO v1:  
+<p align = "center">
+<img src = "../figs/YOLOv2_VS_YOLOv1.png">
+</p>
+
+**Batch Normalization**  
+* Bach Normalization after convlutional layers; Dropout is abandoned (Dropout is commonly used in
+  fully connected layers to avoid overfitting)
+* Inputs of every layer is normalized, convergency is relatively easier.  
+* 2% of mAP would be improved after Batch Normalization processing
+* Nowadays, Batch Normalization is becoming into neccessary processing step
+  in recent Net design.  
+**Higher Resolution**
+* During YOLO v1, 224*224 is used for training, 448*448 is used for testing,
+  which may impact the generalization of the Net.  
+* During the training of YOLO v2, there are extra 10 times of 448*448
+  fine-tuning;
+* 4% of mAP improved when using higher resolution classifier
+
+### 3.1 The Structure of YOLO v2  
+Based on the concept of VGG and ResNet.  
+* There is no more fully convolutional layers but 5 downsampling (maxpooling). because:
+  * FC layers are easy going into overfitting  
+  * FC are slow for training
+* DarkNet19, the real input is 416*416 (which could be devided by $2^5$ = 32)
+* the 1*1 Conv kernel saved a lot of parameters
+<p align = "center">
+<img src = "../figs/YOLOv2structure.png" style = "width:400px"/>
+</P>
+
+### 3.2 YOLO v2 - Clustering to extract Priori boxes
+* Faster-RCNN selected regular scale rate priori boxes (1:1, 1:2, 2:1 ...), 
+  But not appropriate for the dataset.  
+* The distance in k-means: $d(box, centroids) = 1 - IOU(box, centroids)$
+* k = 5 (the clusters is chosed as 5)
+<p align = "center">
+<img src = "../figs/YOLOv2_ChoosingK.png" style = "width:200px"/>
+</p>
+
+* Anchor Box, improves the amount of predict box (recall $\uparrow$)
+* Directed Location Prediction
+  * bbox: center(xp, yp); width and height (wp, hp), then $x = xp + wp * tx$, $y = yp + hp * ty$
+  * $tx = 1$, bbox on $x$ moves right $wp$, $tx = -1$, bbox on $x$ moves left
+    $wp$  
+  * It may cause the convergency proble, the model might be unstable,
+    especially when the traning starts
+   n  
