@@ -190,4 +190,33 @@ The equations:
   And then use the $2^5$ to transfer into original size
 
 ### 3.3 Receptive Feild  
-The last feature map, Smaller 
+* The feild convered by the last feature map on the original input.
+* Smaller Conv kernel size is helpful in saving
+  parameters.  
+
+<p align = "center">
+<img src = "../figs/YOLOv2_ComparingKernelSize.png">
+</P>
+
+#### 3.3.1 Fine-Grained Features
+(Maybe based on the concept of resNet)  
+The receptive feild might be too big that small targets are missing. So the
+previous features need to be fused.
+<p align = "center">
+<img src = "../figs/YOLOv2_Concat.png" />
+</p>
+
+#### 3.3.2 Multi-Scale 
+Resize the original inputs after iterations
+
+## 4. YOLO v3
+* The modle structure is optimized more so that it could perform better in
+  small objects detection.  
+* More priori boxes: 3 scales, and 3 kinds in each scale (totally 9).
+* Optimized the SoftMax for multiple lable prediction.
+### 4.1 Multi-scale  
+<p align = "center">
+<img src="../figs/YOLOv3_Multiscale.png" />
+</p>
+
+
