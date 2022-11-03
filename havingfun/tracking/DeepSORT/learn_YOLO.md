@@ -61,7 +61,7 @@ y2)
 ### 2.1 Ratios
 | --            | Relevant            | Nonrelevant         |
 | --            | ---                 | ---                 |
-| Retrieved     | True Positive (TP)  | False positive (FP) |
+| Retrieved     | True Positive (TP)  | False Positive (FP) |
 | Not Retrieved | False Negative (FN) | True Negative (TN)  |
 
 * mAP: Computed based on pricision and recall
@@ -148,20 +148,46 @@ Based on the concept of VGG and ResNet.
 <img src = "../figs/YOLOv2structure.png" style = "width:400px"/>
 </P>
 
-### 3.2 YOLO v2 - Clustering to extract Priori boxes
-* Faster-RCNN selected regular scale rate priori boxes (1:1, 1:2, 2:1 ...), 
-  But not appropriate for the dataset.  
-* The distance in k-means: $d(box, centroids) = 1 - IOU(box, centroids)$
-* k = 5 (the clusters is chosed as 5)
+### 3.2 Techs in YOLO v2
+#### 3.2.1 Clustering to extract Priori boxes  
+* There are 2 different pripori boxes in YOLO v1  
+* There are 9 different priori boxes in Faster-RCNN.
+  However, Faster-RCNN selected regular scale rate priori boxes, 
+  such as the scale rate in 1:1, 1:2, 2:1, ... .
+  Such kind of boxes might be imappropriate for the dataset.  
+* In YOLO v2, clustering is applied to get 5 differient kind of boxes. 
+  The distance in k-means extracting priori boxes: 
+  $$d(box, centroids) = 1 - IOU(box, centroids)$$
+* It is found that k = 5 is appropriate for extracting(the clusters is chosed as 5)
+
 <p align = "center">
 <img src = "../figs/YOLOv2_ChoosingK.png" style = "width:200px"/>
 </p>
 
-* Anchor Box, improves the amount of predict box (recall $\uparrow$)
-* Directed Location Prediction
-  * bbox: center(xp, yp); width and height (wp, hp), then $x = xp + wp * tx$, $y = yp + hp * ty$
-  * $tx = 1$, bbox on $x$ moves right $wp$, $tx = -1$, bbox on $x$ moves left
-    $wp$  
-  * It may cause the convergency proble, the model might be unstable,
-    especially when the traning starts
-   n  
+#### 3.2.2 Anchor Box 
+* improves the amount of predict box (13 * 13 * n) 
+* Sacrifised the mAP slightly to improve Recall (recall $\uparrow$)
+
+#### 3.2.3 Directed Location Prediction
+* bbox(bounding box): 
+  center(xp, yp);  
+  width and height (wp, hp);  
+  then, there are:
+  $$x = xp + wp * tx$$
+  $$y = yp + hp * ty$$
+* If $tx = 1$: bbox on $x$ moves right $wp$;  
+  If $tx = -1$: bbox on $x$ moves left $wp$.  
+* It may lead to the convergency problem, the model might be unstable,
+  especially when the traning starts.
+* Offsets are not used directly in YOLO v2, but the **grid cell** relatived
+  offsets are choosen.
+
+The equations:  
+  $$b_x = \sigma(t_x) + c_x$$
+  $$b_y = \sigma(t_y) + c_y$$  
+  $$b_w = p_w e^{t_w}$$  
+  $$b_h = p_h e^{t_h}$$
+  And then use the $2^5$ to transfer into original size
+
+### 3.3 Receptive Feild  
+The last feature map, Smaller 
