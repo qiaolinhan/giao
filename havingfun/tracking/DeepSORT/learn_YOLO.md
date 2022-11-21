@@ -211,12 +211,66 @@ Resize the original inputs after iterations
 
 ## 4. YOLO v3
 * The modle structure is optimized more so that it could perform better in
-  small objects detection.  
+  **small objects detection**.  
 * More priori boxes: 3 scales, and 3 kinds in each scale (totally 9).
+* Detialed features: continous features are fused to predict
+  multiple-scaled objects.
 * Optimized the SoftMax for multiple lable prediction.
 ### 4.1 Multi-scale  
 <p align = "center">
 <img src="../figs/YOLOv3_Multiscale.png" />
 </p>
 
+There are some commonly applied scheme for scale trasform.  
+* Pyromid-like one  
+<p align = "center">
+<img src = "../figs/YOLOv3_ScaleTrans_Pyromid.png">
+</p>
+:x: It is working. However, the processing speed is very limited.  
 
+* Features fusion for prediction (Key idea of YOLOv3)
+<p align = "center">
+<img src = "../figs/YOLOv3_ScaleTrans_KeyIdea.png">
+</p>
+:o: Interpolation is applied to upsample and fuse different scale features.
+(13 x13 --> 26 x 26 --> 52 x 52)  
+
+### 4.2 Residual connection
+Almost all frameworks of network used the residual connection
+<p align = "center">
+<img src = "../figs/YOLOv3_ResidualConnection.png">
+</p>
+It is found in VGG19(2014) that more layers make the performance poor.  
+Such idea is proposed by **Kaiming He** in ResNet paper (2016).  
+
+### 4.3 The Network Framework
+* No pooling layer and fully connected layer, it is fully convolutional;
+* Downsampling came out by 'stride=2';
+* 3 kinds of scale, more preori-boxes;
+* Classical designs are fused (residual, FCN, ...)
+The framework is named as **DarkNet53**. It seems as the ResNet  
+
+Q: Why entirely without pooling layer?  
+A: The pooling layer will zip the feature, which might impact the
+performance. The pooling layer is nonlinear, so some features may left.
+
+<p align = "center">
+<img src = "../figs/YOLOv3_Framework.png">
+</p>
+
+As shown in this figure, it consists of (13 x 13 x 3 * (80 + 4 + 1)):  
+* 13 x 13: the feature size;  
+* 3: For every feaure small box, there are 3 kinds of preori-box;   
+* 80: 80 kinds of objects (wildifre then just 2: smoke, fire);  
+* 4: The box coordnates, x, y, w, h;  
+* 1: The confidence of the priori-box.
+
+### 4.3 The Design of Priori-box  
+In YOLOv2, 5 are chosen. There are more in YOLOv3, 9 kinds of boxes.  
+**Clustering** is applied for finding these boxes.  
+<p align = "center">
+<img src = "../figs/YOLOv3_3KindsBoxes.png">
+</p>
+
+### 4.4 Replacing the SOFTMAX Layers
+Multiple label is appliable in YOLOv3
