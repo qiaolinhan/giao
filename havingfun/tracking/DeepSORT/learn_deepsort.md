@@ -140,7 +140,7 @@ I --> B
 SORT is relatively a shallow tracking algorithm. If the object is covered, the ID may miss. DeepSORT is an algorithm
 which added **Matching Cascade**  and **Confirming New Trajectories** based on SORT.The tracks could be separated into states:  
 * Confirmed  
-* Unconformed  
+* Unconfirmed  
 The new tracks are in the sate of **Unconfirmed**  
 The tracks in the sate of unconfirmed must match the detections continuously for times (Commonly, it is defult 3 times)
 to transfer into the state of confirmed.  
