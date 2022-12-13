@@ -51,7 +51,11 @@ import cartopy.feature as cfeat
 from wrf import getvar, to_np
 import cmaps
 
-# To show 'Chinese correctly'
+# # Take a look to ensure the weather data path correct
+# for f in os.listdir('/home/qiao/dev/giao/data/prediction_use/'):
+#     print('======> There are data:', f)
+
+# To show 'Chinese' correctly
 Simsun = FontProperties(fname = "./font/Simsun.ttf")
 Times = FontProperties(fname = "./font/times.ttf")
 config = {
@@ -71,7 +75,7 @@ axe.set_title('$\mathrm{Wind\ Map}$', fontsize = 12, y = 1.05)
 axe.add_feature(cfeat.COASTLINE.with_scale('10m'), linewidth = 0.5, color = 'k')
 LAKES_border = cfeat.NaturalEarthFeature('pysical', 'lakes', '10m', edgecolor = 'k', facecolor = 'never')
 axe.add_feature(LAKES_border, linewidth=0.8)
-# to add more features
+# To add more features for the map
 axe.add_feature(cfeat.LAND.with_scale('10m'))
 axe.add_feature(cfeat.OCEAN.with_scale('10m'))
 axe.add_feature(cfeat.RIVERS.with_scale('10m'))
@@ -90,12 +94,13 @@ axe.tick_params(labelcolor = 'k', length = 2)
 labels = axe.get_xticklabels() + axe.get_yticklabels()
 [label.set_fontproperties(FontProperties(fname = "./font/Times.ttf", size = 8)) for label in labels]
 
-ncfile = nc.Dataset('~/dev/giao/data/prediction_use/POWER_Point_Daily_20210101_20210301_045d1537N_073d7012W_LST.nc')
-ua = getvar(ncfile, 'ua', timeidx = 126)[0, :, :]
-va = getvar(ncfile, 'va', timeidx = 126)[0, :, :]
-lat = getvar(ncfile, 'lat')
-lon = getvar(ncfile, 'lon')
-quiver = axe.quiverkey(quiver, 0.91, 1.03, 3, "3m/s", 
-                       labelpos = "E", coordinates = "axes", 
-                       fontproperties = {"size": 10, "family":"Times New Roman"})
+# adding wind part 
+ncfile = nc.Dataset('/home/qiao/dev/giao/data/prediction_use/windsat_remss_ovw_l3_20191231_rt.nc.gz.nc')
+# ua = getvar(ncfile, 'ua', timeidx = 126)[0, :, :]
+# va = getvar(ncfile, 'va', timeidx = 126)[0, :, :]
+# lat = getvar(ncfile, 'lat')
+# lon = getvar(ncfile, 'lon')
+# quiver = axe.quiverkey(quiver, 0.91, 1.03, 3, "3m/s", 
+#                        labelpos = "E", coordinates = "axes", 
+#                        fontproperties = {"size": 10, "family":"Times New Roman"})
 plt.show()
