@@ -59,7 +59,7 @@ Another model is CA-based model, more related information could be find, and the
 we simply designed an experiment to ignit a paper, the fire performance is very similar as the simulation result.
 Although we are still considering the DNN enhanced e parameters for its quatitively analysis, it is thought CA is more
 fancy and easier to show and state clearly. 
-The related work we did for CA could be seen as below:
+The related work we did for CA could be seen as follows:
 <p>
 <img src = "figs/CAdid.png">
 </p>
