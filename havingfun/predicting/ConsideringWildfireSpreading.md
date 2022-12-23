@@ -1,4 +1,4 @@
-# For wildfire Spreading Prediction 2022-12-13
+# For wildfire Spreading Prediction 2022-12
 Considering the work about a 'data analysis and deep learning'-based wildfire spreading prediction scheme, there are
 some thing I was considering :thinking: :
 * The information needed for analysis;
