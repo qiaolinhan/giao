@@ -95,7 +95,7 @@ Translate: put the cursor on the word and type `ts`
 Terminal: <F12>
 copy(yank): in visual-mode, type 
 
-## connect lazygit and nvim
+## Connect lazygit and nvim
 download the stable release of lazygit
 ```bash
 wget https://github.com/jesseduffield/lazygit/releases/download/v0.34/lazygit_0.34_Linux_x86_64.tar.gz
@@ -121,3 +121,49 @@ An error accured saying that when using 'segm', `pycocotools` must be installed.
 ```
 conda install -c conda-forge pycocotools
 ```
+
+## About the Zathura on my MAC  
+1. Tap the repository  
+```
+brew tap zegervdv/zathura`  
+```
+
+2. Install Zathura  
+```
+brew install zathura`  
+```
+
+3. Install and link one of the two plugins (I choose poppler)  
+```
+brew install zathura-pdf-poppler
+mkdir -p $(brew --prefix zathura)/lib/zathura
+ln -s $(brew --prefix zathura-pdf-poppler)/libpdf-poppler.dylib $(brew
+--prefix zathura)/lib/zathura/libpdf-poppler.dylib
+```
+If choose mupdf:
+```
+brew install zathura-pdf-mupdf
+mkdir -p $(brew --prefix zathura)/lib/zathura
+ln -s $(brew --prefix zathura-pdf-mupdf)/libpdf-mupdf.dylib $(brew --prefix zathura)/lib/zathura/libpdf-mupdf.dylib
+```
+
+4. OSX_native_integration  
+The OSX native integration (dock, window manage) has been added to the
+develop branch of zathura. Install it by
+```
+# unlink installed zathura and girara
+brew unlink girara
+brew unlink zathura
+
+# install HEAD
+brew install girara --HEAD
+brew install zathura --HEAD
+mkdir -p $(brew --prefix zathura)/lib/zathura
+ln -s $(brew --prefix zathura-pdf-poppler)/libpdf-poppler.dylib $(brew
+--prefix zathura)/lib/zathura/libpdf-poppler.dylib
+```
+5. Install vimtex through packer
+```
+use 'lervag/vimtex'
+```
+6. Config vimtex
