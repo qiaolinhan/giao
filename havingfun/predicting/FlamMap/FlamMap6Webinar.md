@@ -8,17 +8,18 @@ Presented by: Chuck McHugh
 * Demo 
 
 ## Abbrivations
-FARSITE -- fire area simulator
-FSPro -- a geospatial probabilistic model that predicts fire growth
-IFTDSS -- Interagenny fule treatment decisions support system
-LCP -- landscape (.LSCP file)
-LF --Landfire
-MTT -- Minimum travel time
-NTFB -- Near-term fire behavior
-STFB -- Short-term fire behavior
-TOM -- treatment optimzation model
-UTM -- Universal transverse mercator 
-WFDSS -- Wildland fire decision support system
+FARSITE -- fire area simulator  
+FOFEM -- First order fire effects model  
+FSPro: A geospatial probabilistic model that predicts fire growth  
+IFTDSS -- Interagenny fule treatment decisions support system  
+LCP -- Landscape (.LSCP file)  
+LF -- Landfire  
+MTT -- Minimum travel time  
+NTFB -- Near-term fire behavior  
+STFB -- Short-term fire behavior  
+TOM -- treatment optimzation model  
+UTM -- Universal transverse mercator   
+WFDSS -- Wildland fire decision support system  
 
 
 ## FARSITE & FlamMap History 
@@ -79,6 +80,24 @@ WFDSS -- Wildland fire decision support system
 * Import Run Logs from WFDSS  
   * BASIC, STFB, NTFB  
   * Spatial Data from WFDSS & IFTDSS  
+
+## What's New in FlamMap6.2 
+* **Previous Release -- 2021.04 FlamMap6.1** 
+* Additional support for raster formats
+  * Additional GeoTiff support for importing/exporting raster files. Export of raster files now include a .AUX .XML file
+    caontaining theme metadata  
+* FeoTiff noew supported when generating landscapes
+  * Single band GeoTIFF (.TIF) files can now be used generating a new landscape  
+  * The resulting landscape can be saved in GeoTIFF file format
+* Save Raster Outputs as Single GeoTIFF file 
+  * All Raster outputs can now all be savefd in ASCII or GeoTIFF formats 
+  * All Raster outputs can now all be saved in one multi-band GeoTIFF file with the Raster Outputs to GeoTIFF shortcut
+    command.
+* Measure Tool: Users can draw lines and polygons on a landscape and calculate lengths and area  
+New tools to edit and graph weather
+* **Current Release -- 2022.06 FlamMap6.2**
+* Get landscape utility for the creation and extraction of LANDFIRE based landscape file
+* Spatial version of the first order fire effects model (FOFEM, v6.7)
 
 ## Where to Get it  
 * Main FlamMap Page Link: https://www.firelab.org/project/flammap  
