@@ -49,6 +49,8 @@ WFDSS -- Wildland fire decision support system
 | 2010      | Incorporated into WFDSS as Short-term Fire Behavior (STFB)                |
 | 2012      | FlamMap5, WindNinja, Spotting, Landscape Burn Probability                 |
 | 2018      | FlamMap6, Farsite, Projection, LCP editor, run logs: WFDSS, IFTDSS        |
+| 2020      | FlamMap6.1, Wx Editing, GeoTiffs                                          |
+| 2022      | FlamMap6.2, Get Landscape utility, Spatial FOFEM                          |
 | 2009-2013 | Taught in S495                                                            |
 
 * Wildland Fire Decisions Support System (WFDSS)
@@ -60,10 +62,11 @@ WFDSS -- Wildland fire decision support system
 
 * Interagenny Fule Treatment Decisions Support System (IFTDSS)
 
-| Time                | Developments                                                                |
-| ---                 | ---                                                                         |
-| 2018-FlamMap5       | BASIC, WindNinja                                                            |
-| Future-FlamMap, MTT | Short-term fire Behavior (STFB), Landscape Burn Probability Modeling (LBPM) |
+| Time                                                          | Developments                                                                |
+| ---                                                           | ---                                                                         |
+| 2018-FlamMap6                                                 | BASIC, WindNinja                                                            |
+| 2019                                                          | Landscape Burn Probability Modeling, FlamMap, MTT, STFB                     |
+| Future-FlamMap(in 2020, and 2022 webinar, some features came) | Short-term fire Behavior (STFB), Landscape Burn Probability Modeling (LBPM) |
 
 ## What's New in FlamMap6  
 * FARSITE (NTFB, WFDSS)
