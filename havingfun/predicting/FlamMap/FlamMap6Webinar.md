@@ -1,6 +1,6 @@
 # Overview of FlamMap6 Geospatial Modeling Capabilities_20230131
 [webinar in 2020](https://youtu.be/DClutrnqzys)  
-[Webinar in 2022](https://youtu.be/KqQx9cR5Q-o)
+[Webinar in 2022](https://youtu.be/KqQx9cR5Q-o)  
 Presented by: Chuck McHugh
 ## Outlines
 * FARSITE & FlamMap History
@@ -22,7 +22,6 @@ STFB -- Short-term fire behavior
 TOM -- treatment optimzation model  
 UTM -- Universal transverse mercator   
 WFDSS -- Wildland fire decision support system  
-
 
 ## FARSITE & FlamMap History 
 * FARSITE History  
@@ -150,7 +149,6 @@ Figure: Some tutorials about how to acquire and use Landfire Data
 
 Firure: Some information about how to project the data acquired from LANDFIRE  
 <img src = "../figs/landfire_projection.png">
-
 
   * Landscape Data projections
     * WFDSS - Custom based on LCP extent  
