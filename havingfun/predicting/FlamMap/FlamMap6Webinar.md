@@ -1,5 +1,5 @@
 # [Overview of FlamMap6 Geospatial Modeling Capabilities](https://www.youtube.com/watch?v=DClutrnqzys)
-
+Presented by: Chuck McHugh
 ## Outlines
 * FARSITE & FlamMap History
 * What's New
@@ -126,3 +126,93 @@ Firure: Some information about how to project the data acquired from LANDFIRE
     * WFDSS - Custom based on LCP extent  
     * IFTDSS - Custom based on LCP extent
   * Outputs used in ArcMap with custom projections can sometimes cause issues
+  
+## The usage of FlamMap6 
+Steps:  
+1. Load the landscape  
+In the properties, we could see the rows and columns.  
+The docs are in Help --> Contents, which there are:
+* Using FlamMap 
+* Setup Runs of FlamMap: All these sub-analysis areas and runs are contained within the FlamMap project. Separate runs
+  for an analysis area can utilize different weather or wind parameters, canopy characteristics, or fuel moistures.
+* Tutorial 
+* Reference stuff: There are some e.g.. More information should be checked in Help --> Contents of FlamMap6  
+  * Elevation theme: Required to generate .LCP file  
+  * Initial fule moistures file (.FMS). Usage: a) Be used 'as is' to calculate the file behavior characteristics for a
+    FlamMap run. b) Be used as a starting optional dead fuel moisture model which also requires Weather (.WTR) and Wind
+    (.WND) file or a Weather Stream (.WXS) file  
+  * Run logs (And WFDSS Input Files): text file, containing run information, input parameters, and requested outputs for
+    an individual FlamMap or Farsite run.  
+There is also Online help.  
+2. Critique the .lcp  
+* The landscape information can be saved as .html file or .pdf file  
+* Create Landscape KMZ (Google earth .kmz file)
+3. Runs, FARSITE Run
+```mermaid
+graph LR
+A[Input the weather input]
+A1[Fule moisture file .fms]
+A2[Winds] 
+A21[Wind direction from weather inputs]  
+A22[Generate gridded wind from weather inputs e.g. wind ninja]
+A23[Gridded winds from ATM file .atm]  
+A3[Fule moisture settings]  
+A31[Weather stream file .wxs] 
+A32[Weather file .wtr and wind file .wnd file]
+A4[Fule moisture conditioning period]  
+A41[Start date and time] 
+A42[End date and time]
+A --> A1
+A --> A2 
+A2 --> A21  
+A2 --> A22  
+A2 --> A23
+A --> A3  
+A3 --> A31  
+A3 --> A32
+A --> A4
+A4 --> A41
+A4 --> A42
+B[Model settings] 
+B1[Ignitions .shp]  
+B11[load a shape file]  
+B12[creat one shape file]
+B2[Barrier .shp]
+B3[Canopy Characteristics]
+B31[Perimeter Resolution: How often to calculate fire behavior]
+B32[Ember Spot Probability]
+B33[Distance Resolution]
+B34[Spot Delay: How long it takes in growing into new fire]
+B35[Time Step /min]
+B36[Minimum Spot Distance]
+B4[ROS Adjustment File]
+B5[Burn Periods]
+B --> B1
+B1 --> B11 
+B1 --> B12
+B --> B2
+B --> B3
+B3 --> B31
+B3 --> B32
+B3 --> B33
+B3 --> B34
+B3 --> B35
+B3 --> B36 
+B --> B4 
+B --> B5 
+
+```
+Outputs: to choose the outputs of Farsite run or flammap run, the processing speed depends on the computer hardware
+
+## Questions
+Q: Everyone can dowload?  
+A: Yes.  
+Q: How to work with weather forescast for a few days, or if there are no forescasted weather data?  
+A: Go to local National Weather Service (NWS) forecast office; Click on the forecast map for the location or area
+interst; Scroll down until see the detailed forecast and associated map; Select the Tabular forecast display
+
+Figure: Aquire weather forecast data at the website of NWS  
+<img src= "../figs/WeatherData.png">
+
+Figure: Spatial Data Themes: FSPro - FARSITE - FlamMap  
+<img src = "../figs/flammap_result.png">
