@@ -10,7 +10,7 @@ Presented by: Chuck McHugh
 * Demo 
 
 ## Abbrivations
-FARSITE -- fire area simulator  
+FARSITE -- Fire area simulator  
 FOFEM -- First order fire effects model  
 FSPro: A geospatial probabilistic model that predicts fire growth  
 IFTDSS -- Interagenny fule treatment decisions support system  
