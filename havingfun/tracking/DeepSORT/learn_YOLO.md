@@ -274,3 +274,48 @@ In YOLOv2, 5 are chosen. There are more in YOLOv3, 9 kinds of boxes.
 
 ### 4.4 Replacing the SOFTMAX Layers
 Multiple label is appliable in YOLOv3
+
+## 5. YOLOv7  
+
+VGG, 2014. RepVGG, accelerate the processing (inference-time). **Paper**:RepVGG: Making VGG-style ConvNets Great Again  
+* Simple but powerful
+* Has a VGG-like inference-time body composed of nothing but a stack of 3x3 convolution and ReLU  
+Such decoupling of the training-time and inference-time architecture is realized by a structual re-paramiterization
+technique so that the model is named RepVGG.  
+
+### 5.1 To save the RAM
+What was found in the original VGG
+* 3x3 Conv is the best
+* Nvidia works for 3x3
+* 2 or more paths --> 1 path
+
+### 5.2 Batch normalization
+In every layer, the learned parameters might be very far away from the center. BN helps to stratch these parameters
+closer to the center.  
+
+Figure: The bias computing for each channel  
+<img src = "../figs/ReVGG_Bias.png">
+
+BN compute along the channel 
+
+* $\mu$, the mean value  
+* $\epsilon$, avoid 0 at bottom 
+* $\gamma$, aviod not appropriate scale  
+* $\beta$, aviod the center of parameters too far way from the center $(0,0)$
+
+Compute the batch normalization in RepConv, the re-paramiterized conv kernel could be:
+* weight: $W = W_{BN} \cdot W_{conv}$
+* bias: $b = W_{BN} \cdot b_{cov} + b_{BN}$
+
+### 5.3 1x1 --> 3x3
+Padding for Conv kernel, the original image also need padding
+* Considering the optization of Nvidia, turn 1x1 conv into 3x3 conv.
+* To save the RAM, combine the 1x1 branch into main branch
+
+### YOLOv5 + YOLOx
+What is anchor?
+YOLOv7 improves the recall
+
+<!--maskformer-->
+<!--for project V5 should be better-->
+<!--mask2former-->
