@@ -318,4 +318,4 @@ YOLOv7 improves the recall
 
 <!--maskformer-->
 <!--for project V5 should be better-->
-<!--mask2former-->
+<!--mask to former-->

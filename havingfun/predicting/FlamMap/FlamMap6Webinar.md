@@ -34,8 +34,8 @@ WFDSS -- Wildland fire decision support system
 | 1996      | NPS/USFS/CDF funded development of v3.0                                                        |
 | 2002      | v4.0                                                                                           |
 | 2008      | v4.1 (The last one formal version)                                                             |
-| 1998-2007 | Taught in S493                                                                                 |
-| 2009-2013 | Taught in S495                                                                                 |
+| 1998-2007 | Taught in S493 (The class code)                                                                                 |
+| 2009-2013 | Taught in S495 (https://www.frames.gov/catalog/8104)                                                                               |
 | 2010      | Incorporated into Wildland fire decison support system (WFDSS) as Near to fire behavior (NTFB) |
 | 2017      | Incorporated into FlamMap6                                                                     |
 
@@ -44,7 +44,7 @@ WFDSS -- Wildland fire decision support system
 | Time      | Developments                                                              |
 | ---       | ---                                                                       |
 | 1998      | Initial development of FlamMap                                            |
-| 2000-2002 | development of Minimum travel time (MTT)                                  |
+| 2000-2002 | Development of Minimum travel time (MTT)                                  |
 | 2004      | FlamMap2, Basic fire behavior                                             |
 | 2006      | FlamMap3, MTT to look the fire spread, treatment optimization model (TOM) |
 | 2007      | FlamMap4, Fire spread probability (FSPro)                                 |
@@ -129,12 +129,13 @@ Figure: Spatial Data Themes: FSPro - FARSITE - FlamMap
 * Always include **Projection file** no matter what source the data acomes from.  
 
 ## LANDFIRE DATA Projection  
-* LANDFIRE data is projected in NAD83 Albers  
+* LANDFIRE data is projected in NAD83 Albers (https://epsg.io/3153) 
 * Both FARSITE and FlamMap require the data to be in a north up orientation  
 * All Direct Access LANDFIRE data needs to be [reprojected](https://gis.stackexchange.com/questions/290030/what-does-it-mean-to-reproject-a-satellite-image-from-utm-zone-13n-to-wgs84) to a local projection, such as UTM prior to use  
 
 Figure: A discription in the slides to states the projection and the LANDFIRE data 
 <img src = "../figs/flammap_projection.png">
+
 The data reprojected to UTM...  
 
 * LANDFIRE Projections
@@ -145,7 +146,7 @@ Figure: Some tutorials about how to acquire and use Landfire Data
 <img src = "../figs/LandfireData.png">
 * https://youtu.be/z59ctfywFtw
 * https://youtu.be/o2U7NZims2E
-* https://youtu.be/FNteyOALZK4 (No longer available)
+* https://youtu.be/FNteyOALZK4 (Seems no longer available)
 
 Firure: Some information about how to project the data acquired from LANDFIRE  
 <img src = "../figs/landfire_projection.png">
@@ -175,7 +176,8 @@ There is also Online help.
 2. Critique the .lcp  
 * The landscape information can be saved as .html file or .pdf file  
 * Create Landscape KMZ (Google earth .kmz file)
-3. Runs, FARSITE Run
+3. Runs, FARSITE Run  
+Graph: The function modules in FARSITE
 ```mermaid
 graph LR
 A[Input the weather input]
@@ -236,10 +238,13 @@ Outputs: to choose the outputs of Farsite run or flammap run, the processing spe
 Q: Everyone can dowload?  
 A: Yes.  
 Q: How to work with weather forescast for a few days, or if there are no forescasted weather data?  
-A: Go to local National Weather Service (NWS) forecast office; Click on the forecast map for the location or area
-interst; Scroll down until see the detailed forecast and associated map; Select the Tabular forecast display
+A:  
+  * Go to local National Weather Service (NWS) forecast office;   
+  * Click on the forecast map for the location or area interst;   
+  * Scroll down until see the detailed forecast and associated map; 
+  * Select the Tabular forecast display.
 
-Figure: Aquire weather forecast data at the website of NWS  
+Figure: An example of aquiring weather forecast data at the website of NWS  
 <img src= "../figs/WeatherData.png">
 
 Figure: Spatial Data Themes: FSPro - FARSITE - FlamMap  
