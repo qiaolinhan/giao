@@ -39,7 +39,7 @@ deep local network. Fuse the weights of aux head and lead head
  
 <p align = "center">
 <img src = "../figs/MultiAuxHeads.png" 
-style = "width:400px"/>
+style = "width:800px"/>
 </p>
 
 EMA model is a tech used in mean teacher, it is used as the final
@@ -99,7 +99,7 @@ judging the possibility of whether it belongs to an object.
 </p>
 
 Adding the `sqrt` for weights is to solve the problem of where there 
-is a smaller offset, as shown in the 
+is a smaller offset, as shown in the formular bellow 
 $$\lambda_{coord} \sum_{i=0}^{S^2} \sum_{j = 0}^B \mathbf{1}_{ij}^{obj}(\sqrt{w_i} -\sqrt{\hat{w_i}})^2$$
 
 The confidence could be considered in the situation of foreground and
@@ -312,7 +312,7 @@ Padding for Conv kernel, the original image also need padding
 * Considering the optization of Nvidia, turn 1x1 conv into 3x3 conv.
 * To save the RAM, combine the 1x1 branch into main branch
 
-### YOLOv5 + YOLOx
+### 5.4 YOLOv5 + YOLOx
 What is anchor?
 YOLOv7 improves the recall
 
