@@ -150,8 +150,12 @@ for iamge in sorted(os.listdir(args["video"])):
 
 4. Use the real thermal camera
 ```
-
-
-
 ```
 
+## Data Fusion
+Deep learning has an inbuilt automatic stage feature process that learns rich hierarchical representations (i.e.
+features).
+Ptchy Operation
+1. Apply a set of weights -- a filter -- to extract **local features**
+2. Use **mltiple filters** to extract different features  
+3. **Specially share** parameters of each filter

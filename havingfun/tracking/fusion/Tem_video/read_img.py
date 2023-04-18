@@ -13,15 +13,16 @@
 #
 #   @Email: q_linhan.live@concordia.ca
 #
-#   @Description: 
+#   @Description: load the iamge and turn opriginal gray 16 bit into gray 8 in different color maps
 #
 # ------------------------------------------------------------------------------
-
 
 import numpy as np  
 import cv2  
 # open the gray16 image
-gray16_image = cv2.imread('sample_ir.png', cv2.IMREAD_ANYDEPTH)
+path = r'sample_ir.png'
+gray16_image = cv2.imread(path, cv2.IMREAD_ANYDEPTH)
+print(gray16_image)
 # convert the gray16 image into a gray8
 # If set `IMREAD_ANYDEPTH`, return 16-bit/32-bit image when the input has the corresponding depth, otherwise convert it to 8-bit. 
 gray8_image = np.zeros((120, 160), dtype = np.uint8)
