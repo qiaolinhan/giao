@@ -1,153 +1,3 @@
-Easyier to keep have trackings.  
-* The difference between Gray8 and Gray16 iamges 
-* Measuring your first tempreture from a thermal image 
-* Measureing tempreture from a thermal video
-* Measuring tempreture from a thermal camera
-
-### What is the Bit Depth of an image?
-<p><img src = "figs/BitDepth00.png"></p>
-1. Convert the oroginal GRB image into gray16 --> gray8  
-
-```
-import numpy as np  
-import cv2  
-# open the gray16 image
-gray16_image = cv2.imread("lighter_gray16_image.tiff", cv2.IMREAD_ANYDEPTH)
-# convert the gray16 iamge into a gray8
-gray8_image = np.zeros((120, 160), dtype = np.uint8)
-gray8_image = cv2.normalize(gray16_image, gray8_image, 0, 255, cv2.NORM_MINMAX)
-gray8_image = np.uint8(gray8_image)
-# color the gray8 image using OpenCV colormaps
-inferno_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_INFERNO)
-jet_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_JET)
-viridis_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_VIRDIS)
-# show the different thermal color palettes
-cv2.imshow("grayscale", gray8_image)
-cv2.imshow("inferno", inferno_palette)
-cv2.imshow("jet", jet_palette)
-cv2.imshow("viridis", viridis_palette)
-cv2.waitKey(0)
-```
-
-2. Measure image tempreture
-```
-import numpy as np 
-import cv2 
-
-# open agian the gray16 image 
-gray16_image = cv2.imread("lighter_gray16_image.tiff", cv2.IMREAD_ANYDEPTH)
-
-# get the first gray16 value 
-
-# define the pixel coordinate 
-x = 90
-y = 100
-
-pixel_flame_gray16 = gray16_image[y, x]
-
-# calculate tempreture value in *C 
-# pixel_flame_gray16 = (pixel_flame_gray16 / 100) - 273.15
-
-# calculate tempreture value in *F 
-pixel_flame_gray16 = (pixel_flame_gray16 / 100) * 9 / 5 - 459.67
-
-# RGMVISION.com 
-
-# Write pointer
-cv2.circle(gray8_image, (x, y), 2, (0, 0, 0), -1)
-cv2.circle(gray16_image, (x, y), 2, (0 ,0 ,0), -1)
-
-# Write tempreture value in gray8 and gray16 image 
-cv2.putText(gray8_image, "{0:.1f} Fahrenheit".format(pixel_flame_gray16), (x - 80, y - 15), cv2.FONXXXXXXX)
-cv2.putText(gray16_image, "{0:.1f} Fahrenheit".format(pixel_flame_gray16), (x - 80, y - 15), cv2.FONXXXXXXX)
-
-# Show results
-cv2.imshow("gray8-fahrenheit", gray8_image)
-cv2.imshow("gray16-fahrenheit", gray16_iamge)
-cv2.waitKey(0)
-
-```
-
-3. Measure tempreture from a thermal video
-```
-import cv2 
-import numpy as np 
-import os 
-import argparse 
-
-# construct the argument parse and parse tje arguments 
-ap = argparse.ArgumentParser()
-ap.add_argument("-v" "--video", required = True, help = "path of the video sequence")
-aegs = vars(ap.parse_args())
-
-# create mouse global coordinates 
-x_mouse = 0 
-y_mouse - 0
-
-# create thermal video fps variable (8 fps in this case)
-fps = 8
-
-# mouse events function
-def mouse_events(event, x, y, flags, param):
-  # mouse movement event 
-  if event == cv2.EVENT_MOUSEMOVE:
-    # update mouse global coordinates 
-    global x_mouse 
-    global y_mouse 
-    
-    x_mouse = x
-    y_mouse = y 
-
-# set up mouse events and prepare the thermal frame display
-gray16_frame = cv2.imread("lighter_gray16_image.tiff", cv2.IMREAD_ANYDEPTH)
-
-# Q: Why calling gray8 here?
-cv2.imshow("gray8", gray16_frame)
-cv2.setMouseCallback('gray8', mouse_events) 
-
-# loop over the thermal video frames
-for iamge in sorted(os.listdir(args["video"])):
-  
-  # filter .tiff files (gray16 images)
-  if image.endwith(".tiff"):
-    
-    # define the gray16 frame path 
-    file_path = os.path.join(args["video"], image)
-
-    # open the gray16 frame 
-    gray16_frame = cv2.imread(file_path, cv2.IMREAD_ANYDEPTH)
-    
-    # calculate tempreture 
-    tempreture_pointer = gray16_frame[y_mouse, x_mouse]
-    # tempreture pointer 
-    tempreture_pointer = (tempreture_pointer / 100) * 9 / 5 - 459.67 
-
-    # covert the gray16 frame into a gray8 
-    gray8_frame = np.zeros((120, 160), dtype = np.uint8)
-    gray8_frame = cv2.normalize(gray16_frame, gray8_frame, 0, 255, cv2.NORM_MINMAX)
-    gray8_grame = np.uint8(gray8_frame)
-
-    # colorized the gray8 frame using CV colormaps 
-    gray8_frame = cv2.applyColorMap(gray8_frame, cv2.COLORMAP_INFERNO)
-
-    # write pointer 
-    cv2.circle(gray8_frame, (x_mouse, y_mouse), 2, (255, 255, 255), -1)
-
-    # write tempreture 
-    cv2.PutText(gray8_frame, "{0:.1f} Fahrenheit".format(tempreture_pointer), (x_mouse - 40) )
-    
-    # show the thermal frame 
-    cv2.imshow("gray8", gray8_frame)
-
-    # wait 125ms (FPS = 8): RGMVison ThermalCAM1 frame per seconds = 8
-    cv2.waitKey(int(1 / fps) * 1000)
-     
-
-```
-
-4. Use the real thermal camera
-```
-```
 
 ## Data Fusion
 Deep learning has an inbuilt automatic stage feature process that learns rich hierarchical representations (i.e.
@@ -170,7 +20,8 @@ Characteristic:
 * DL-based iamge fusion have not been evaluated in the domain of the imagery
 
 Dataset:  
-Corsican Dataset 
+1. Corsican Dataset, visible-infrared image pairs [12]. Contains 640 pairs of visible and near-infrared (NIR) fire images.
+2. RGB-NIR dataset [18], which contains 477 non-fire visible-NIR image pairs.
 
 Selected state-of-the-art (SOTA):  
 
@@ -224,6 +75,49 @@ It could be called as an UnmatchGAN
 | ---                     | ---                                                                          | ---                                                                                                                                                                                                                                                           |
 | VGG19                   | 1. Only need some layersto perform feature extraction                        | 1. Not an end-to-end method. <br> 2. The required intermediate steps increase its implementation complexity.                                                                                                                                                  |
 | GAN1Fusion (FusionGAN)  | 1. An end-to-end model, significantly reducing its implementation complexity | 1. Need to be trained on visible-infrared image pairs <br> 2. In consequence, its performance depends on the quality of the training process <br> 3. GANs haveadditional challenge of training stability (qiao: What is the training stability, see ref [16]) |
-| GAN2Fusion (UnmatchGAN) | 1. end-to-end procedure                                                      | 1. Training
-stability <br> 2. Need good training dataset
+| GAN2Fusion (UnmatchGAN) | 1. end-to-end procedure                                                      | 1. Training stability <br> 2. Need good training dataset|
 
+For UnmatchGAN:  
+* Additional capability of learning to generate approximate infrared images based on source visible ones.  
+* The fusion process requires perfectly aligned source images.  
+* For the perticular context of fire images, this could prove a significant advantage for the researchcommunity given
+  the burden of obtaining perfectly matched visible-infrared fire images on realistic operative scenarios.
+
+### Metrics
+* They are the most common in the image fusion area.
+
+#### Information entropy (EN)
+It reflects the average amount of information in an image.  
+Definition: $EN = - \sum_{l = 1}^{L - 1}p_l\log_2{p_l}$
+$L$: the gray level of the image; $p_l$: the proportion of gray-valued pixels $i$ in the total number of pixels.  
+Larger $EN$, more information is in the fused image.   
+
+#### Correlation coefficient (CC) 
+It measures the degree of linear correlation between the fused image and either the visible or infrared image.  
+Definition: $CC(X, Y) = \frac{Cov(X, Y)}{\sqrt{Var(x) Var(y)}}$
+$Cov(X, Y)$: The covariance between the fused image and the reference images; $Var(X)$, $Var(Y)$: variance of the two
+images.  
+Larger $CC$, higher the correlation between the fused and the reference images.
+
+#### Peak signal-to-noise ratio(PSNR)
+The PSNR assumes that the difference between the fused image and reference image is noise.  
+Definition: 
+$PSNR = 10\log_{10}(\frac{MAX^2}{MSE})$  
+$MAX$: the maximum value of the iamge color; $MSE$: Mean squared error.  
+An accepted benchmark for this metric is 30dB. $PSNR$ lower than this threshold means that the fused iamge presents
+significant deterioration.  
+
+#### Structural similarity index measure (SSIM)
+A method for measuring the similarity between two images. It is based on the degradation of structural information.
+Definition:
+$SSIM(X, Y) = (\frac{2u_x u_y + c_1}{u_x^2 + u_y^2 + c_1})^{\alpha} * (\frac{2\sigma_x \sigma_y + c_2}{\sigma_x^2 + \sigma_y^2 + c_2})^{\alpha} * (\frac{\sigma_{xy} + c_3}{\sigma_x \sigma_y + c_3})^{\gamma}$  
+$x$, $y$ are the reference and fused images; $u_x$, $u_y$, $\sigma_x^2$, $\sigma_y^2$, $\sigma_{xy}^2$ represent the
+mean value, variance, and covariance of iamge $x$ and $y$, $c_1$, $c_2$, $c_3$ are small numbers that help to avoida
+division by zero, $\alpha$, $\beta$, $\gamma$ atr used to adjust the proportions.  
+The Range of values for $SSIM$ goes from 0 to 1, with 1 being the best possible one.
+
+### Comarison
+UNet improved G1 of UnmatchedGAN --> FIRe-GAN  
+* For consistency and to make the comparison fair with these methods, pre-trained the proposed FIRe-GAN model with the
+  RGB_NIR dataset.
+* Test on the Cosican Fire Detection Database.
