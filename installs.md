@@ -167,3 +167,7 @@ ln -s $(brew --prefix zathura-pdf-poppler)/libpdf-poppler.dylib $(brew
 use 'lervag/vimtex'
 ```
 6. Config vimtex
+Actually, zathura seems not a very good choice for my MacOS, therefore, I
+searched on the website and saw there is an App called **'Skim'**. Which is
+recommend to be used as a tex-viewer as sync latex with nvim on MacOS
+environment.
