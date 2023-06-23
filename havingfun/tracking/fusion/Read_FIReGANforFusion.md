@@ -1,10 +1,14 @@
 
+
+## DL-based image fusion
+* Reduced the complexity compared to methods on the multi-scale transform
+  and representation learning domains.
 ## Data Fusion
 Deep learning has an inbuilt automatic stage feature process that learns rich hierarchical representations (i.e.
 features).
 Ptchy Operation
 1. Apply a set of weights -- a filter -- to extract **local features**
-2. Use **mltiple filters** to extract different features  
+2. Use **multiple filters** to extract different features  
 3. **Specially share** parameters of each filter
 
 ## FIRe-GAN
@@ -17,7 +21,7 @@ Function:
 
 Characteristic:
 * There is a growing interest in Deep Learning (DL)-based image fusion, **due to** their reduced complexity;
-* DL-based iamge fusion have not been evaluated in the domain of the imagery
+* DL-based image fusion have not been evaluated in the domain of the imagery
 
 Dataset:  
 1. Corsican Dataset, visible-infrared image pairs [12]. Contains 640 pairs of visible and near-infrared (NIR) fire images.
@@ -27,12 +31,12 @@ Selected state-of-the-art (SOTA):
 
 | Code        | Author      | Model                                 | Characteristic                                                                                           |
 | ---         | ---         | ---                                   | ---                                                                                                      |
-| VGG19Fusion | Li et al.   | Pre-trained VGG19 DCNN                | The authors onlny selected layers of the network, no further training on new datasets is need.           |
-| GAN1Fusion  | Ma et al.   | Genrative Adversarial Networks (GANs) | Advantage: end-to-end trainable, which significantly reduces its implementation and training complexity. |
+| VGG19Fusion | Li et al.   | Pre-trained VGG19 DCNN                | The authors only selected layers of the network, no further training on new datasets is need.           |
+| GAN1Fusion  | Ma et al.   | Generative Adversarial Networks (GANs) | Advantage: end-to-end trainable, which significantly reduces its implementation and training complexity. |
 | GAN2Fusion  | Zhao et al. | GAN-based approach                    | Being able to generate approximate infrared images from visible ones.                                    |
 
 Limitation:  
-It is relevant to note that many of the existing visible-infrared fusion methods output grayscale fused image, which
+It is relevant to note that many of the existing visible-infrared fusion methods output greyscale fused image, which
 means that the color information of the visible image is lost.
 
 For FIRe-GAN:
@@ -40,13 +44,13 @@ For FIRe-GAN:
 * The latter is relevant due to color being one of the most used features in visible-image-based fire detection;  
 
 Main contributions:
-1. Carry out a thorough analysis and comparision of existing DL-fusion methods for conventional imagery;  
+1. Carry out a thorough analysis and comparison of existing DL-fusion methods for conventional imagery;  
 2. Provide a quantitative demonstration of the feasibility of applying DL-based fusion methods for infrared imagery from
    wildfires;
 3. IR and fused image generator that has been tested both in conventional and fire imagery.
 
 ### VGG19Fusion  
-1. Decompse the original image into base parts and detail content;
+1. Decompose the original image into base parts and detail content;
 2. Fuse these base parts through weight-averaging;
 3. For the fusion of detail parts, the authors employ a DL framework in which they first use selected layers of the
    pre-trained VGG19 model to extract deep features;
@@ -66,9 +70,9 @@ FusionGAN model with samples from the Corsican Fire Database.
 ### GAN2Fusion  
 GAN to fuse unmatched infrared and visible images.  
 Visible image --> generator (G1)  --> Synthetic infrared image;  
-Visible image, Synthetic infrared iamge --> generator (G2) --> fused image;  
+Visible image, Synthetic infrared image --> generator (G2) --> fused image;  
 Visile image, fused image --> discriminator(D1) --> to close to source visible image, containing more textural details;  
-The source infrared image, generated infrared iamge, fused image --> discriminator(D2) -->.  
+The source infrared image, generated infrared image, fused image --> discriminator(D2) -->.  
 It could be called as an UnmatchGAN  
 
 | Model                   | Advantage                                                                    | Disadvantage                                                                                                                                                                                                                                                  |
@@ -80,7 +84,7 @@ It could be called as an UnmatchGAN
 For UnmatchGAN:  
 * Additional capability of learning to generate approximate infrared images based on source visible ones.  
 * The fusion process requires perfectly aligned source images.  
-* For the perticular context of fire images, this could prove a significant advantage for the researchcommunity given
+* For the particular context of fire images, this could prove a significant advantage for the research community given
   the burden of obtaining perfectly matched visible-infrared fire images on realistic operative scenarios.
 
 ### Metrics
@@ -103,8 +107,8 @@ Larger $CC$, higher the correlation between the fused and the reference images.
 The PSNR assumes that the difference between the fused image and reference image is noise.  
 Definition: 
 $PSNR = 10\log_{10}(\frac{MAX^2}{MSE})$  
-$MAX$: the maximum value of the iamge color; $MSE$: Mean squared error.  
-An accepted benchmark for this metric is 30dB. $PSNR$ lower than this threshold means that the fused iamge presents
+$MAX$: the maximum value of the image color; $MSE$: Mean squared error.  
+An accepted benchmark for this metric is 30dB. $PSNR$ lower than this threshold means that the fused image presents
 significant deterioration.  
 
 #### Structural similarity index measure (SSIM)
@@ -112,12 +116,12 @@ A method for measuring the similarity between two images. It is based on the deg
 Definition:
 $SSIM(X, Y) = (\frac{2u_x u_y + c_1}{u_x^2 + u_y^2 + c_1})^{\alpha} * (\frac{2\sigma_x \sigma_y + c_2}{\sigma_x^2 + \sigma_y^2 + c_2})^{\alpha} * (\frac{\sigma_{xy} + c_3}{\sigma_x \sigma_y + c_3})^{\gamma}$  
 $x$, $y$ are the reference and fused images; $u_x$, $u_y$, $\sigma_x^2$, $\sigma_y^2$, $\sigma_{xy}^2$ represent the
-mean value, variance, and covariance of iamge $x$ and $y$, $c_1$, $c_2$, $c_3$ are small numbers that help to avoida
+mean value, variance, and covariance of image $x$ and $y$, $c_1$, $c_2$, $c_3$ are small numbers that help to avoid
 division by zero, $\alpha$, $\beta$, $\gamma$ atr used to adjust the proportions.  
 The Range of values for $SSIM$ goes from 0 to 1, with 1 being the best possible one.
 
-### Comarison
+### Comparison
 UNet improved G1 of UnmatchedGAN --> FIRe-GAN  
 * For consistency and to make the comparison fair with these methods, pre-trained the proposed FIRe-GAN model with the
   RGB_NIR dataset.
-* Test on the Cosican Fire Detection Database.
+* Test on the Corsican Fire Detection Database.
