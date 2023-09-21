@@ -1,6 +1,6 @@
-Easier to keep have tracking.  
+* Easier to keep have tracking.  
 * The difference between Gray8 and Gray16 images 
-* Measuring your first temperature from a thermal image 
+* Measuring first temperature from a thermal image 
 * Measuring temperature from a thermal video
 * Measuring temperature from a thermal camera
 
