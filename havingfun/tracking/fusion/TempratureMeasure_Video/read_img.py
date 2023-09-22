@@ -9,7 +9,7 @@
 #
 #   @Author: Linhan Qiao
 #
-#   @Date: 2023-04-18
+#   @Date: 2023-09-18
 #
 #   @Email: q_linhan.live@concordia.ca
 #
@@ -33,7 +33,7 @@ gray8_image = np.uint8(gray8_image)
 # color the gray8 image using OpenCV colormaps
 inferno_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_INFERNO)
 jet_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_JET)
-viridis_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_VIRDIS)
+viridis_palette = cv2.applyColorMap(gray8_image, cv2.COLORMAP_VIRIDIS)
 
 # show the different thermal color palettes
 cv2.imshow("grayscale", gray8_image)
