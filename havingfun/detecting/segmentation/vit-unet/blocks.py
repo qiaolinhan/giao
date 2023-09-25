@@ -26,7 +26,7 @@ class ConvBlock(nn.Module):
         self.layers = nn.Sequential(
                 nn.Conv2d(in_c, out_c, kernel_size = kernel_size, padding = padding),
                 nn.BatchNorm2d(out_c),
-                nn.reLU(inplace = True)
+                nn.ReLU(inplace = True)
                 )
 
     def forward(self, x):
