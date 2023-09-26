@@ -55,11 +55,54 @@ class UNETR_2D(nn.Module):
                 DeConvBlock(cf["hidden_dim"], 512),
                 ConvBlock(512, 512)
                 )
-        # concatenate
-        self.c1 = nn.Sequential(
+        self.c1 = nn.Sequential( # Concatenation
                 ConvBlock(512 + 512, 512),
                 ConvBlock(512, 512)
                 )
+
+        # Decoder 2
+        self.d2 = DeConvBlock(512, 256)
+        self.s2 = nn.Sequential(
+                DeConvBlock(cf["hidden_dim"], 256),
+                ConvBlock(256, 256),
+                DeConvBlock(256, 256),
+                ConvBlock(256, 256),
+                )
+        self.c2 = nn.Sequential( # Concatenation
+                ConvBlock(256 + 256, 256),
+                ConvBlock(256, 256),
+                )
+
+        # Decoder 3
+        self.d3 = DeConvBlock(256, 128)
+        self.s3 = nn.Sequential(
+                DeConvBlock(cf["hidden_dim"], 128),
+                ConvBlock(128, 128),
+                DeConvBlock(128, 128),
+                ConvBlock(128, 128),
+                DeConvBlock(128, 128),
+                ConvBlock(128, 128),
+
+                )
+        self.c3 = nn.Sequential( # Concatenation
+                ConvBlock(128 + 128, 128),
+                ConvBlock(128, 128),
+                )
+
+        # Decoder 4
+        self.d4 = DeConvBlock(128, 64)
+        self.s4 = nn.Sequential(
+                ConvBlock(3, 64),
+                ConvBlock(64, 64),
+                )
+        self.c4 = nn.Sequential(
+                ConvBlock(64 + 64, 64),
+                ConvBlock(64, 64),
+                )
+
+        # output layer
+        self.output = nn.Conv2d(64, 1, kernel_size = 1, padding = 0)
+
 
     def forward(self, inputs):
         # Path + Position Embeddings
@@ -94,14 +137,39 @@ class UNETR_2D(nn.Module):
         z6 = z6.view(shape)
         z9 = z9.view(shape)
         z12 = z12.view(shape)
-        print("[INFO] z12 shape:", z12.shape) 
+        # print("[INFO] z12 shape:", z12.shape) 
 
         # Decoder 1
         x = self.d1(z12)
         s = self.s1(z9)
         x = torch.cat([x, s], dim = 1)
         x = self.c1(x)
-        print("[INFO] x shape at Decoder 1:", x.shape)
+        # print("[INFO] Feature shape at Decoder 1:", x.shape)
+
+        # Decoder 2
+        x = self.d2(x)
+        s = self.s2(z6)
+        x = torch.cat([x, s], dim = 1)
+        x = self.c2(x)
+        # print("[INFO] Feature shape at Decoder 2:", x.shape)
+
+        # Decoder 3
+        x = self.d3(x)
+        s = self.s3(z3)
+        x = torch.cat([x, s], dim = 1)
+        x = self.c3(x)
+        # print("[INFO] Feature shape at Decoder 3:", x.shape)
+
+        # Decoder 4
+        x = self.d4(x)
+        s = self.s4(z0)
+        x = torch.cat([x, s], dim = 1)
+        x = self.c4(x)
+        # print("[INFO] Feature shape at Decoder 4:", x.shape)
+
+        # output
+        out = self.output(x)
+        return out
 
 if __name__ == "__main__":
     config = {}
@@ -121,7 +189,10 @@ if __name__ == "__main__":
         config["patch_size"] * config["patch_size"] * config["num_channels"],
         ))
 
-    print(f"[INFO] Shape of x: {x.shape}")
+    print(f"[INFO] Shape of input: {x.shape}")
 
     model = UNETR_2D(config)
     model(x)
+    y = model(x)
+    print("[INFO] Output shape:", y.shape)
+
