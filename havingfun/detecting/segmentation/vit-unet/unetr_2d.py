@@ -55,6 +55,11 @@ class UNETR_2D(nn.Module):
                 DeConvBlock(cf["hidden_dim"], 512),
                 ConvBlock(512, 512)
                 )
+        # concatenate
+        self.c1 = nn.Sequential(
+                ConvBlock(512 + 512, 512),
+                ConvBlock(512, 512)
+                )
 
     def forward(self, inputs):
         # Path + Position Embeddings
@@ -77,15 +82,31 @@ class UNETR_2D(nn.Module):
 
         # CNN Decoder
         z3, z6, z9, z12 = skip_connections
-        print(inputs.shape, z3.shape, z6.shape, z9.shape, z12.shape)
+        # print('[INFO] Input and middle layer shapes\n', inputs.shape, z3.shape, z6.shape, z9.shape, z12.shape)
+
         # Reshaping
         batch = inputs .shape[0]
-        
+        z0 = inputs.view((batch, self.cf["num_channels"], self.cf["image_size"], self.cf["image_size"]))
+        # print("[INFO] Shape of z0:", z0.shape)
+
+        shape = (batch, self.cf["hidden_dim"], self.cf["patch_size"], self.cf["patch_size"])
+        z3 = z3.view(shape)
+        z6 = z6.view(shape)
+        z9 = z9.view(shape)
+        z12 = z12.view(shape)
+        print("[INFO] z12 shape:", z12.shape) 
+
+        # Decoder 1
+        x = self.d1(z12)
+        s = self.s1(z9)
+        x = torch.cat([x, s], dim = 1)
+        x = self.c1(x)
+        print("[INFO] x shape at Decoder 1:", x.shape)
 
 if __name__ == "__main__":
     config = {}
     config["image_size"] = 256
-    config["num_layers"] = 1
+    config["num_layers"] = 12
     config["hidden_dim"] = 768 
     config["mlp_dim"] = 3072
     config["num_head"] = 12 

@@ -30,16 +30,21 @@ class ConvBlock(nn.Module):
                 )
 
     def forward(self, x):
-        return self.layer(x)
+        return self.layers(x)
 
 
 class DeConvBlock(nn.Module):
     def __init__(self, in_c, out_c):
-        super().__init__() 
+        super().__init__()
 
         self.deconv = nn.ConvTranspose2d(in_c, out_c, kernel_size = 2, stride = 2, padding = 0)
 
-        def forward(self, x):
-            return self.deconv(x)
+    def forward(self, x):
+        return self.deconv(x)
 
 
+if __name__ == "__main__":
+    x = torch.randn(768, 16, 16)
+    d1 = DeConvBlock(768, 512)
+    y = d1(x)
+    print(y.shape)
