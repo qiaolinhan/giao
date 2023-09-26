@@ -182,7 +182,8 @@ if __name__ == "__main__":
     config["num_patches"] = 256 
     config["patch_size"] = 16
     config["num_channels"] = 3
-
+    
+    # original x
     x = torch.randn((
         8,
         config["num_patches"],
