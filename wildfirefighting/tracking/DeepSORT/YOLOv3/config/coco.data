@@ -1,6 +1,0 @@
-classes = 80
-train = ~/dev/giao/data/drone_dataset/trainvalno5k.txt
-valid = ~/dev/giao/data/drone_dataset/5k.txt
-names = ~/dev/giao/data/coco.names
-backup = backup/
-eval = coco

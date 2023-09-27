@@ -1,0 +1,14 @@
+torch
+torchvision
+torchaudio
+
+scipy
+numpy
+matplotlib
+pandas
+seaborn
+tqdm
+
+pyYAML
+easydict
+
