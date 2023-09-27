@@ -72,9 +72,9 @@ if __name__ == "__main__":
     # ir_images = glob(os.path.join("data", "ir", "*"))
     # ir_images = sorted(ir_images)
     # Create folder to save images
-    create_dir("outputs")
-    create_dir("outputs/border")
-    create_dir("outputs/bbox")
+    create_dir("runs")
+    create_dir("runs/border")
+    create_dir("runs/bbox")
     # Loop over the dataset
     for x, y in tqdm(zip(images, masks), total = len(images)):
         print(x)
@@ -88,15 +88,15 @@ if __name__ == "__main__":
         # Detecting bounding boxes
         border = mask2border(y) 
         # # save the images
-        cv2.imwrite(f"outputs/border/{name}.png", border)
+        cv2.imwrite(f"runs/border/{name}.png", border)
 
         bboxes = mask2bbox(y)
         # masking the bounding box on image
         for bbox in bboxes:
             x = cv2.rectangle(x, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2) 
             # Add the target information
-            cv2.putTxt(x, 'Target', (bbox[0], bbox[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+            cv2.putText(x, 'Target', (bbox[0], bbox[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
 
         # cat_image = np.concatenate([x, parse_mask(y)], axis = 1)
-        cv2.imwrite(f"outputs/bbox/{name}.png", x)
+        cv2.imwrite(f"runs/bbox/{name}.png", x)
 
