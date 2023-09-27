@@ -31,7 +31,9 @@ def mask2border(mask):
     h, w = mask.shape
     border = np.zeros((h, w))
 
-    contours = find_contours(mask, 70)
+    # contours = find_contours(mask, 128)
+    contours = find_contours(mask, 1)
+
     for contour in contours:
         for c in contour:
             x = int(c[0])
