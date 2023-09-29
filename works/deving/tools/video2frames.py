@@ -78,6 +78,6 @@ for i in range(0, 1816):
 
     video.set(cv2.CAP_PROP_POS_FRAMES, i)
     ret, frame = video.read()
-    cv2.imwrite('/home/qiao/dev/giao/data/videos/20230926/frames/frame_%d.png'%i, frame)
+    cv2.imwrite('/home/qiao/dev/giao/data/videos/20230926/frames/%04d.png'%i, frame)
 
 print('[INFO] The video is cut into frames and saved in folder')
