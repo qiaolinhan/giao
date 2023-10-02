@@ -12,7 +12,11 @@ import sys
 ########################
 # For dataet copied to pc
 # load the datas from a specific folder
+<<<<<<< HEAD
 os.chdir('/home/qiao/dev/giao/datasets/data_google2022/mask')
+=======
+os.chdir('/home/qiao/dev/giao/data/videos/20230926/frames/')
+>>>>>>> ca9ee36c2ae812077350eb11b68415607f23415d
 file_list = os.listdir()
 print("[INFO] Successfully read the folder:", os.getcwd())
 print("[INFO] Sample name of the file in this folder:", file_list[0])
@@ -20,7 +24,11 @@ print("[INFO] Sample name of the file in this folder:", file_list[0])
 ########################
 # reorder: sort the files by name
 def last_11chars(x):
+<<<<<<< HEAD
     return(x[-9:])
+=======
+    return(x[-11:])
+>>>>>>> ca9ee36c2ae812077350eb11b68415607f23415d
 # Sort the files 
 filelist_sorted = sorted(file_list, key = last_11chars)
 # print("[INFO] The dataset is sorted\n", filelist_sorted)  
@@ -30,7 +38,6 @@ for count, f in enumerate(filelist_sorted):
     print(f'[INFO] Original name: {f_name} + {f_ext}')
     
     # new name 
-    # f_name = 'M300_' + '20220613_' + str(count)
     # use '{:03}'.format(num) to zero lead the num
     f_name_n = "%04d"%count
     new_name = f'{f_name_n}{f_ext}'
