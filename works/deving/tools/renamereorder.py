@@ -12,7 +12,7 @@ import sys
 ########################
 # For dataet copied to pc
 # load the datas from a specific folder
-os.chdir('/home/qiao/dev/giao/works/deving/tools/data/mask/')
+os.chdir('/home/qiao/dev/giao/datasets/data_google2022/mask')
 file_list = os.listdir()
 print("[INFO] Successfully read the folder:", os.getcwd())
 print("[INFO] Sample name of the file in this folder:", file_list[0])
@@ -20,7 +20,7 @@ print("[INFO] Sample name of the file in this folder:", file_list[0])
 ########################
 # reorder: sort the files by name
 def last_11chars(x):
-    return(x[-7:])
+    return(x[-9:])
 # Sort the files 
 filelist_sorted = sorted(file_list, key = last_11chars)
 # print("[INFO] The dataset is sorted\n", filelist_sorted)  
@@ -36,8 +36,8 @@ for count, f in enumerate(filelist_sorted):
     new_name = f'{f_name_n}{f_ext}'
     print(f'[INFO] New name {f_name_n} + {f_ext}')
 
-    # os.rename(f, new_name)
-    # print(f'[INFO] renamed, please check')
+    os.rename(f, new_name)
+    print(f'[INFO] renamed, please check')
 
 # # rename labels
 # os.chdir('/home/qiaolinhan/dev/giao/datasets/M300S/extended/41.2/labels')

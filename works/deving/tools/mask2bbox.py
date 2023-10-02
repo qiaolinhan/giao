@@ -32,7 +32,7 @@ def mask2border(mask):
     border = np.zeros((h, w))
 
     # contours = find_contours(mask, 128)
-    contours = find_contours(mask, 1)
+    contours = find_contours(mask, 128)
 
     for contour in contours:
         for c in contour:
@@ -65,9 +65,9 @@ def parse_mask(mask):
 
 if __name__ == "__main__":
     # Load the dataset
-    images = glob(os.path.join("data", "image", "*"))
+    images = glob(os.path.join("bounding", "image", "*"))
     images = sorted(images)
-    masks = glob(os.path.join("data", "mask", "*"))
+    masks = glob(os.path.join("bounding", "mask", "*"))
     masks = sorted(masks)
     # ir_images = glob(os.path.join("data", "ir", "*"))
     # ir_images = sorted(ir_images)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         for bbox in bboxes:
             x = cv2.rectangle(x, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (255, 0, 0), 2) 
             # Add the target information
-            cv2.putText(x, 'Target', (bbox[0], bbox[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
+            cv2.putText(x, 'Suspect_Wildfire', (bbox[0], bbox[1]-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 0, 0), 2)
 
         # cat_image = np.concatenate([x, parse_mask(y)], axis = 1)
         cv2.imwrite(f"runs/bbox/{name}.png", x)

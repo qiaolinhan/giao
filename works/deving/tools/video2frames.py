@@ -22,8 +22,8 @@ import os
 from pathlib import Path
 import glob
 
-path = Path('/home/qiao/dev/giao/data/videos/')
-file_posix = path/'20230926/20230926.mp4'
+path = Path('/home/qiao/dev/giao/data/videos/20230926')
+file_posix = path/'20230926.MP4'
 file_path = str(file_posix)
 # print('[INFO] The file path is:', file_path)
 
@@ -74,10 +74,10 @@ print('[INFO] The specific frame_id at {}:{}:{} is {}'.format(hours, minutes, se
 
 # cut the video and save into the folder
 # for i in range(0, frame_id):
-for i in range(0, 1816):
+for i in range(0, frame_id):
 
     video.set(cv2.CAP_PROP_POS_FRAMES, i)
     ret, frame = video.read()
-    cv2.imwrite('/home/qiao/dev/giao/data/videos/20230926/frames/frame_%d.png'%i, frame)
+    cv2.imwrite('/home/qiao/dev/giao/data/videos/20230926/frames/%04d.png'%i, frame)
 
 print('[INFO] The video is cut into frames and saved in folder')
