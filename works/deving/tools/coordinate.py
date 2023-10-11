@@ -55,25 +55,25 @@ import pathlib
 import datetime
 get_path = pathlib.Path.cwd()
 
-# classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
-#               "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
-#               "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
-#               "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
-#               "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
-#               "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli",
-#               "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed",
-#               "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
-#               "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
-#               "teddy bear", "hair drier", "toothbrush"
-#               ]
-# model = YOLO("yolo-Weights/yolov8n.pt")
+classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
+              "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
+              "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
+              "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
+              "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
+              "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli",
+              "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed",
+              "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
+              "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
+              "teddy bear", "hair drier", "toothbrush"
+              ]
+model = YOLO("yolo-Weights/yolov8n.pt")
 
 # to get the parameter:
 # yolo task=detect mode=train model=yolov8n.pt data=AVITAGS_NAVLAB20230930-1/data.yaml epochs=30 imgsz=640
-classNames = ["Wildfire Spot"]
-parameter_path = '/home/qiao/dev/giao/works/detecting/segmentation/yolov8/runs/'
-parameter = 'detect/train3/weights/best.pt'
-model = YOLO(parameter_path + parameter)
+# classNames = ["Wildfire Spot"]
+# parameter_path = '/home/qiao/dev/giao/works/detecting/segmentation/yolov8/runs/'
+# parameter = 'detect/train3/weights/best.pt'
+# model = YOLO(parameter_path + parameter)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # params for recording the yolo processed video
@@ -104,22 +104,25 @@ while True:
     print("[INFO] processing the video captured")
     
     for result in results:
+        print("++++++++++++++++++++++++++++++++")
         boxes = result.boxes
         for box in boxes:
+            # print('======> xyxy:', box.xyxy)
             x1, y1, x2, y2 = box.xyxy[0]
 
             ##############################################
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 255), 1)
+            print('======>int xyxy', x1, y1, x2, y2)
             ##############################################
 
             # confidence
             confidence = math.ceil((box.conf[0] * 100))/100
-            print("======> Confidence", confidence)
+            # print("======> Confidence", confidence)
 
             # class_name
             cls = int(box.cls[0])
-            print("======> Class Name", classNames[cls])
+            # print("======> Class Name", classNames[cls])
 
             # object detials
             org = [x1, y1]
