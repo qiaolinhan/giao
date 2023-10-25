@@ -90,10 +90,13 @@ frame_size = (640, 480) # width, height
 fourcc = cv2.VideoWriter_fourcc(*"MP4V")
 date= datetime.datetime.now().strftime("%Y%m%d") 
 # print("[INFO]", date)
-save_path = '/home/qiao/dev/giao/works/detecting/segmentation/yolov8/videos/20231012/'
+# save_path = '/home/qiao/dev/giao/works/detecting/segmentation/yolov8/videos/20231012/'
 
-record_video_name = save_path + date + 'original.mp4'
-result_video_name = save_path + date+ 'bboxed.mp4'
+# record_video_name = save_path + date + 'original.mp4'
+# result_video_name = save_path + date+ 'bboxed.mp4'
+record_video_name = date + '_original.mp4'
+result_video_name = date+ '_bboxed.mp4'
+
 # print("[INFO] o name and r name:", record_video_name, result_video_name)
 cam = cv2.VideoCapture(0)
 fps = cam.get(cv2.CAP_PROP_FPS)
