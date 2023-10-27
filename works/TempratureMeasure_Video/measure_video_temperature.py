@@ -13,7 +13,7 @@ x_mouse = 0
 y_mouse = 0 
 
 # create thermal video fps variable (8 fps in this case) 
-fps = 2
+fps = 8
 
 # mouse event function 
 def mouse_events(event, x, y, flags, param):
@@ -44,6 +44,7 @@ for image in sorted(os.listdir(args["video"])):
         # calculate the tempreture
         temperature_pointer = gray16_frame[y_mouse, x_mouse]
 #         temperature_pointer = (temperature_pointer / 100) -273.15 
+# F  ---> C -32
         temperature_pointer = (temperature_pointer-32)/1.8
 
         # temperature_pointer = (temperature_pointer /
@@ -66,13 +67,13 @@ for image in sorted(os.listdir(args["video"])):
                     text='{0:.1f}C'.format(temperature_pointer),
                     org=(x_mouse - 40, y_mouse - 40),
                     fontFace=0,
-                    fontScale=2, color=(0, 0, 255),
+                    fontScale=1, color=(0, 0, 255),
                     thickness=1, lineType=cv2.LINE_AA)
 
         # show the thermal frame 
         cv2.imshow("gray8", gray8_frame)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(int((1/fps)*1000)) & 0xFF == ord('q'):
             break
         # wait 125 ms: RWMVISION THERMALCAM1 fps = gray8_frame 
 cv2.destroyAllWindows()     
