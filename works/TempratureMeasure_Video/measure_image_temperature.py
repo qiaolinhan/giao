@@ -34,9 +34,11 @@ y = 320
 # in Kelvin
 pixel_flame_gray16_0 = gray16_image[y, x] 
 # in Celsius
-pixel_flame_gray16_c = (pixel_flame_gray16_0 / 100) - 273.15 
+# pixel_flame_gray16_c = (pixel_flame_gray16_0 / 100) - 273.15 
+pixel_flame_gray16_c = (pixel_flame_gray16_0-32)/9*5
 # in Fahrenheit
-pixel_flame_gray16_f = (pixel_flame_gray16_0 / 100) * 9 / 5 - 459.67 
+# pixel_flame_gray16_f = (pixel_flame_gray16_0 / 100) * 9 / 5 - 459.67 
+pixel_flame_gray16_f = (pixel_flame_gray16_0) 
 
 # Convert the gray16 image into gray8 to show the result 
 gray8_image = np.zeros((120, 160), dtype = np.uint8)
@@ -52,11 +54,15 @@ font = cv2.FONT_HERSHEY_SIMPLEX
 fontscale = 1
 color = (0, 0, 255)
 thickness = 2
-cv2.putText(gray8_image, "{0:.1f} Celsius".format(pixel_flame_gray16_c), (x - 40, y - 10), font, fontscale, color, thickness, cv2.LINE_AA)
-cv2.putText(gray16_image, "{0:.1f} Fahrenheit".format(pixel_flame_gray16_f), (x - 80, y - 15),font, fontscale, color, thickness, cv2.LINE_AA)
+cv2.putText(gray8_image, "Celsius: {0:.1f}".format(pixel_flame_gray16_c), (x - 40, y - 10), font, fontscale, color, thickness, cv2.LINE_AA)
+cv2.putText(gray16_image, "Fahrenheit: {0:.1f}".format(pixel_flame_gray16_f), (x - 80, y - 15),font, fontscale, color, thickness, cv2.LINE_AA)
 
 # show result 
 cv2.imshow("gray8-calsius", gray8_image)
+cv2.imwrite("gray8-calsius.png", gray8_image)
+
 cv2.imshow("gray16-fahrenheit", gray16_image)
+cv2.imwrite("gray16-fahrenheit.png", gray16_image)
+
 cv2.waitKey(0)
 
