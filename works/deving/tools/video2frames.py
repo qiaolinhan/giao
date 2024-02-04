@@ -22,8 +22,8 @@ import os
 from pathlib import Path
 import glob
 
-path = Path('/home/qiao/dev/giao/data/videos/20230926')
-file_posix = path/'20230926.MP4'
+path = Path('/home/qiao/dev/giao/data/videos/20240116')
+file_posix = path/'indoor_20240116.MOV'
 file_path = str(file_posix)
 # print('[INFO] The file path is:', file_path)
 
@@ -78,6 +78,6 @@ for i in range(0, frame_id):
 
     video.set(cv2.CAP_PROP_POS_FRAMES, i)
     ret, frame = video.read()
-    cv2.imwrite('/home/qiao/dev/giao/data/videos/20230926/frames/%04d.png'%i, frame)
+    cv2.imwrite('/home/qiao/dev/giao/data/videos/20240116/frames/%04d.png'%i, frame)
 
 print('[INFO] The video is cut into frames and saved in folder')
