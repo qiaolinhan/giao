@@ -7,7 +7,7 @@ def register_images(visible_image_path, infrared_image_path):
     infrared_img = cv2.imread(infrared_image_path, cv2.IMREAD_GRAYSCALE)
 
     # Create SURF object
-    surf = cv2.SURF_create()
+    surf = cv2.xfeatures2d.SURF_create()
 
     # Detect and compute keypoints and descriptors for visible image
     keypoints_visible, descriptors_visible = surf.detectAndCompute(visible_img, None)
