@@ -88,5 +88,5 @@ sudo make install
 
 # link the shared library to the conda environment
 cd ~/anaconda3/envs/dev/lib/python3.11
-rm -rf cv2.cpython-38-x86_64-linux-gnu.so
+rm -rf cv2.cpython-311-x86_64-linux-gnu.so
 ln -s /opt/opencv4/build/lib/python3/cv2.cpython-311-x86_64-linux-gnu.so

@@ -2,9 +2,9 @@ from ultralytics import YOLO
 import numpy as np
 import supervision as sv
 
-Video_path = '/home/qiao/dev/giao/data/videos/' + '20240116/indoor_20240116.MOV'
+Video_path = '/home/qiao/dev/datasets/videos/' + '20231016/forlocation.mp4'
 
-model = YOLO('yolov8l_20240116.pt')
+model = YOLO('yolo_Weights/yolov8n150_snowwork.pt')
 
 # video_info = sv.VideoInfo.from_video_path(Video_path)
 #
@@ -28,5 +28,5 @@ model = YOLO('yolov8l_20240116.pt')
 #                  target_path = f"result_yolov8l_20240116.mp4", 
 #                  callback = process_frame)
 
-result = model(Video_path, save=True, exist_ok=True,
-               name="result_20240116")
+result = model(Video_path, stream=True, save=True, exist_ok=True,
+               name="result_20240208", conf=0.2)
