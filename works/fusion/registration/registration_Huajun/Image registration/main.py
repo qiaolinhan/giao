@@ -4,7 +4,7 @@ from scipy.optimize import least_squares
 from scipy.optimize import minimize
 
 # 从 Excel 文件读取数据
-excel_data = pd.read_excel('manualPoints.xlsx')
+excel_data = pd.read_excel('./manualPoints.xlsx')
 
 # 获取可见光和热成像坐标
 visible_points = excel_data[['Visible_X', 'Visible_Y']].values
