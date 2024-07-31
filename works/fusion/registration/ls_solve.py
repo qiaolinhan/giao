@@ -2,7 +2,7 @@ import  numpy as np
 
 ########################
 # real distance
-d = 6.9
+d = 5760
  
 vi_points = np.array([
             [484, 282],
