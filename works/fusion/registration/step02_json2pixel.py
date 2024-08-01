@@ -57,38 +57,136 @@ print("[INFO] :: Zoom pixel values:\n", zoom_pixel_values)
 
 vi_points_wide = wide_pixel_values
 vi_points_zoom = zoom_pixel_values
-ir_points = ir_pixel_values
+ir_points_ir = ir_pixel_values
 d = depth
 
+definition = input("[Query] :: Do you need to set R31, R32, R33, t3 as 0, 0, 1, 0?(Y/N)\n")
+
+# If defining R31=0, R32 = 0, R33 = 1, t3 =0
+if definition == 'Y':
 #######################
-# construct R' and t'
-R = []
-t = []
+    # construct R' and t'
+    R_w = []
+    t_w = []
 
-# wide and infrared
-for (x1, y1), (x2, y2) in zip(vi_points_wide, ir_points):
-    R.append([x1, y1, 1, 0, 0, 0, 0, 0, 0, -x2*x1, -x2*y1, -x2])
-    R.append([0, 0, 0, x1, y1, 1, 0, 0, 0, -y2*x1, -y2*y1, -y2])
-    R.append([0, 0, 0, 0, 0, 0, x1, y1, 1, -1*x1, -1*y1, -1])
-    # Removing the row associated with z coordinate transformation
-    # and setting R33 = 1, R31 = 0, R32 = 0, t3 = 0
-    # This results in R31, R32, t3 not appearing in the linear system
+    # wide and infrared
+    for (x1, y1), (x2, y2) in zip(ir_points_ir, vi_points_wide):
+        R_w.append([x1, y1, 1, 0, 0, 0, -x2*x1, -x2*y1, -x2])
+        R_w.append([0, 0, 0, x1, y1, 1, -y2*x1, -y2*y1, -y2])
+        # R_w.append([0, 0, 0, 0, 0, 0, x1, y1, 1, -1*x1, -1*y1, -1])
+        # Removing the row associated with z coordinate transformation
+        # and setting R33 = 1, R31 = 0, R32 = 0, t3 = 0
+        # This results in R31, R32, t3 not appearing in the linear system
 
-    t.extend([x2-1/d, y2-1/d, 1-1/d])
+        t_w.extend([x2, y2])
 
-R = np.array(R)
-t = np.array(t)
+    R_w = np.array(R_w)
+    t_w = np.array(t_w)
 
-# solve for the parameters using least squares
-params, _, _, _ = np.linalg.lstsq(R, t, rcond=None)
+    # solve for the parameters using least squares
+    params, _, _, _ = np.linalg.lstsq(R_w, t_w, rcond=None)
 
-# extract the transformation matrix components
-# Manually set R31=R32=0, R33=1
-R11, R12, R13, R21, R22, R23, R31, R32, R33, t1, t2, t3 = params  
+    # extract the transformation matrix components
+    # Manually set R31=R32=0, R33=1
+    R11, R12, R13, R21, R22, R23, R31, R32, R33, t1, t2, t3 = np.append(params, [0, 0, 1])  
 
-print("[INFO] :: For wide images and infrared images")
-print("[INFO] :: Transform matrix:\n", np.array([[R11, R12, R13], [R21, R22, R23],
-                                                 [R31, R32, R33]]))
-print("[INFO] :: Translation vector (scaled with d):", np.array([t1, t2, t3]))
+    print("[INFO] :: For infrared images to wide images")
+    print("[INFO] :: Transform matrix:\n", np.array([[R11, R12, R13], [R21, R22, R23],
+                                                     [0, 0, 1]]))
+    print("[INFO] :: Translation vector (scaled with d):", np.array([t1, t2, 0]))
+    ##########################
+    # construct R' and t'
+    R_z = []
+    t_z = []
+
+    # wide and infrared
+    for (x1, y1), (x2, y2) in zip(ir_points_ir, vi_points_zoom):
+        R_z.append([x1, y1, 1, 0, 0, 0, -x2*x1, -x2*y1, -x2])
+        R_z.append([0, 0, 0, x1, y1, 1, -y2*x1, -y2*y1, -y2])
+        # R_z.append([0, 0, 0, 0, 0, 0, x1, y1, 1, -1*x1, -1*y1, -1])
+        # Removing the row associated with z coordinate transformation
+        # and setting R33 = 1, R31 = 0, R32 = 0, t3 = 0
+        # This results in R31, R32, t3 not appearing in the linear system
+
+        t_z.extend([x2, y2])
+
+    R_z = np.array(R_z)
+    t_z = np.array(t_z)
+
+    # solve for the parameters using least squares
+    params, _, _, _ = np.linalg.lstsq(R_z, t_z, rcond=None)
+
+    # extract the transformation matrix components
+    # Manually set R31=R32=0, R33=1
+    R11, R12, R13, R21, R22, R23, R31, R32, R33, t1, t2, t3 = np.append(params, [0, 0, 1])  
+      
+
+    print("[INFO] :: For infrared images to zoom images")
+    print("[INFO] :: Transform matrix:\n", np.array([[R11, R12, R13], [R21, R22, R23],
+                                                     [0, 0, 1]]))
+    print("[INFO] :: Translation vector (scaled with d):", np.array([t1, t2, 0]))
+
+# If not setting R31 = 0, R32 = 0, R33 = 1, t3 = 0 
+else:
+#######################
+    # construct R' and t'
+    R_w = []
+    t_w = []
+
+    # wide and infrared
+    for (x1, y1), (x2, y2) in zip(ir_points_ir, vi_points_wide):
+        R_w.append([x1, y1, 1, 0, 0, 0, 0, 0, 0, -x2*x1, -x2*y1, -x2])
+        R_w.append([0, 0, 0, x1, y1, 1, 0, 0, 0, -y2*x1, -y2*y1, -y2])
+        R_w.append([0, 0, 0, 0, 0, 0, x1, y1, 1, -1*x1, -1*y1, -1])
+        # Removing the row associated with z coordinate transformation
+        # and setting R33 = 1, R31 = 0, R32 = 0, t3 = 0
+        # This results in R31, R32, t3 not appearing in the linear system
+
+        t_w.extend([x2-1/d, y2-1/d, 1-1/d])
+
+    R_w = np.array(R_w)
+    t_w = np.array(t_w)
+
+    # solve for the parameters using least squares
+    params, _, _, _ = np.linalg.lstsq(R_w, t_w, rcond=None)
+
+    # extract the transformation matrix components
+    # Manually set R31=R32=0, R33=1
+    R11, R12, R13, R21, R22, R23, R31, R32, R33, t1, t2, t3 = params  
+
+    print("[INFO] :: For infrared images to wide images")
+    print("[INFO] :: Transform matrix:\n", np.array([[R11, R12, R13], [R21, R22, R23],
+                                                     [R31, R32, R33]]))
+    print("[INFO] :: Translation vector (scaled with d):", np.array([t1, t2, t3]))
+    ##########################
+    # construct R' and t'
+    R_z = []
+    t_z = []
+
+    # wide and infrared
+    for (x1, y1), (x2, y2) in zip(ir_points_ir, vi_points_zoom):
+        R_z.append([x1, y1, 1, 0, 0, 0, 0, 0, 0, -x2*x1, -x2*y1, -x2])
+        R_z.append([0, 0, 0, x1, y1, 1, 0, 0, 0, -y2*x1, -y2*y1, -y2])
+        R_z.append([0, 0, 0, 0, 0, 0, x1, y1, 1, -1*x1, -1*y1, -1])
+        # Removing the row associated with z coordinate transformation
+        # and setting R33 = 1, R31 = 0, R32 = 0, t3 = 0
+        # This results in R31, R32, t3 not appearing in the linear system
+
+        t_z.extend([x2-1/d, y2-1/d, 1-1/d])
+
+    R_z = np.array(R_z)
+    t_z = np.array(t_z)
+
+    # solve for the parameters using least squares
+    params, _, _, _ = np.linalg.lstsq(R_z, t_z, rcond=None)
+
+    # extract the transformation matrix components
+    # Manually set R31=R32=0, R33=1
+    R11, R12, R13, R21, R22, R23, R31, R32, R33, t1, t2, t3 = params  
+
+    print("[INFO] :: For infrared images to zoom images")
+    print("[INFO] :: Transform matrix:\n", np.array([[R11, R12, R13], [R21, R22, R23],
+                                                     [R31, R32, R33]]))
+    print("[INFO] :: Translation vector (scaled with d):", np.array([t1, t2, t3]))
 
 
