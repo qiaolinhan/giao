@@ -12,5 +12,5 @@ model_2022*
 *.pth
 *.avi
 *.mp4
-
+*.MP4
 Unet34 Experiment data process.ipynb

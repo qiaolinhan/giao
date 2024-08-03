@@ -27,7 +27,7 @@ def extract_pixel_values(json_file, image_file):
             label = shape['label']
 
             # get the pixel value at the point
-            value = image[x, y]
+            value = image[y, x]
 
             # append the label and pixel value
             # pixel_values.append([label, x, y, *value])
@@ -36,7 +36,7 @@ def extract_pixel_values(json_file, image_file):
     return pixel_values
 
 #############################         
-distance = 12 * 100 * 10 # m --> mm
+distance = 6 * 100 * 10 # m --> mm
 ir_image_file = './6m/0000_ir.png'
 wide_image_file = './6m/0000_wide.png'
 zoom_image_file = './6m/0000_zoom.png'
