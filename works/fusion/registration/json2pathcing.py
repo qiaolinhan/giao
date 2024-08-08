@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import least_squares
 from scipy.spatial.transform import Rotation as R
 import sys
+from sklearn.metrics import r2_score,mean_squared_log_error
 #############################
 # intrinsic parameters
 K_ir = np.array([
@@ -143,6 +144,54 @@ def iterative_refinement(initial_params,
         params = new_params
     return params
 
+# To predict the 3D points coordinates in infrared images
+def predict_ir_points(params, q_vi_set, d):
+    R_prime_main = params[:6].reshape(2, 3)
+    R_prime_bot = np.array([[0, 0, 1]])
+    R_prime = np.vstack((R_prime_main, R_prime_bot))
+    t_prime_main = params[6:].reshape(2, 1)
+    t_prime_bot = np.array([[0]])
+    t_prime = np.vstack((t_prime_main, t_prime_bot))
+
+    q_ir_hat_set = []
+    uv_ir_hat_set = []
+    for q_vi in zip(q_vi_set):
+        # transformed 1x3 --> 3x1
+        q_vi = np.array(q_vi).T
+
+        q_ir_hat = R_prime @ q_vi + (1 / d) * t_prime
+        q_ir_hat_set.append(q_ir_hat) 
+
+    return np.array(q_ir_hat_set)
+
+# To compute the evaluation metrics
+def evaluation(params, q_vi_set, q_ir_set, d):
+    # estimate the ir point coordinates (homonenous)
+    q_ir_hat_set = predict_ir_points(params, q_vi_set, d)
+    q_ir_hat_set = np.array(q_ir_hat_set)
+    # q_ir_hat_set = q_ir_hat_set.squeeze(axis=-1) 
+    # transform 14x2x1--> 14x2
+    q_ir_hat_set = q_ir_hat_set.reshape(q_ir_hat_set.shape[0], -1)
+    # print_data_info(q_ir_hat_set[:, :2])
+
+    q_ir_set = np.array(q_ir_set)
+    # print_data_info(q_ir_set[:, :2])
+
+    # # get the ir point coordinates
+    # uv_ir_set = q_ir_set[:2]
+    # uv_ir_set_list = [arr.tolist() for arr in uv_ir_set]
+
+    residual_set = q_ir_hat_set[:, :2] - q_ir_set[:, :2]
+    print_data_info(residual_set)
+
+    rss = np.sum(residual_set ** 2)
+    rmse = np.sqrt(np.mean(residual_set ** 2))
+    mae = np.mean(np.abs(residual_set))
+    r2 = r2_score(q_ir_set.flatten(), q_ir_hat_set.flatten())
+    msle = mean_squared_log_error(q_ir_set.flatten(), q_ir_hat_set.flatten())
+
+    return rss, rmse, mae, r2, msle
+
 # Function to print data and type
 def print_data_info(data):
     print("[INFO] :: Information of the data show as follows:\n")
@@ -195,7 +244,7 @@ while True:
     except ValueError:
         print("[INFO] :: Please enter a valid number.")
 
-distance = int(Distance) * 100 * 10 # m --> mm
+distance = int(Distance) * 100 * 100 # m --> mm
 d_str = str(Distance)
 pa_str = str(point_amount)
 ir_image_file = './checkboard/' + d_str + 'm/0000_ir.png'
@@ -254,6 +303,13 @@ d = depth
 depth_set = np.full((row_amount, 1), depth)
 q_ir_set = np.column_stack((ir_points, ones_column))
 q_vi_set = np.column_stack((vi_points, ones_column))
+
+uv_ir_set = q_ir_set[:2]
+# uv_ir_hat_set = q_ir_hat_set[:2]
+
+print("[INFO] :: uv_ir_set")
+print_data_info(uv_ir_set)
+
 K_ir_inv = np.linalg.inv(K_ir)
 K_vi_inv = np.linalg.inv(K_vi)
 #############################
@@ -286,19 +342,7 @@ while True:
                 ])
             print("Optimized R':\n", f"[[{R11}, {R12}, {R13}],\n [{R21}, {R22}, {R23}],\n [0.000, 0.000, 1.000]]")
             print("Optimized t':\n", f"[[{t1}],\n [{t2}],\n [0.000]]")
-            # R_prime = np.array([
-            #         [R11, R12, R13],
-            #         [R21, R22, R23],
-            #         [R31, R32, R33]
-            #     ])
-            # t_prime = np.array([
-            #         t1, t2, t3
-            #     ])
-            # print("Optimized R:\n", f"[[{R11}, {R12}, {R13}],\n [{R21}, {R22}, {R23}],\n [{R31}, {R32}, {R33}]]\n")
-            # print("Optimized t:\n", f"[[{t1}],\n [{t2}],\n [{t3}]]\n")
-           
-            alpha = float(input("[QUERY] :: Please specify alpha value for infrared image patching. (0 < alpha < 1):\n"))
-            ##########################
+             ##########################
             # # Huajun result
             # # Computed from MATLAB, 6m, Ready to use
             # R_prime = np.array  ([[0.7194,    0.0048, -370.2559],
@@ -306,6 +350,26 @@ while True:
             #                      [ 0,         0,    1.0000]])
             #
             # t_prime = np.array  ([6.1169, 18.9934, 0])
+           
+            # params_eval = []
+            # R_prime_flatten = R_prime.flatten()
+            # params_eval.append(R_prime_flatten)
+            # t_prime_flatten = t_prime.flatten()
+            # params_eval.append(t_prime_flatten)
+            
+            ##########################
+            # evaluations
+            rss, rmse, mae, r2, msle = evaluation(optimized_params, q_vi_set, q_ir_set, d)
+
+            print(f"RSS: {rss}")
+            print(f"RMSE: {rmse}")
+            print(f"MAE: {mae}")
+            print(f"R2: {r2}")
+            print(f"MSLE: {msle}")
+            
+            #########################
+            # Patching result part
+            alpha = float(input("[QUERY] :: Please specify alpha value for infrared image patching. (0 < alpha < 1):\n"))
 
             # Calculate the inverse matrix
             R_prime_inv = np.linalg.inv(R_prime)
@@ -324,6 +388,7 @@ while True:
             cv2.destroyAllWindows()
             break
 
+        # The K based scheme does not work well
         elif Avoi in ["no", "n"]:
             print("[INFO] :: Estimating R and t while using K_vi and K_ir")
             residuals = residuals_with_K
