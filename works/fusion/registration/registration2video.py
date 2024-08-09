@@ -8,12 +8,15 @@ import math
 
 #############################
 ##### Params to adjust
-alpha = 0.7
+alpha = 0.5
 ir_video_path = "./set3/ir_20240604.MP4"
 wide_video_path = "./set3/wide_20240604.MP4"
 zoom_video_path = "./set3/zoom_20240604.MP4"
 
-output_path = '15m_blend_wide.mp4'
+# ir_video_path = "./set3/15_T.MP4"
+# wide_video_path = "./set3/15_W.MP4"
+
+output_path = '12m_blend_wide.mp4'
 
 cap_ir = cv2.VideoCapture(ir_video_path)
 cap_vi = cv2.VideoCapture(wide_video_path) # wide/zoom
@@ -26,32 +29,58 @@ cap_vi = cv2.VideoCapture(wide_video_path) # wide/zoom
 #
 # t_prime = np.array([6.1169, 18.9934, 0])
 
-distance = 15 * 1000
-# # zoom <---> ir
+distance = 12
+# # zoom <---> ir, 12m
 # R_prime = np.array([
-#     [0.39736810838786757, 0.004310655569585121, -47.79727809898252],
-#     [-0.00627911525394201, 0.3786220554710437, 33.22929031768907],
-#     [0, 0, 1]
+#     [0.38711162594795556, 0.004771407855517256, -36.81910331340785],
+#     [-0.007726461324734653, 0.3892775375724707, 29.57225072650655],
+#     [0.000, 0.000, 1.000]
 #     ])
-# t_prime = np.array ([
-#     -168.48549151995718, -5.945557749661148, 0
+# t_prime = np.array([
+#     1.9597560410526582,
+#     218.59099225699518,
+#     0.000
 #     ])
+########################
+# [IMPORTANT] For indoor
 # wide <---> ir
+# R_prime = np.array([
+#    [0.7393831824732047, 0.007377260736396099, -393.8937141863329],
+#  [-0.017384336114754814, 0.7475328230776862, -155.40287561641583],
+#  [0.000, 0.000, 1.000] 
+#     ])
+# t_prime = np.array([
+#  15.863211885625805,
+#  43.15765165417564,
+#  0.000  ])
+##########################
+# Optimized R':
+#  [[0.7393831824732047, 0.007377260736396099, -393.8937141863329],
+#  [-0.017384336114754814, 0.7475328230776862, -155.40287561641583],
+#  [0.000, 0.000, 1.000]]
+# Optimized t':
+#  [[15.863211885625805],
+#  [43.15765165417564],
+#  [0.000]]
+##############################
+# [IMPORTANT] For outdoor
 R_prime = np.array([
-    [0.7479685738237563, 0.013424881602741103, -404.9740191363077],
-    [-0.013472686218325609, 0.7209636740568596, -141.2487787228108],
-    [0, 0, 1]
+    [0.7393831824732047, 0.007377260736396099, -393.8937141863329],
+    [-0.017384336114754814, 0.7475328230776862, -155.40287561641583],
+    [0.000, 0.000, 1.000]
     ])
 t_prime = np.array([
-    -269.1662934724526, 96.19960945255941, 0
-    ])
+    295.863211885625805,
+    268.15765165417564,
+    0.000   ])
 #############################
-d = math.sqrt(distance**2 - 1680**2)
+d = math.sqrt(distance**2 - 1.68**2)
 # Calculate the inverse matrix
 R_prime_inv = np.linalg.inv(R_prime)
 M = R_prime_inv
 # Handle the translation component and integrate it into the mapping matrix
 M[:, 2] -= (1 / d) * t_prime
+print("M:\n",M)
 ############################
 # Get the width, height, and frames per second (fps) of the video
 frame_width = int(cap_vi.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -91,7 +120,7 @@ while cap_ir.isOpened() and cap_vi.isOpened():
         break
 
 # Release resources
-cap1.release()
-cap2.release()
+cap_vi.release()
+cap_ir.release()
 out.release()
 cv2.destroyAllWindows()

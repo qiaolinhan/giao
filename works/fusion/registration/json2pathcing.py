@@ -21,12 +21,12 @@ K_ir = np.array([
         [0, 1051.80215540345, 341.579677246452],
         [0, 0, 1]
     ])
-# K_vi_wide = np.array([
-#         [2901.19910315714, 0, 940.239619965275],
-#         [0, 2893.75517626367, 618.475768281058],
-#         [0, 0, 1]
-#     ])
 K_vi_wide = np.array([
+        [2901.19910315714, 0, 940.239619965275],
+        [0, 2893.75517626367, 618.475768281058],
+        [0, 0, 1]
+    ])
+K_vi_zoom = np.array([
         [1484.39712549035,	0,	964.013870831680],
         [0,	1478.75546438438,	577.707036666613],
         [0,	0,	1]
@@ -244,7 +244,9 @@ while True:
     except ValueError:
         print("[INFO] :: Please enter a valid number.")
 
-distance = int(Distance) * 100 * 100 # m --> mm
+# distance = int(Distance) * 100 * 100 # m --> mm
+distance = int(Distance)
+
 d_str = str(Distance)
 pa_str = str(point_amount)
 ir_image_file = './checkboard/' + d_str + 'm/0000_ir.png'
@@ -263,7 +265,7 @@ row_amount = ir_pixel_values.shape[0]
 # print("[INFO] :: Wide pixel values:\n", wide_pixel_values)
 # print("[INFO] :: Zoom pixel values:\n", zoom_pixel_values)
 
-depth = math.sqrt(distance**2 - 1680**2)
+depth = math.sqrt(distance**2 - 1.68**2)
 print(f"[INFO] :: Selected dataset at distance: {Distance}m, 3D points amount: {point_amount}.")
 print(f'[INFO] :: Acquired the depth: {depth}')
 
